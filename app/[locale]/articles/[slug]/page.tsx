@@ -3,6 +3,7 @@ import { setRequestLocale } from "next-intl/server";
 import { client } from "@/lib/sanity/client";
 import { articleBySlugQuery } from "@/lib/sanity/queries";
 import ArticleReader from "@/components/ArticleReader";
+import { articleTitle } from "@/lib/articleTitle";
 import { notFound } from "next/navigation";
 
 export const revalidate = 3600;
@@ -47,7 +48,7 @@ export default async function ArticlePage({
   return (
     <div className="">
       <ArticleReader
-        title={article.title}
+        title={articleTitle(article.title)}
         subtitle={article.subtitle}
         body={article.body}
         author={article.author}

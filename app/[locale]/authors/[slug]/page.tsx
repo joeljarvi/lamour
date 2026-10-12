@@ -9,6 +9,7 @@ import SanityPortableText from "@/components/SanityPortableText";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { notFound } from "next/navigation";
+import { articleTitle } from "@/lib/articleTitle";
 
 export const revalidate = 3600;
 
@@ -99,7 +100,7 @@ export default async function AuthorPage({
                   className="group flex items-start justify-between border-b border-foreground/20 py-4 hover:px-4 transition-all duration-300"
                 >
                   <h3 className="font-baskerVilleOld text-2xl uppercase tracking-[0.15em] leading-relaxed group-hover:opacity-60 transition-opacity">
-                    {article.title}
+                    {articleTitle(article.title)}
                   </h3>
                   <div className="text-right shrink-0 ml-4">
                     <p className="font-baskervilleClassic italic text-sm tracking-wide text-foreground/60">

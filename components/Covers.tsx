@@ -6,6 +6,7 @@ import type { Issue } from "@/lib/contexts/IssuesContext";
 import type { Article } from "@/lib/contexts/ArticlesContext";
 import { urlFor } from "@/lib/sanity/image";
 import { getDimensions } from "@/lib/getDimensions";
+import { articleTitle } from "@/lib/articleTitle";
 
 const DEFAULT_DIMS = getDimensions();
 
@@ -69,13 +70,13 @@ export function ArticleFront({ article }: { article: Article }) {
         <Image
           src={src}
           fill
-          alt={article.coverImage?.alt ?? article.title}
+          alt={article.coverImage?.alt ?? articleTitle(article.title)}
           className="object-cover"
         />
       ) : (
         <div className="absolute inset-0 bg-foreground/10 flex flex-col justify-center items-center p-6">
           <span className="font-baskervilleSC text-center text-foreground lowercase text-lg tracking-widest leading-tight">
-            {article.title}
+            {articleTitle(article.title)}
           </span>
           {article.author && (
             <span className="font-baskervilleSC lowercase text-foreground/60 text-lg">

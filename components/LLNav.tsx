@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { motion, AnimatePresence } from "motion/react";
@@ -10,7 +10,9 @@ import { useArticles, type Article } from "@/lib/contexts/ArticlesContext";
 import { useCart } from "@/lib/contexts/CartContext";
 
 import { Link, usePathname } from "@/i18n/navigation";
+import type { Locale } from "@/i18n/routing";
 import { Button } from "./ui/button";
+import { articleTitle } from "@/lib/articleTitle";
 
 function useTypingAnimation(fullText: string, collapsed: boolean, speed = 70) {
   const [text, setText] = useState("");
@@ -29,6 +31,19 @@ function useTypingAnimation(fullText: string, collapsed: boolean, speed = 70) {
   return text;
 }
 
+// Language switch labels, in display order
+const LANGUAGES: { locale: Locale; label: string }[] = [
+  { locale: "sv", label: "SV" },
+  { locale: "en", label: "EN" },
+];
+
+// "/" only matches the home page; other links also match their sub-pages
+function isActive(pathname: string, href: string) {
+  return href === "/"
+    ? pathname === "/"
+    : pathname === href || pathname.startsWith(`${href}/`);
+}
+
 /* ─── ROW COMPONENTS ─── */
 
 function ArticleRow({
@@ -40,16 +55,16 @@ function ArticleRow({
 }) {
   return (
     <Button
-      variant="navLink"
-      size="navLinkMobile"
-      className="justify-center lg:justify-start text-center lg:text-left"
+      variant="link"
+      size="lg"
+      className=" leading-loose px-20    font-baskervilleNeoDisplay "
       asChild
     >
       <Link
         href={`/articles/${article.slug.current}`}
         onClick={() => setNavOpen(false)}
       >
-        {article.title}
+        <span className="min-w-0 truncate">{articleTitle(article.title)}</span>
       </Link>
     </Button>
   );
@@ -66,17 +81,19 @@ function IssueRow({
 }) {
   return (
     <Button
-      variant="navLink"
-      size="navLinkMobile"
-      className="justify-center lg:justify-start text-center lg:text-left"
+      variant="link"
+      size="lg"
+      className=" leading-loose px-20    font-baskervilleNeoDisplay "
       asChild
     >
       <Link
         href={`/shop/${issue.slug.current}`}
         onClick={() => setNavOpen(false)}
       >
-        <span className="shrink-0">LL{issue.issueNumber}</span>
-        {issue.title}
+        <span className="flex min-w-0 gap-2 normal-case">
+          <span className="shrink-0">LL{issue.issueNumber}</span>
+          <span className="min-w-0 truncate">{issue.title}</span>
+        </span>
       </Link>
     </Button>
   );
@@ -89,12 +106,61 @@ function ArticleSubMenu({
 }: {
   setNavOpen: (open: boolean) => void;
 }) {
-  const { articles } = useArticles();
+  const { articles, series } = useArticles();
   const t = useTranslations("Nav");
+  const [openSeries, setOpenSeries] = useState<string | null>(null);
+
+  // Series that have articles, each with its articles; then the rest
+  const seriesGroups = series
+    .map((s) => ({
+      series: s,
+      articles: articles.filter(
+        (a) => a.series?.slug.current === s.slug.current,
+      ),
+    }))
+    .filter((g) => g.articles.length > 0);
+  const standalone = articles.filter((a) => !a.series);
+
   return (
-    <div className="flex flex-col items-start justify-start whitespace-normal w-full max-h-[60vh] overflow-y-auto">
+    <div className="flex flex-col items-start justify-start whitespace-normal w-full border-b border-b-foreground">
       <div className="flex flex-col w-full">
-        {articles.map((article) => (
+        {seriesGroups.map(({ series: s, articles: seriesArticles }) => {
+          const isOpen = openSeries === s._id;
+          return (
+            <div key={s._id} className="flex flex-col w-full ">
+              <Button
+                variant="link"
+                size="lg"
+                className="font-baskervilleNeoDisplay  pl-12 pr-6 aria-expanded:pl-18"
+                aria-expanded={isOpen}
+                onClick={() => setOpenSeries(isOpen ? null : s._id)}
+              >
+                <span className="min-w-0 truncate">{s.title}</span>
+              </Button>
+              <AnimatePresence>
+                {isOpen && (
+                  <motion.div
+                    className="flex flex-col  w-full overflow-hidden"
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.25, ease: "easeOut" }}
+                  >
+                    {seriesArticles.map((article) => (
+                      <ArticleRow
+                        key={article._id}
+                        article={article}
+                        setNavOpen={setNavOpen}
+                      />
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          );
+        })}
+
+        {standalone.map((article) => (
           <ArticleRow
             key={article._id}
             article={article}
@@ -103,8 +169,9 @@ function ArticleSubMenu({
         ))}
 
         <Button
-          variant="navLink"
-          className="justify-center lg:justify-start"
+          variant="outline"
+          size="sm"
+          className=" justify-center "
           onClick={() => setNavOpen(false)}
         >
           {t("readAll")}
@@ -119,7 +186,7 @@ function ShopSubMenu({ setNavOpen }: { setNavOpen: (v: boolean) => void }) {
   const { addToCart, setDrawerOpen } = useCart();
   const t = useTranslations("Nav");
   return (
-    <div className="flex flex-col items-start justify-start whitespace-normal w-full max-h-[60vh] overflow-y-auto">
+    <div className="flex flex-col items-start justify-start whitespace-normal w-full border-b border-b-foreground">
       <div className="flex flex-col w-full">
         {issues.map((issue) => (
           <IssueRow
@@ -131,8 +198,9 @@ function ShopSubMenu({ setNavOpen }: { setNavOpen: (v: boolean) => void }) {
         ))}
 
         <Button
-          variant="navLink"
-          className="justify-center lg:justify-start"
+          variant="outline"
+          size="sm"
+          className=" justify-center "
           onClick={() => {
             setDrawerOpen(true);
             setNavOpen(false);
@@ -174,7 +242,7 @@ function NavOverlay({
     <AnimatePresence>
       {navOpen && (
         <motion.ul
-          className="flex flex-col w-full justify-start items-start font-baskerville mt-24 lg:mt-0  py-0 list-none gap-y-2"
+          className="flex flex-col w-full justify-start items-start font-baskerville   py-0 list-none gap-y-2"
           initial="hidden"
           animate="visible"
           exit="hidden"
@@ -185,19 +253,16 @@ function NavOverlay({
         >
           <motion.li className="w-full" variants={ITEM_VARIANTS}>
             <Button
-              variant="navLink"
-              className="justify-center lg:justify-between pr-4"
+              variant="link"
+              size="lg"
+              aria-expanded={openShopSubMenu}
+              aria-current={isActive(pathname, "/shop") ? "page" : undefined}
               onClick={() => {
                 setOpenShopSubMenu(!openShopSubMenu);
                 setOpenArticleSubMenu(false);
               }}
             >
               {t("allIssues")}
-              <span
-                className={`transition-transform duration-200 absolute right-6  ${openShopSubMenu ? "rotate-0" : "-rotate-90"}`}
-              >
-                V
-              </span>
             </Button>
             <AnimatePresence>
               {openShopSubMenu && <ShopSubMenu setNavOpen={setNavOpen} />}
@@ -206,19 +271,18 @@ function NavOverlay({
 
           <motion.li className="w-full" variants={ITEM_VARIANTS}>
             <Button
-              variant="navLink"
-              className="justify-center lg:justify-between pr-4"
+              variant="link"
+              size="lg"
+              aria-expanded={openArticleSubMenu}
+              aria-current={
+                isActive(pathname, "/articles") ? "page" : undefined
+              }
               onClick={() => {
                 setOpenArticleSubMenu(!openArticleSubMenu);
                 setOpenShopSubMenu(false);
               }}
             >
               {t("allArticles")}
-              <span
-                className={`transition-transform duration-200 absolute right-6 ${openArticleSubMenu ? "rotate-0" : "-rotate-90"}`}
-              >
-                V
-              </span>
             </Button>
             <AnimatePresence>
               {openArticleSubMenu && <ArticleSubMenu setNavOpen={setNavOpen} />}
@@ -232,32 +296,37 @@ function NavOverlay({
             { label: t("nextIssue"), href: "/" },
           ].map(({ label, href }) => (
             <motion.li key={label} className="w-full" variants={ITEM_VARIANTS}>
-              <Button
-                variant="navLink"
-                className="justify-center lg:justify-start"
-                asChild
-              >
-                <Link href={href} onClick={() => setNavOpen(false)}>
+              <Button variant="link" size="lg" className=" " asChild>
+                <Link
+                  href={href}
+                  aria-current={isActive(pathname, href) ? "page" : undefined}
+                  onClick={() => setNavOpen(false)}
+                >
                   {label}
                 </Link>
               </Button>
             </motion.li>
           ))}
 
-          <motion.li className="w-full" variants={ITEM_VARIANTS}>
-            <Button
-              variant="navLink"
-              className="justify-center lg:justify-start"
-              asChild
-            >
-              <Link
-                href={pathname}
-                locale={locale === "en" ? "sv" : "en"}
-                onClick={() => setNavOpen(false)}
-              >
-                {t("switchLanguage")}
-              </Link>
-            </Button>
+          <motion.li
+            className="w-full flex items-baseline justify-start gap-8 p-4"
+            variants={ITEM_VARIANTS}
+          >
+            {LANGUAGES.map(({ locale: l, label }, i) => (
+              <Fragment key={l}>
+                {i > 0 && "/"}
+                <Button variant="link" size="sm" className="w-min" asChild>
+                  <Link
+                    href={pathname}
+                    locale={l}
+                    aria-current={l === locale ? "page" : undefined}
+                    onClick={() => setNavOpen(false)}
+                  >
+                    {label}
+                  </Link>
+                </Button>
+              </Fragment>
+            ))}
           </motion.li>
         </motion.ul>
       )}
@@ -292,7 +361,7 @@ export default function LLNav() {
   return (
     <div
       className={`fixed top-0 left-0 right-0 z-50 flex flex-col transition-colors duration-500
-        ${navOpen ? "min-h-dvh bg-yellow-50" : "h-14 lg:h-16"}`}
+        ${navOpen ? "h-dvh bg-yellow-50" : "h-14 lg:h-16"}`}
     >
       {/* ── HEADER ── */}
       <div
@@ -309,12 +378,13 @@ export default function LLNav() {
         </Link>
 
         {/* Menu button — mobile only */}
-        <button
+        <Button
           onClick={() => setNavOpen((v) => !v)}
-          className="lg:hidden flex items-center gap-x-1 font-baskervilleNeoText text-base  hover:opacity-60 transition-opacity shrink-0"
+          variant="outline"
+          className="fixed bottom-2 left-2 right-2 w-auto  lg:hidden flex "
         >
           Menu
-        </button>
+        </Button>
 
         {/* Desktop horizontal nav links + controls */}
         <nav className="hidden lg:flex items-center justify-end gap-x-1 w-full">
@@ -324,13 +394,13 @@ export default function LLNav() {
             { label: t("about"), href: "/" },
             { label: t("subscribe"), href: "/" },
           ].map(({ label, href }) => (
-            <Button
-              key={label}
-              variant="navLinkDesktop"
-              size="navLinkDesktop"
-              asChild
-            >
-              <Link href={href}>{label}</Link>
+            <Button key={label} variant="link" size="lg" asChild>
+              <Link
+                href={href}
+                aria-current={isActive(pathname, href) ? "page" : undefined}
+              >
+                {label}
+              </Link>
             </Button>
           ))}
           <Button variant="navLinkDesktop" size="navLinkDesktop" asChild>
@@ -358,7 +428,7 @@ export default function LLNav() {
 
       {/* ── NAV OVERLAY (mobile) ── */}
       <div
-        className={`flex flex-col flex-1 overflow-y-auto lg:hidden ${navOpen ? "" : "hidden"}`}
+        className={`flex flex-col flex-1 min-h-0 overflow-y-auto overscroll-contain lg:hidden ${navOpen ? "" : "hidden"}`}
       >
         <NavOverlay
           navOpen={navOpen}

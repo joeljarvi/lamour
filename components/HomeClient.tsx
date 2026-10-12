@@ -23,7 +23,7 @@ function Hero({
   const dims = getDimensions(issue.dimensions);
 
   return (
-    <section className="w-full h-dvh flex flex-col items-center justify-center pt-8 bg-yellow-50">
+    <section className="relative w-full h-dvh flex flex-col items-center justify-center pt-8 bg-yellow-50">
       <Link
         href={`/shop/${issue.slug.current}`}
         onClick={(e) => {
@@ -42,6 +42,9 @@ function Hero({
           className="object-object-contain"
         />
       </Link>
+      <div className="absolute left-0 top-0 inset-0 h-screen w-full bg-transparent z-40">
+        <h2 className="font-baskervilleNeoDisplay">Nytt nummer ute nu!</h2>
+      </div>
     </section>
   );
 }
