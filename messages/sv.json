@@ -9,7 +9,12 @@
     "readAll": "läs alla",
     "toCheckout": "till kassan",
     "openCart": "Öppna korg",
-    "switchLanguage": "English"
+    "switchLanguage": "English",
+    "home": "Hem",
+    "issues": "Nummer",
+    "articles": "Artiklar",
+    "login": "Logga in",
+    "cart": "Varukorg ({count})"
   },
   "Cart": {
     "title": "korg ({count})",

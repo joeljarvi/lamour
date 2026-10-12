@@ -9,7 +9,12 @@
     "readAll": "read all",
     "toCheckout": "to checkout",
     "openCart": "Open cart",
-    "switchLanguage": "Svenska"
+    "switchLanguage": "Svenska",
+    "home": "Home",
+    "issues": "Issues",
+    "articles": "Articles",
+    "login": "Log in",
+    "cart": "Cart ({count})"
   },
   "Cart": {
     "title": "cart ({count})",

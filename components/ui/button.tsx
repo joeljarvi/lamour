@@ -27,7 +27,7 @@ const buttonVariants = cva(
       size: {
         default:
           "h-14 lg:h-20   has-[>svg]:px-3 uppercase font-universTypewriter text-base lg:text-sm hover:text-foreground/80 cursor-pointer ",
-        xs: "h-6 gap-1 rounded-md px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
+        xs: "h-6  gap-1 justify-start rounded-none font-universTypewriter uppercase px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
         sm: " text-sm font-universTypewriter uppercase has-[>svg]:px-3 px-4 justify-start h-12 gap-x-4  ",
         lg: "h-14 font-baskervilleNeoDisplay  px-6 has-[>svg]:px-4 justify-between w-full text-xl border-b border-b-foreground ",
         icon: "size-9",
@@ -47,13 +47,14 @@ const buttonVariants = cva(
       },
     },
     compoundVariants: [
-      // Pointing hand after the active link (aria-current="page") or an open
-      // submenu toggle (aria-expanded="true")
+      // Pointing hand after the link, faded in on hover, on the active link
+      // (aria-current="page") and on an open submenu toggle (aria-expanded="true").
+      // Always rendered so its space is reserved and the label doesn't shift.
       {
         variant: "link",
-        size: ["lg", "sm"],
+        size: ["lg", "sm", "xs"],
         class:
-          "aria-[current=page]:after:content-['☜'] aria-expanded:after:content-['☜'] after:ml-2 after:font-baskervilleNeoDisplay",
+          "after:content-['☜'] after:ml-2 after:font-baskervilleNeoDisplay after:opacity-0 after:transition-opacity after:duration-300 after:ease-out hover:after:opacity-100 focus-visible:after:opacity-100 aria-[current=page]:after:opacity-100 aria-expanded:after:opacity-100",
       },
     ],
     defaultVariants: {

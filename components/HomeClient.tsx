@@ -42,9 +42,6 @@ function Hero({
           className="object-object-contain"
         />
       </Link>
-      <div className="absolute left-0 top-0 inset-0 h-screen w-full bg-transparent z-40">
-        <h2 className="font-baskervilleNeoDisplay">Nytt nummer ute nu!</h2>
-      </div>
     </section>
   );
 }
