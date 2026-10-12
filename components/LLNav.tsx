@@ -301,7 +301,7 @@ export default function LLNav() {
         {/* Logo — centered on mobile, left on desktop */}
         <Link
           href="/"
-          className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 flex items-center gap-2  font-baskervilleNeoText text-xl lg:text-lg  h-12 px-6 
+          className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 flex items-center gap-2  font-baskervilleNeoText text-base lg:text-lg  h-12 px-6 
        
           hover:opacity-60 transition-opacity whitespace-nowrap"
         >
@@ -311,7 +311,7 @@ export default function LLNav() {
         {/* Menu button — mobile only */}
         <button
           onClick={() => setNavOpen((v) => !v)}
-          className="lg:hidden flex items-center gap-x-1 font-baskervilleNeoText text-lg tracking-wide  hover:opacity-60 transition-opacity shrink-0"
+          className="lg:hidden flex items-center gap-x-1 font-baskervilleNeoText text-base  hover:opacity-60 transition-opacity shrink-0"
         >
           Menu
         </button>
@@ -347,7 +347,7 @@ export default function LLNav() {
             onClick={() => setDrawerOpen(true)}
             aria-label={t("openCart")}
           >
-            <span className="flex items-center gap-x-3 font-baskervilleSC text-lg lowercase tracking-widest">
+            <span className="flex items-center gap-x-3 font-baskervilleNeoText text-base lowercase tracking-widest">
               {"("}
               {totalItems}
               {")"}
@@ -380,7 +380,7 @@ export default function LLNav() {
           onClick={() => setDrawerOpen(true)}
           aria-label={t("openCart")}
         >
-          <span className="flex font-baskervilleNeoText text-lg ">
+          <span className="flex font-baskervilleNeoText text-base ">
             <span className="flex items-center gap-x-3">
               {"("}
               {totalItems}
