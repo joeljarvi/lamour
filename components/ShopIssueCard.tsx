@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import IssueCard from "@/components/IssueCard";
 import { type Issue } from "@/lib/contexts/IssuesContext";
 

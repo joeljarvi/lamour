@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import { urlFor } from "@/lib/sanity/image";
 import { useCart } from "@/lib/contexts/CartContext";
@@ -9,6 +9,7 @@ import { type Issue } from "@/lib/contexts/IssuesContext";
 import SanityPortableText from "@/components/SanityPortableText";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
+import { useTranslations } from "next-intl";
 
 type ImageItem = { asset: any; alt?: string; _key?: string };
 
@@ -25,6 +26,7 @@ function Lightbox({
   onPrev: () => void;
   onNext: () => void;
 }) {
+  const t = useTranslations("Issue");
   const img = images[index];
   return (
     <motion.div
@@ -39,7 +41,7 @@ function Lightbox({
         className="absolute top-4 right-6 font-baskervilleSC text-white text-2xl tracking-widest lowercase"
         onClick={onClose}
       >
-        stäng
+        {t("close")}
       </button>
 
       {img?.asset && (
@@ -93,6 +95,7 @@ export default function IssueCard({
   issue: Issue | null;
   onClose: () => void;
 }) {
+  const t = useTranslations("Issue");
   const { addToCart, setDrawerOpen } = useCart();
   const [openShopInfo, setOpenShopInfo] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
@@ -279,7 +282,7 @@ export default function IssueCard({
                     className="font-baskervilleSC flex items-center justify-center w-full h-auto"
                     onClick={() => setLightboxIndex(0)}
                   >
-                    See all images
+                    {t("seeAllImages")}
                   </Button>
                 </div>
                 <div className="flex lg:hidden flex-col bg-background w-full gap-4 px-4 pt-4 pb-6 shadow-md">
@@ -299,7 +302,7 @@ export default function IssueCard({
                     className="disabled:opacity-30 shadow-none bg-neutral-300 disabled:cursor-not-allowed w-full"
                     onClick={handleAddToCart}
                   >
-                    {issue.inStock === false ? "slutsåld" : "Lägg i korg"}
+                    {issue.inStock === false ? t("soldOut") : t("addToCart")}
                   </Button>
                 </div>
                 <div className="relative w-full hidden lg:block lg:w-1/2">
@@ -338,10 +341,10 @@ export default function IssueCard({
                     }}
                   >
                     {issue.inStock === false
-                      ? "slutsåld"
+                      ? t("soldOut")
                       : openShopInfo
-                        ? "lägg i korg"
-                        : "Köp nu"}
+                        ? t("addToCart")
+                        : t("buyNow")}
                   </Button>
                 </div>
               </div>

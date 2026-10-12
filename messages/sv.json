@@ -1,0 +1,40 @@
+{
+  "Nav": {
+    "allIssues": "Alla nummer",
+    "allArticles": "Alla artiklar",
+    "about": "Om oss",
+    "subscribe": "Prenumerera",
+    "contact": "Kontakt",
+    "nextIssue": "Nästa nummer",
+    "readAll": "läs alla",
+    "toCheckout": "till kassan",
+    "openCart": "Öppna korg",
+    "switchLanguage": "English"
+  },
+  "Cart": {
+    "title": "korg ({count})",
+    "close": "stäng (x)",
+    "closeLabel": "Stäng korg",
+    "empty": "Korgen är tom.",
+    "remove": "Ta bort {title}",
+    "subtotal": "Summa",
+    "checkout": "Till kassan",
+    "clear": "(Töm korg)"
+  },
+  "Issue": {
+    "close": "stäng",
+    "seeAllImages": "Se alla bilder",
+    "soldOut": "slutsåld",
+    "addToCart": "lägg i korg",
+    "buyNow": "Köp nu"
+  },
+  "Article": {
+    "close": "stäng",
+    "interview": "intervju",
+    "fromIssue": "ur: LL#{number} — {title}"
+  },
+  "Author": {
+    "backToArticles": "← Artiklar",
+    "articles": "Artiklar"
+  }
+}

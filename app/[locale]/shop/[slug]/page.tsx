@@ -1,3 +1,5 @@
+import type { Locale } from "next-intl";
+import { setRequestLocale } from "next-intl/server";
 import { client } from "@/lib/sanity/client";
 import { issueBySlugQuery, issuesQuery } from "@/lib/sanity/queries";
 import { notFound } from "next/navigation";
@@ -18,9 +20,10 @@ export async function generateStaticParams() {
 export default async function IssuePage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }) {
-  const { slug } = await params;
+  const { locale, slug } = await params;
+  setRequestLocale(locale as Locale);
   let issue: Issue | null = null;
   try {
     issue = await client.fetch(issueBySlugQuery, { slug });

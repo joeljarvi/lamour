@@ -1,5 +1,6 @@
 import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
+import { routing } from "@/i18n/routing";
 
 export async function POST(request: NextRequest) {
   const secret = request.headers.get("x-webhook-secret");
@@ -18,17 +19,24 @@ export async function POST(request: NextRequest) {
   const type = body._type;
   const slug = body.slug?.current;
 
+  // Pages live under app/[locale], so revalidate each locale's copy
+  const revalidate = (path: string) =>
+    routing.locales.forEach((locale) =>
+      revalidatePath(`/${locale}${path === "/" ? "" : path}`),
+    );
+
   if (type === "issue") {
-    revalidatePath("/shop");
-    if (slug) revalidatePath(`/shop/${slug}`);
+    revalidate("/shop");
+    if (slug) revalidate(`/shop/${slug}`);
   } else if (type === "article") {
-    revalidatePath("/articles");
-    if (slug) revalidatePath(`/articles/${slug}`);
+    revalidate("/articles");
+    if (slug) revalidate(`/articles/${slug}`);
   } else if (type === "author") {
-    if (slug) revalidatePath(`/authors/${slug}`);
+    if (slug) revalidate(`/authors/${slug}`);
   } else {
-    revalidatePath("/");
+    revalidate("/");
   }
+
 
   return NextResponse.json({ revalidated: true, type, slug });
 }

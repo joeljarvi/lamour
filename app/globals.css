@@ -28,6 +28,9 @@
   --font-baskervilleClassic: var(--font-baskervilleClassic);
   --font-baskervilleSC: var(--font-baskervilleSC);
   --font-universTypewriter: var(--font-univers-tw);
+  --font-johnSans: var(--font-john-sans);
+  --font-baskervilleNeoDisplay: var(--font-baskerville-neo-display);
+  --font-baskervilleNeoText: var(--font-baskerville-neo-text);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);

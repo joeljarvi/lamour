@@ -1,3 +1,5 @@
+import type { Locale } from "next-intl";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { client } from "@/lib/sanity/client";
 import { authorBySlugQuery } from "@/lib/sanity/queries";
 import { urlFor } from "@/lib/sanity/image";
@@ -5,7 +7,7 @@ import LogoNav from "@/components/LogoNav";
 import LLNav from "@/components/LLNav";
 import SanityPortableText from "@/components/SanityPortableText";
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { notFound } from "next/navigation";
 
 export const revalidate = 3600;
@@ -24,9 +26,9 @@ type Author = {
   }>;
 };
 
-function formatDate(dateStr?: string) {
+function formatDate(locale: string, dateStr?: string) {
   if (!dateStr) return null;
-  return new Date(dateStr).toLocaleDateString("sv-SE", {
+  return new Date(dateStr).toLocaleDateString(locale === "sv" ? "sv-SE" : "en-GB", {
     year: "numeric",
     month: "long",
   });
@@ -35,9 +37,11 @@ function formatDate(dateStr?: string) {
 export default async function AuthorPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }) {
-  const { slug } = await params;
+  const { locale, slug } = await params;
+  setRequestLocale(locale as Locale);
+  const t = await getTranslations("Author");
   let author: Author | null = null;
   try {
     author = await client.fetch(authorBySlugQuery, { slug });
@@ -56,7 +60,7 @@ export default async function AuthorPage({
           href="/articles"
           className="font-baskerVilleOld text-xl tracking-widest text-foreground/40 hover:text-foreground transition-colors mb-10 inline-block"
         >
-          ← Artiklar
+          {t("backToArticles")}
         </Link>
 
         <div className="flex flex-col md:flex-row gap-10 mb-16">
@@ -85,7 +89,7 @@ export default async function AuthorPage({
         {author.articles && author.articles.length > 0 && (
           <div>
             <h2 className="font-baskerVilleOld text-2xl uppercase tracking-[0.25em] border-b border-foreground pb-2 mb-6">
-              Artiklar
+              {t("articles")}
             </h2>
             <div className="flex flex-col gap-0">
               {author.articles.map((article) => (
@@ -99,7 +103,7 @@ export default async function AuthorPage({
                   </h3>
                   <div className="text-right shrink-0 ml-4">
                     <p className="font-baskervilleClassic italic text-sm tracking-wide text-foreground/60">
-                      {formatDate(article.publishedAt)}
+                      {formatDate(locale, article.publishedAt)}
                     </p>
                     {article.issue && (
                       <p className="font-mono text-xs text-foreground/40 tracking-widest">

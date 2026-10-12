@@ -1,0 +1,40 @@
+{
+  "Nav": {
+    "allIssues": "All issues",
+    "allArticles": "All articles",
+    "about": "About",
+    "subscribe": "Subscribe",
+    "contact": "Contact",
+    "nextIssue": "Next issue",
+    "readAll": "read all",
+    "toCheckout": "to checkout",
+    "openCart": "Open cart",
+    "switchLanguage": "Svenska"
+  },
+  "Cart": {
+    "title": "cart ({count})",
+    "close": "close (x)",
+    "closeLabel": "Close cart",
+    "empty": "Your cart is empty.",
+    "remove": "Remove {title}",
+    "subtotal": "Subtotal",
+    "checkout": "Checkout",
+    "clear": "(Empty cart)"
+  },
+  "Issue": {
+    "close": "close",
+    "seeAllImages": "See all images",
+    "soldOut": "sold out",
+    "addToCart": "add to cart",
+    "buyNow": "Buy now"
+  },
+  "Article": {
+    "close": "close",
+    "interview": "interview",
+    "fromIssue": "from: LL#{number} — {title}"
+  },
+  "Author": {
+    "backToArticles": "← Articles",
+    "articles": "Articles"
+  }
+}

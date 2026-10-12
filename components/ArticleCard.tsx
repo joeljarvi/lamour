@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import type { Article } from "@/lib/contexts/ArticlesContext";
 
 const SPINE_HEIGHTS = [

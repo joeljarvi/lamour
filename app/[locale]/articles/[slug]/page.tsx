@@ -1,3 +1,5 @@
+import type { Locale } from "next-intl";
+import { setRequestLocale } from "next-intl/server";
 import { client } from "@/lib/sanity/client";
 import { articleBySlugQuery } from "@/lib/sanity/queries";
 import ArticleReader from "@/components/ArticleReader";
@@ -28,9 +30,10 @@ type Article = {
 export default async function ArticlePage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }) {
-  const { slug } = await params;
+  const { locale, slug } = await params;
+  setRequestLocale(locale as Locale);
 
   let article: Article | null = null;
   try {

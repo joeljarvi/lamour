@@ -5,8 +5,9 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { ScrollContainerContext } from "@/lib/ScrollContainerContext";
 import SanityPortableText from "@/components/SanityPortableText";
 import { urlFor } from "@/lib/sanity/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 
 type ArticleReaderProps = {
   title: string;
@@ -36,6 +37,7 @@ export default function ArticleReader({
   coverImage,
   category,
 }: ArticleReaderProps) {
+  const t = useTranslations("Article");
   const scrollRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -55,7 +57,7 @@ export default function ArticleReader({
                 <span>A</span>
                 {"}"}
               </div>
-              <span>{category === "interview" ? "intervju" : category}</span>
+              <span>{category === "interview" ? t("interview") : category}</span>
             </div>
           )}
           {issue && (
@@ -69,7 +71,7 @@ export default function ArticleReader({
                   <span>I</span>
                   {"}"}
                 </div>
-                ur: LL#{issue.issueNumber} — {issue.title}
+                {t("fromIssue", { number: issue.issueNumber, title: issue.title })}
               </Link>
             </div>
           )}
@@ -83,7 +85,7 @@ export default function ArticleReader({
               <span>X</span>
               {"}"}
             </div>
-            <span>stäng</span>
+            <span>{t("close")}</span>
           </Link>
         </div>
       </div>
