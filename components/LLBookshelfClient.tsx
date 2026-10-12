@@ -24,12 +24,18 @@ async function runPhysicsFall(container: HTMLElement): Promise<() => void> {
 
   const vh = window.innerHeight;
   const FLOOR_Y = 0;
+  const BODY_HEIGHT = 160;
+  const FLOOR_THICKNESS = 16;
   const engine = Matter.Engine.create({ gravity: { y: 2, x: 0 } });
-  const floor = Matter.Bodies.rectangle(500, FLOOR_Y, 1_000_000, 16, {
-    isStatic: true,
-  });
+  const floor = Matter.Bodies.rectangle(
+    500,
+    BODY_HEIGHT / 2 + FLOOR_THICKNESS / 2,
+    1_000_000,
+    FLOOR_THICKNESS,
+    { isStatic: true },
+  );
   const bodies = items.map((_, i) =>
-    Matter.Bodies.rectangle(i * 80, -(vh * 0.5 + i * 60), 60, 160, {
+    Matter.Bodies.rectangle(i * 80, -(vh * 0.5 + i * 60), 60, BODY_HEIGHT, {
       restitution: 0.25,
       frictionAir: 0.04,
     }),
@@ -478,7 +484,7 @@ function HomeShelf() {
           (containerRef as { current: HTMLDivElement | null }).current = el;
           physicsRef.current = el;
         }}
-        className="flex flex-col items-center justify-end w-full px-0 mt-14 lg:mt-0 lg:ml-14 bg-neutral-300 min-h-dvh pb-16 lg:pb-0 lg:flex-row lg:items-end lg:justify-start lg:min-h-0 lg:h-dvh lg:overflow-x-auto"
+        className="flex flex-col items-center justify-end w-full px-0 mt-14 lg:mt-0  bg-neutral-300 min-h-dvh pb-16 lg:pb-0 lg:flex-row lg:items-end lg:justify-start lg:min-h-0 lg:h-screen lg:overflow-x-auto"
       >
         {latestIssue && (
           <IssueFront

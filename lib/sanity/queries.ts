@@ -64,11 +64,13 @@ export const articlesQuery = groq`*[_type == "article"] | order(coalesce(publish
 export const articleBySlugQuery = groq`*[_type == "article" && slug.current == $slug][0] {
   _id,
   title,
+  subtitle,
   slug,
   "author": author->{name, slug, image, bio},
   "issue": issue->{title, issueNumber, slug},
-  "series": series->{title, slug},
+  "series": series->{title, slug, coverImage { asset->, alt }},
   body,
+  category,
   publishedAt,
   coverImage { asset->, alt }
 }`;

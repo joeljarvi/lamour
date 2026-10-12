@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useBookshelfSettings } from "@/lib/contexts/BookshelfSettingsContext";
 
@@ -12,6 +12,23 @@ import { useCart } from "@/lib/contexts/CartContext";
 
 import Link from "next/link";
 import { Button } from "./ui/button";
+
+function useTypingAnimation(fullText: string, collapsed: boolean, speed = 70) {
+  const [text, setText] = useState("");
+  useEffect(() => {
+    const target = collapsed ? fullText[0] : fullText;
+    if (text === target) return;
+    const timer = setTimeout(() => {
+      setText((prev) =>
+        prev.length < target.length
+          ? fullText.slice(0, prev.length + 1)
+          : prev.slice(0, -1),
+      );
+    }, speed);
+    return () => clearTimeout(timer);
+  }, [text, collapsed, fullText, speed]);
+  return text;
+}
 
 /* ─── ROW COMPONENTS ─── */
 
@@ -87,7 +104,6 @@ function ArticleSubMenu({
 
         <Button
           variant="navLink"
-          size="navLink"
           className="justify-center lg:justify-start"
           onClick={() => setNavOpen(false)}
         >
@@ -115,7 +131,6 @@ function ShopSubMenu({ setNavOpen }: { setNavOpen: (v: boolean) => void }) {
 
         <Button
           variant="navLink"
-          size="navLink"
           className="justify-center lg:justify-start"
           onClick={() => {
             setDrawerOpen(true);
@@ -167,7 +182,6 @@ function NavOverlay({
           <motion.li className="w-full" variants={ITEM_VARIANTS}>
             <Button
               variant="navLink"
-              size="navLink"
               className="justify-center lg:justify-between pr-4"
               onClick={() => {
                 setOpenShopSubMenu(!openShopSubMenu);
@@ -189,7 +203,6 @@ function NavOverlay({
           <motion.li className="w-full" variants={ITEM_VARIANTS}>
             <Button
               variant="navLink"
-              size="navLink"
               className="justify-center lg:justify-between pr-4"
               onClick={() => {
                 setOpenArticleSubMenu(!openArticleSubMenu);
@@ -217,7 +230,6 @@ function NavOverlay({
             <motion.li key={label} className="w-full" variants={ITEM_VARIANTS}>
               <Button
                 variant="navLink"
-                size="navLink"
                 className="justify-center lg:justify-start"
                 asChild
               >
@@ -247,9 +259,17 @@ export default function LLNav() {
     showArticles,
     setShowArticles,
   } = useBookshelfSettings();
-  const { articles } = useArticles();
-  const issues = useIssues();
-  const { totalItems, setDrawerOpen, addToCart } = useCart();
+  const { totalItems, setDrawerOpen } = useCart();
+
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 0);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const lamourText = useTypingAnimation("L'Amour", scrolled);
+  const lamortText = useTypingAnimation("La Mort", scrolled);
 
   const isGridPage = pathname === "/shop" || pathname === "/articles";
   const modeLabel = mode === "bak" ? "baksida" : "framsida";
@@ -262,84 +282,83 @@ export default function LLNav() {
 
   return (
     <div
-      className={`fixed top-0 left-0 z-50 flex flex-col transition-colors duration-500 group lg:w-14 lg:h-dvh lg:min-h-0
-        ${navOpen ? "w-full min-h-dvh bg-background" : "w-full h-16 "}`}
+      className={`fixed top-0 left-0 right-0 z-50 flex flex-col transition-colors duration-500
+        ${navOpen ? "min-h-dvh bg-background" : "h-14 lg:h-16"}`}
     >
-      {/* ── MOBILE HEADER ── */}
+      {/* ── HEADER ── */}
       <div
-        className={`lg:hidden flex items-center shadow w-full shrink-0 h-14 px-4 transition-colors duration-200 ${navOpen ? "bg-transparent" : "bg-background"}`}
+        className={`relative flex items-center w-full shrink-0 h-14 lg:h-16 px-4 lg:px-8 transition-colors duration-200 ${navOpen ? "bg-transparent" : "bg-background"}`}
       >
-        {/* Hamburger */}
+        {/* Logo — centered on mobile, left on desktop */}
+        <Link
+          href="/"
+          className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 flex items-center gap-2 font-baskervilleSC text-xl lg:text-lg tracking-widest hover:opacity-60 lowercase transition-opacity whitespace-nowrap"
+        >
+          {lamourText}
+          <div
+            className={`bg-foreground transition-[width] duration-300 h-[0.5px] mt-1 ${navOpen ? "w-16" : "w-4"}`}
+          />
+          {lamortText}
+        </Link>
+
+        {/* Menu button — mobile only */}
         <button
           onClick={() => setNavOpen((v) => !v)}
-          className={`w-10 h-10 flex items-center justify-center font-baskerVilleOld text-sm tracking-widest  ${navOpen ? "rotate-0 mt-2" : "rotate-90 mt-1.5"}  hover:opacity-60 transition-opacity shrink-0`}
+          className="lg:hidden flex items-center gap-x-1 font-baskervilleSC text-lg tracking-widest hover:opacity-60 transition-opacity shrink-0"
         >
-          {navOpen ? "X" : "II"}
+          {"{"}{" "}
+          <span className={navOpen ? "mt-0" : "mt-0.5"}>
+            {navOpen ? "x" : "+"}
+          </span>{" "}
+          {"}"}
         </button>
 
-        {/* Logo centered */}
-        <div className="flex-1 flex items-center justify-center gap-3 font-baskerville">
-          <Link
-            href="/"
-            className="font-baskervilleSC text-xl tracking-widest hover:opacity-60 lowercase transition-opacity whitespace-nowrap"
-          >
-            L'Amour
-          </Link>
-          <div
-            className={`bg-foreground transition-[width,height] duration-300 h-px mt-1 lg:pl-1 lg:transition-[width,height] ${navOpen ? "w-16 lg:h-8" : "w-8"}`}
-          />
-          <Link
-            href="/"
-            className="font-baskervilleSC text-xl tracking-widest hover:opacity-60 lowercase transition-opacity whitespace-nowrap"
-          >
-            La Mort
-          </Link>
-        </div>
-
-        {/* Spacer matching cart button width */}
-        <div className="w-10 shrink-0" />
-      </div>
-
-      {/* ── DESKTOP SIDEBAR ── */}
-      <div
-        className={`hidden lg:flex flex-col items-center w-14 lg:group-hover:w-16 transition-[width,background-color] duration-200 h-full shrink-0 cursor-pointer ${navOpen ? "bg-neutral-300" : "bg-neutral-300"}`}
-        onClick={() => setNavOpen((v) => !v)}
-      >
-        {navOpen ? (
-          <div className="flex flex-col items-center justify-start flex-1 pt-8">
-            <span
-              className="font-baskervilleSC text-lg tracking-widest lowercase whitespace-nowrap hover:opacity-60 transition-opacity"
-              style={{ writingMode: "vertical-rl" }}
+        {/* Desktop horizontal nav links + controls */}
+        <nav className="hidden lg:flex items-center justify-end gap-x-1 w-full">
+          {[
+            { label: "Alla nummer", href: "/shop" },
+            { label: "Alla artiklar", href: "/articles" },
+            { label: "Om oss", href: "/" },
+            { label: "Prenumerera", href: "/" },
+          ].map(({ label, href }) => (
+            <Button
+              key={label}
+              variant="navLinkDesktop"
+              size="navLinkDesktop"
+              asChild
             >
-              stäng (x)
+              <Link href={href}>{label}</Link>
+            </Button>
+          ))}
+          {isGridPage && (
+            <button
+              onClick={toggleGridMode}
+              className="inline-flex h-full items-center px-6 font-baskervilleSC text-lg lowercase tracking-widest hover:opacity-50 transition-opacity"
+            >
+              {modeLabel}
+            </button>
+          )}
+          <motion.button
+            key={totalItems}
+            className="h-full inline-flex items-center px-4 font-baskerVilleOld hover:opacity-50 transition-opacity"
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+            onClick={() => setDrawerOpen(true)}
+            aria-label="Öppna korg"
+          >
+            <span className="flex items-center gap-x-3 font-baskervilleSC text-lg lowercase tracking-widest">
+              {"{"}
+              {totalItems}
+              {"}"}
             </span>
-          </div>
-        ) : (
-          <div className="flex flex-col justify-start items-center flex-1 pt-8 gap-4">
-            <Link
-              href="/"
-              className="font-baskervilleSC text-xl tracking-wider hover:opacity-60 lowercase transition-opacity whitespace-nowrap"
-              style={{ writingMode: "vertical-lr", transform: "rotate(0deg)" }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              L'Amour
-            </Link>
-            <div className="w-px h-8 bg-foreground my-1 -ml-2" />
-            <Link
-              href="/"
-              className="font-baskervilleSC text-xl tracking-wider hover:opacity-60 lowercase transition-opacity whitespace-nowrap"
-              style={{ writingMode: "vertical-rl", transform: "rotate(0deg)" }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              La Mort
-            </Link>
-          </div>
-        )}
+          </motion.button>
+        </nav>
       </div>
 
-      {/* ── NAV OVERLAY (mobile: full-width scrollable; desktop: fixed panel next to sidebar) ── */}
+      {/* ── NAV OVERLAY (mobile) ── */}
       <div
-        className={`flex flex-col flex-1 overflow-y-auto ${navOpen ? "lg:fixed lg:top-0 lg:left-14 lg:h-dvh lg:overflow-y-auto lg:z-70 lg:bg-[#FCC5F8] lg:w-80" : "lg:hidden"}`}
+        className={`flex flex-col flex-1 overflow-y-auto lg:hidden ${navOpen ? "" : "hidden"}`}
       >
         <NavOverlay
           navOpen={navOpen}
@@ -351,107 +370,7 @@ export default function LLNav() {
         />
       </div>
 
-      {/* ── DESKTOP NAV OVERLAY (full-width 4-column grid) ── */}
-      {navOpen && (
-        <div className="hidden lg:grid grid-cols-4 fixed left-14 lg:group-hover:left-16 transition-[left] duration-200 top-0 h-dvh right-0 z-70 bg-[#FCC5F8]">
-          {/* Column 1 — Alla nummer */}
-          <div className="flex flex-col border-r border-foreground/20 overflow-y-auto">
-            <Button
-              variant="navLink"
-              size="navLink"
-              asChild
-              className="shrink-0"
-            >
-              <Link href="/shop" onClick={() => setNavOpen(false)}>
-                Alla nummer
-              </Link>
-            </Button>
-            {issues.map((issue) => (
-              <IssueRow
-                key={issue._id}
-                issue={issue}
-                setNavOpen={setNavOpen}
-                addToCart={addToCart}
-              />
-            ))}
-          </div>
-
-          {/* Column 2 — Alla artiklar */}
-          <div className="flex flex-col border-r border-foreground/20 overflow-y-auto">
-            <Button
-              variant="navLink"
-              size="navLink"
-              asChild
-              className="shrink-0"
-            >
-              <Link href="/articles" onClick={() => setNavOpen(false)}>
-                Alla artiklar
-              </Link>
-            </Button>
-            {articles.map((article) => (
-              <ArticleRow
-                key={article._id}
-                article={article}
-                setNavOpen={setNavOpen}
-              />
-            ))}
-          </div>
-
-          {/* Column 3 — Other links */}
-          <div className="flex flex-col border-r border-foreground/20">
-            {[
-              { label: "Om oss", href: "/" },
-              { label: "Prenumerera", href: "/" },
-              { label: "Kontakt", href: "/" },
-              { label: "Nästa nummer", href: "/" },
-            ].map(({ label, href }) => (
-              <Button key={label} variant="navLink" size="navLink" asChild>
-                <Link href={href} onClick={() => setNavOpen(false)}>
-                  {label}
-                </Link>
-              </Button>
-            ))}
-          </div>
-
-          {/* Column 4 — Cart & frakt */}
-          <div className="flex flex-col">
-            <Button
-              variant="navLink"
-              size="navLink"
-              onClick={() => setDrawerOpen(true)}
-            >
-              I varukorgen ({totalItems})
-            </Button>
-            <Button
-              variant="navLink"
-              size="navLink"
-              onClick={() => {
-                setDrawerOpen(true);
-                setNavOpen(false);
-              }}
-            >
-              Till kassan
-            </Button>
-            <Button
-              variant="navLink"
-              size="navLink"
-              className="cursor-default hover:opacity-100"
-            >
-              Frakt &amp; info
-            </Button>
-          </div>
-        </div>
-      )}
-
-      <div className="fixed top-0 right-0 z-60 flex items-center h-14 lg:h-16">
-        {isGridPage && (
-          <button
-            onClick={toggleGridMode}
-            className="hidden lg:inline-flex h-full items-center px-4 font-baskervilleSC text-lg lowercase tracking-widest hover:opacity-50 transition-opacity"
-          >
-            {modeLabel}
-          </button>
-        )}
+      <div className="lg:hidden fixed top-0 right-0 z-60 flex items-center h-14">
         <motion.button
           key={totalItems}
           className="h-full inline-flex items-center px-4 font-baskerVilleOld hover:opacity-50 transition-opacity"
@@ -461,11 +380,12 @@ export default function LLNav() {
           onClick={() => setDrawerOpen(true)}
           aria-label="Öppna korg"
         >
-          <span className="hidden lg:flex font-baskervilleSC text-lg lowercase tracking-widest">
-            I varukorgen ({totalItems})
-          </span>
-          <span className="flex lg:hidden font-baskervilleSC text-lg lowercase">
-            ({totalItems})
+          <span className="flex font-baskervilleSC text-lg lowercase tracking-widest">
+            <span className="flex items-center gap-x-3">
+              {"{"}
+              {totalItems}
+              {"}"}
+            </span>
           </span>
         </motion.button>
       </div>

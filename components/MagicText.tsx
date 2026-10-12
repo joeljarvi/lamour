@@ -8,7 +8,6 @@ import { useScrollContainer } from "@/lib/ScrollContainerContext";
 
 export interface MagicTextProps {
   text: string;
-  indent?: boolean;
   illustrations?: { src: string; alt?: string }[];
   animated?: boolean;
 }
@@ -24,83 +23,39 @@ const Word: React.FC<WordProps> = ({ children, progress, range, animated }) => {
   const opacity = useTransform(progress, range, [0, 1]);
 
   if (!animated) {
-    return <span className="inline-block mr-[0.3em]">{children}</span>;
+    return <span>{children} </span>;
   }
 
-  return (
-    <span className="relative inline-block mr-[0.3em]">
-      <span className="absolute opacity-60">{children}</span>
-      <motion.span style={{ opacity }}>{children}</motion.span>
-    </span>
-  );
+  return <motion.span style={{ opacity }}>{children} </motion.span>;
 };
 
-/* ---------------- PRETEXT HOOK ---------------- */
+/* ---------------- BLOCK PARSER ---------------- */
 
-type WordItem =
-  | { word: string; break: false; spacer: false; imageIndex?: undefined }
-  | { word: ""; break: true; spacer: false; imageIndex?: undefined }
-  | { word: ""; break: false; spacer: true; imageIndex?: undefined }
-  | { word: ""; break: false; spacer: false; imageIndex: number };
+const LABEL_RE = /^[A-ZÅÄÖ][a-zåäö]+(\s[A-ZÅÄÖ][a-zåäö]+)?$/;
 
-function usePretextWords(text: string, indent?: boolean): WordItem[] {
-  return useMemo(() => {
-    if (!text) return [];
+type Block = { speaker?: string; paragraphs: string[] };
 
-    const paragraphs = text.split("\n").filter(Boolean);
+function parseBlocks(text: string): Block[] {
+  const lines = text.split("\n").filter(Boolean);
+  const blocks: Block[] = [];
+  let current: Block = { paragraphs: [] };
 
-    return paragraphs.flatMap((p, pi) => {
-      const imgMatch = p.match(/^\[img:(\d+)\]$/);
-      if (imgMatch) {
-        return [
-          {
-            word: "" as const,
-            break: false as const,
-            spacer: false as const,
-            imageIndex: Number(imgMatch[1]),
-          },
-        ];
-      }
-
-      const words: WordItem[] = p
-        .split(/\s+/)
-        .filter(Boolean)
-        .map((w) => ({
-          word: w,
-          break: false as const,
-          spacer: false as const,
-        }));
-
-      return [
-        ...(indent
-          ? [
-              {
-                word: "" as const,
-                break: false as const,
-                spacer: true as const,
-              },
-            ]
-          : []),
-        ...words,
-        ...(pi < paragraphs.length - 1
-          ? [
-              {
-                word: "" as const,
-                break: true as const,
-                spacer: false as const,
-              },
-            ]
-          : []),
-      ] as WordItem[];
-    });
-  }, [text, indent]);
+  for (const line of lines) {
+    if (LABEL_RE.test(line.trim())) {
+      if (current.paragraphs.length || current.speaker) blocks.push(current);
+      current = { speaker: line.trim(), paragraphs: [] };
+    } else {
+      current.paragraphs.push(line);
+    }
+  }
+  if (current.paragraphs.length || current.speaker) blocks.push(current);
+  return blocks;
 }
 
 /* ---------------- MAIN COMPONENT ---------------- */
 
 export const MagicText: React.FC<MagicTextProps> = ({
   text,
-  indent,
   illustrations,
   animated = true,
 }) => {
@@ -113,45 +68,95 @@ export const MagicText: React.FC<MagicTextProps> = ({
     offset: ["start 0.9", "start 0.1"],
   });
 
-  const allWords = usePretextWords(text, indent);
+  const blocks = useMemo(() => parseBlocks(text), [text]);
+  const hasLabels = blocks.some((b) => b.speaker);
+  const totalWords = useMemo(
+    () =>
+      blocks.reduce(
+        (sum, b) =>
+          sum +
+          b.paragraphs.reduce(
+            (s, p) =>
+              p.match(/^\[img:\d+\]$/)
+                ? s
+                : s + p.split(/\s+/).filter(Boolean).length,
+            0,
+          ),
+        0,
+      ),
+    [blocks],
+  );
+
+  let wordIndex = 0;
+
+  const renderParagraph = (para: string, key: string | number) => {
+    const imgMatch = para.match(/^\[img:(\d+)\]$/);
+    if (imgMatch) {
+      const ill = illustrations?.[Number(imgMatch[1])];
+      if (!ill) return null;
+      return (
+        <span key={key} className="block my-6 relative w-full h-64">
+          <Image
+            src={ill.src}
+            alt={ill.alt ?? ""}
+            fill
+            className="object-cover"
+          />
+        </span>
+      );
+    }
+    const words = para.split(/\s+/).filter(Boolean);
+    return (
+      <p key={key} className="">
+        {words.map((word) => {
+          const idx = wordIndex++;
+          const start = idx / totalWords;
+          const end = Math.min(start + 0.15, 1);
+          return (
+            <Word
+              key={idx}
+              progress={scrollYProgress}
+              range={[start, end]}
+              animated={animated}
+            >
+              {word}
+            </Word>
+          );
+        })}
+      </p>
+    );
+  };
+
+  if (!hasLabels) {
+    return (
+      <div
+        ref={container}
+        className="font-baskerVV text-[19.3px] tracking-wide leading-normal lg:w-1/2"
+      >
+        {blocks
+          .flatMap((b) => b.paragraphs)
+          .map((para, i) => renderParagraph(para, i))}
+      </div>
+    );
+  }
 
   return (
-    <p
+    <div
       ref={container}
-      className="font-baskerVV  text-[19.3px] tracking-wide leading-normal p-0 "
+      className="font-baskerVV text-[19.3px] tracking-wide leading-normal"
     >
-      {allWords.map((item, i) => {
-        if (item.break) return <br key={`br-${i}`} />;
-
-        if (item.spacer) {
-          return <span key={`indent-${i}`} className="inline-block w-16" />;
-        }
-
-        if (item.imageIndex !== undefined) {
-          const ill = illustrations?.[item.imageIndex];
-          if (!ill) return null;
-          return (
-            <span key={`img-${i}`} className="block my-6 relative w-full h-64">
-              <Image
-                src={ill.src}
-                alt={ill.alt ?? ""}
-                fill
-                className="object-cover"
-              />
-            </span>
-          );
-        }
-
-        const spread = 0.15;
-        const start = i / allWords.length;
-        const end = start + spread;
-
-        return (
-          <Word key={i} progress={scrollYProgress} range={[start, end]} animated={animated}>
-            {item.word}
-          </Word>
-        );
-      })}
-    </p>
+      {blocks.map((block, bi) => (
+        <div key={bi} className="grid grid-cols-4 gap-x-8 mb-4 px-4 lg:px-16">
+          <div className="col-span-1 font-baskervilleSC tracking-widest lowercase pt-0.5">
+            {block.speaker}
+          </div>
+          <div className="col-span-3">
+            {block.paragraphs.map((para, pi) =>
+              renderParagraph(para, `${bi}-${pi}`),
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
   );
 };

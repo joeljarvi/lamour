@@ -12,6 +12,11 @@ export default defineType({
       validation: (r) => r.required(),
     }),
     defineField({
+      name: "subtitle",
+      title: "Subtitle",
+      type: "string",
+    }),
+    defineField({
       name: "slug",
       title: "Slug",
       type: "slug",
@@ -64,6 +69,9 @@ export default defineType({
             { title: "Heading 3", value: "h3" },
             { title: "Blockquote", value: "blockquote" },
             { title: "Quote", value: "quote" },
+            { title: "Preamble", value: "preamble" },
+            { title: "Key", value: "key" },
+            { title: "Name", value: "name" },
           ],
           marks: {
             decorators: [
@@ -79,6 +87,17 @@ export default defineType({
               },
             ],
           },
+        },
+        {
+          type: "image",
+          options: { hotspot: true },
+          fields: [
+            defineField({
+              name: "alt",
+              title: "Alt / Caption",
+              type: "string",
+            }),
+          ],
         },
       ],
     }),
@@ -99,6 +118,20 @@ export default defineType({
           ],
         },
       ],
+    }),
+    defineField({
+      name: "category",
+      title: "Category",
+      type: "string",
+      options: {
+        list: [
+          { title: "Article", value: "article" },
+          { title: "Interview", value: "interview" },
+          { title: "Freeform", value: "freeform" },
+        ],
+        layout: "radio",
+      },
+      initialValue: "article",
     }),
     defineField({
       name: "publishedAt",

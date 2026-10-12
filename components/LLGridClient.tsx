@@ -47,8 +47,12 @@ export function IssueGridItem({
 }) {
   const src =
     mode === "fram"
-      ? issue.cover?.asset ? urlFor(issue.cover).url() : null
-      : issue.back?.asset  ? urlFor(issue.back).url()  : null;
+      ? issue.cover?.asset
+        ? urlFor(issue.cover).url()
+        : null
+      : issue.back?.asset
+        ? urlFor(issue.back).url()
+        : null;
 
   return (
     <motion.div
@@ -56,18 +60,26 @@ export function IssueGridItem({
       initial="hidden"
       animate="visible"
       variants={mode === "bak" ? bakItemVariants : framItemVariants}
-      className="aspect-3/4 flex flex-col p-6 w-full mx-auto border-neutral-300 border-[0.5px] items-center lg:items-start text-center lg:text-start group lg:transition-colors lg:hover:bg-neutral-400"
+      className="aspect-3/4 flex flex-col p-6 w-full mx-auto border-neutral-300 border-[0.5px] items-center lg:items-center justify-center text-center lg:text-start group lg:transition-colors lg:hover:bg-neutral-400"
     >
       <Link
         href={`/shop/${issue.slug.current}`}
-        onClick={(e) => { e.preventDefault(); onSelect(issue); }}
+        onClick={(e) => {
+          e.preventDefault();
+          onSelect(issue);
+        }}
         className="relative aspect-3/4 overflow-hidden block hover:opacity-90 transition-opacity w-full"
       >
         <span className="font-baskervilleSC text-foreground lowercase text-sm tracking-widest mt-2 leading-tight">
           {issue.title}
         </span>
         {src ? (
-          <Image src={src} fill alt={issue.title} className="object-cover" />
+          <Image
+            src={src}
+            fill
+            alt={issue.title}
+            className="object-contain object-center shadow  aspect-3/4 max-w-39.25"
+          />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center p-8">
             <div className="w-full aspect-3/4 max-w-39.25 bg-foreground/20 flex items-center justify-center shadow">
@@ -82,7 +94,11 @@ export function IssueGridItem({
         <h2 className="hidden lg:block text-lg lowercase tracking-widest font-baskervilleSC">
           {issue.price} SEK
         </h2>
-        <Button variant="ghost" size="sm" className="font-baskervilleSC lowercase tracking-widest justify-center w-min whitespace-nowrap">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="font-baskervilleSC lowercase tracking-widest justify-center w-min whitespace-nowrap"
+        >
           köp nu
         </Button>
       </span>
@@ -101,7 +117,9 @@ export function ArticleGridItem({
   mode: "fram" | "bak";
   idx: number;
 }) {
-  const src = article.coverImage?.asset ? urlFor(article.coverImage).url() : null;
+  const src = article.coverImage?.asset
+    ? urlFor(article.coverImage).url()
+    : null;
 
   return (
     <motion.div
@@ -119,7 +137,12 @@ export function ArticleGridItem({
           {article.title}
         </span>
         {src ? (
-          <Image src={src} fill alt={article.title} className="object-cover" />
+          <Image
+            src={src}
+            fill
+            alt={article.title}
+            className="object-contain object-center shadow aspect-3/4 max-w-39.25 mx-auto"
+          />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center p-8">
             <div className="w-full aspect-3/4 max-w-39.25 bg-foreground/10 flex items-center justify-center shadow">
@@ -134,7 +157,11 @@ export function ArticleGridItem({
         <h2 className="hidden lg:block text-lg lowercase tracking-widest font-baskervilleSC">
           {article.author?.name ?? ""}
         </h2>
-        <Button variant="ghost" size="sm" className="font-baskervilleSC lowercase tracking-widest justify-center w-min whitespace-nowrap">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="font-baskervilleSC lowercase tracking-widest justify-center w-min whitespace-nowrap"
+        >
           läs nu
         </Button>
       </span>
@@ -158,7 +185,7 @@ export function IssuesShelf() {
   return (
     <>
       <div
-        className="w-full mt-14 lg:ml-14 bg-neutral-300 min-h-dvh grid grid-cols-2 lg:grid-cols-4 pb-16 lg:pb-0"
+        className="w-full    min-h-dvh grid grid-cols-2 lg:grid-cols-4 pb-16 lg:pb-0"
         style={{ perspective: "1200px" }}
       >
         {issues.map((issue, idx) => (
@@ -190,7 +217,7 @@ export function ArticlesShelf() {
 
   return (
     <div
-      className="w-full mt-14 lg:ml-14 min-h-dvh grid grid-cols-2 lg:grid-cols-4 pb-16 lg:pb-0"
+      className="w-full lg:pt-16  min-h-dvh grid grid-cols-2 lg:grid-cols-4 pb-16 lg:pb-0"
       style={{ perspective: "1200px" }}
     >
       {articles.map((article, idx) => (

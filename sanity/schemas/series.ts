@@ -31,5 +31,11 @@ export default defineType({
       type: "text",
       rows: 3,
     }),
+    defineField({
+      name: "coverImage",
+      title: "Cover Image",
+      type: "image",
+      options: { hotspot: true },
+    }),
   ],
 });

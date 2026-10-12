@@ -22,6 +22,8 @@ const buttonVariants = cva(
         link: "justify-start text-primary hover:text-primary/80    ",
         navLink:
           "font-baskervilleSC lowercase tracking-widest text-foreground bg-transparent hover:bg-foreground hover:text-background transition-colors justify-start",
+        navLinkDesktop:
+          "font-baskervilleSC lowercase tracking-widest text-foreground bg-transparent  hover:text-foreground/80 transition-colors w-auto",
       },
       size: {
         default:
@@ -34,8 +36,10 @@ const buttonVariants = cva(
         "icon-sm": "size-8",
         "icon-lg": "size-10",
         linkSize: "h-auto p-0",
-        navLink:
+        navLinkMobile:
           "h-auto pt-2 pb-3 px-6 border-b border-foreground/20 text-xl justify-start gap-6 lg:text-lg w-full",
+        navLinkDesktop:
+          "h-auto  px-6 text-xl justify-start gap-6 lg:text-lg w-min whitespace-nowrap",
       },
     },
     defaultVariants: {
