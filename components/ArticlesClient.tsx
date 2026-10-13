@@ -1,18 +1,14 @@
 "use client";
 
-import { useArticles } from "@/lib/contexts/ArticlesContext";
-import { ArticleFront } from "./Covers";
 import ArticleSubMenu from "./ArticleSubMenu";
 
 export default function ArticlesClient() {
-  const { articles } = useArticles();
-
   return (
-    <div className="flex flex-col items-center gap-12 w-full px-4 pt-20 pb-16 lg:pt-24">
-      <ArticleSubMenu />
-      {articles.map((article) => (
-        <ArticleFront key={article._id} article={article} />
-      ))}
+    // Same layout as ShopClient: article list spans all three columns
+    <div className="grid grid-cols-1 lg:grid-cols-3 px-0 pt-36 pb-16 w-full">
+      <div className="lg:col-span-3">
+        <ArticleSubMenu />
+      </div>
     </div>
   );
 }

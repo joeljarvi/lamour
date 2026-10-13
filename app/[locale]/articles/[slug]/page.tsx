@@ -53,6 +53,7 @@ export default async function ArticlePage({
         body={article.body}
         author={article.author}
         issue={article.issue}
+        series={article.series}
         coverImage={article.coverImage}
         category={article.category}
       />

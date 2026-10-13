@@ -23,14 +23,14 @@ function Hero({
   const dims = getDimensions(issue.dimensions);
 
   return (
-    <section className="relative w-full h-dvh flex flex-col items-center justify-center pt-8 bg-yellow-50">
+    <section className="relative w-full h-dvh flex flex-col items-center justify-center pt-8 bg-purple-100">
       <Link
         href={`/shop/${issue.slug.current}`}
         onClick={(e) => {
           e.preventDefault();
           onSelect(issue);
         }}
-        className="relative block h-full max-w-3/4 overflow-hidden shadow max-h-[75dvh] hover:opacity-90 transition-opacity duration-300"
+        className="relative block h-full max-w-3/4 overflow-hidden shadow max-h-[50dvh] hover:opacity-90 transition-opacity duration-300"
         style={{ aspectRatio: dims.coverAspectRatio }}
       >
         <Image

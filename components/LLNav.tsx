@@ -152,15 +152,15 @@ export default function LLNav() {
 
   return (
     <div
-      className={`fixed top-0 left-0 right-0 z-50 flex flex-col transition-colors duration-500
+      className={`fixed lg:absolute top-0 left-0 right-0 z-50 flex flex-col transition-colors duration-500
         ${navOpen ? "h-dvh bg-yellow-50" : "h-14 lg:h-16"}`}
     >
       {/* ── HEADER ── */}
       <div
-        className={`relative grid grid-cols-4 lg:grid-cols-3 items-start w-full shrink-0 h-16 lg:h-16 px-0 lg:px-2 pt-0 transition-colors  duration-200 ${navOpen ? "bg-yellow-50" : "bg-transparent"}`}
+        className={`relative grid grid-cols-4 lg:grid-cols-3 items-start w-full shrink-0   h-16 lg:h-24 px-0 lg:px-3.5 pt-0 transition-colors  duration-200 shadow ${navOpen ? "bg-yellow-50" : "bg-background"}`}
       >
         {/* Desktop: left column — 3×2 link grid */}
-        <nav className="hidden lg:grid grid-cols-3 grid-rows-2 gap-x-0 items-center px-0 pt-2 ">
+        <nav className="hidden lg:grid grid-cols-3 grid-rows-2 gap-x-3 gap-0 items-center px-0 pt-3 pb-3 ">
           {[
             { label: t("home"), href: "/", cell: "col-start-1 row-start-1" },
             {
@@ -208,7 +208,7 @@ export default function LLNav() {
         {/* Logo — middle two columns on mobile, middle column on desktop */}
         <Link
           href="/"
-          className="col-span-2 lg:col-span-1 justify-self-stretch lg:justify-self-center flex items-center justify-center gap-2  font-baskervilleNeoDisplay text-xl lg:text-xl lg:w-full tracking-wide lg:border-x lg:border-x-foreground  h-16 lg:h-full px-6 
+          className="col-span-2 lg:col-span-1 justify-self-stretch lg:justify-self-center flex items-center justify-center gap-2  font-baskervilleNeoDisplay text-xl lg:text-xl lg:w-full tracking-wide   h-16 lg:h-24 px-6 
        
           hover:opacity-60 transition-opacity whitespace-nowrap"
         >
@@ -222,11 +222,11 @@ export default function LLNav() {
         </Link>
 
         {/* Desktop: right column — subscribe + log in | languages; cart pinned top-right */}
-        <div className="hidden lg:grid grid-cols-3 grid-rows-2 items-start justify-start w-full gap-x-4 pt-2">
+        <div className="hidden lg:grid grid-cols-3 grid-rows-2 items-start justify-start w-full gap-x-4 pt-3 ">
           {/* Column 1: subscribe with log in stacked below */}
-          <span className="col-start-2 row-span-2 flex flex-col">
+          <span className="col-start-1 row-span-2 flex  flex-col">
             <Button variant="link" size="xs">
-              Prenumerera
+              Prenum.
             </Button>
             {/* TODO: no accounts yet — wire up when login exists */}
             <Button variant="link" size="xs">
@@ -239,7 +239,7 @@ export default function LLNav() {
               key={l}
               variant="link"
               size="xs"
-              className={`col-start-3 justify-start ${i === 0 ? "row-start-1" : "row-start-2"}`}
+              className={`col-start-2 justify-start ${i === 0 ? "row-start-1" : "row-start-2"}`}
               asChild
             >
               <Link
@@ -255,7 +255,7 @@ export default function LLNav() {
           <Button
             variant="link"
             size="xs"
-            className="absolute top-2 right-2 w-auto h-6  font-bold after:content-none"
+            className="w-auto col-start-3 row-start-1 justify-end   after:content-none"
             onClick={() => setDrawerOpen(true)}
             aria-label={t("openCart")}
           >
@@ -265,7 +265,7 @@ export default function LLNav() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
             >
-              {totalItems}
+              Varukorgen {totalItems}
             </motion.span>
           </Button>
         </div>

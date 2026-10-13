@@ -10,50 +10,52 @@ function buildComponents(category?: string): PortableTextComponents {
         if ((value as any)._empty) return null;
         const indent = (value as any)._indented ? "indent-16" : "";
         return (
-          <p className={`font-baskerVV text-2xl leading-[1.2] tracking-wide ${normalAlign} ${indent} max-w-3xl mx-auto `}>
+          <p
+            className={`font-baskervilleNeoText text-xl ${normalAlign} ${indent} max-w-3xl mx-auto `}
+          >
             {children}
           </p>
         );
       },
       h1: ({ children }) => (
-        <h1 className="font-baskerVV text-4xl tracking-wider  mb-4 mt-8 text-center">
+        <h1 className="font-universTypewriter text-xl tracking-wider text-center">
           {children}
         </h1>
       ),
       h2: ({ children }) => (
-        <h2 className="font-baskerVilleOld text-2xl tracking-widest text-center  mb-3 mt-6">
+        <h2 className="font-universTypewriter text-xl tracking-widest text-center">
           {children}
         </h2>
       ),
       blockquote: ({ children }) => (
-        <blockquote className="font-baskerVV text-xl italic border-l-2 border-foreground pl-6 my-6 text-foreground/80">
+        <blockquote className="font-universTypewriter text-xl italic border-l-2 border-foreground pl-6 text-foreground/80">
           {children}
         </blockquote>
       ),
       quote: ({ children }) => (
-        <blockquote className="font-baskerVilleOld text-2xl text-center italic my-8 px-8 text-foreground/90">
+        <blockquote className="font-universTypewriter text-xl text-center italic px-8 text-foreground/90">
           {children}
         </blockquote>
       ),
       preamble: ({ children }) => (
-        <p className="font-universTypewriter  text-xl tracking-wide max-w-5xl mx-auto  text-center leading-[1.2] mb-6">
+        <p className="font-universTypewriter  text-xl tracking-wide max-w-5xl mx-auto  text-center leading-[1.2]">
           {children}
         </p>
       ),
       key: ({ children }) => (
-        <p className="font-baskervilleSC tracking-widest uppercase text-sm mb-2">
+        <p className="font-universTypewriter tracking-widest uppercase text-xl">
           {children}
         </p>
       ),
       name: ({ children }) => (
-        <p className="font-baskervilleSC tracking-wider   text-2xl text-center leading-none lowercase  text-foreground/40  ">
+        <p className="font-universTypewriter tracking-wider   text-xl text-center leading-none lowercase  text-foreground/40  ">
           {children}
         </p>
       ),
     },
     types: {
       image: ({ value }) => (
-        <figure className="my-8 max-w-3xl mx-auto">
+        <figure className=" max-w-3xl mx-auto">
           <Image
             src={urlFor(value).url()}
             alt={value.alt ?? ""}
@@ -62,7 +64,7 @@ function buildComponents(category?: string): PortableTextComponents {
             className="w-full h-auto object-cover"
           />
           {value.alt && (
-            <figcaption className="font-universTypewriter text-xs text-center mt-2 opacity-60">
+            <figcaption className="font-universTypewriter text-xl text-center opacity-60">
               {value.alt}
             </figcaption>
           )}
@@ -71,7 +73,9 @@ function buildComponents(category?: string): PortableTextComponents {
     },
     marks: {
       em: ({ children }) => <em className="italic">{children}</em>,
-      strong: ({ children }) => <strong className="font-bold">{children}</strong>,
+      strong: ({ children }) => (
+        <strong className="font-bold">{children}</strong>
+      ),
       link: ({ value, children }) => (
         <a
           href={value?.href}
@@ -95,7 +99,11 @@ function normalizeStyles(blocks: any[], category?: string): any[] {
       result = { ...result, style: "normal" };
     }
 
-    if (category === "article" && block._type === "block" && block.style === "normal") {
+    if (
+      category === "article" &&
+      block._type === "block" &&
+      block.style === "normal"
+    ) {
       const text = block.children?.map((c: any) => c.text ?? "").join("") ?? "";
 
       // mark empty blocks so the renderer can suppress them
@@ -104,7 +112,11 @@ function normalizeStyles(blocks: any[], category?: string): any[] {
       }
 
       // mark block that follows an empty block as indented
-      if (i > 0 && blocks[i - 1]?._type === "block" && blocks[i - 1]?.style === "normal") {
+      if (
+        i > 0 &&
+        blocks[i - 1]?._type === "block" &&
+        blocks[i - 1]?.style === "normal"
+      ) {
         const prevText =
           blocks[i - 1].children?.map((c: any) => c.text ?? "").join("") ?? "";
         if (prevText.trim() === "") {
@@ -124,6 +136,12 @@ export default function SanityPortableText({
   value: any;
   category?: string;
 }) {
-  const normalized = Array.isArray(value) ? normalizeStyles(value, category) : value;
-  return <PortableText value={normalized} components={buildComponents(category)} />;
+  const normalized = Array.isArray(value)
+    ? normalizeStyles(value, category)
+    : value;
+  return (
+    <div className="flex flex-col items-start justify-start gap-4">
+      <PortableText value={normalized} components={buildComponents(category)} />
+    </div>
+  );
 }

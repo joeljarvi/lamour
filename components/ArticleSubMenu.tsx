@@ -1,22 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { useArticles, type Article } from "@/lib/contexts/ArticlesContext";
 import { Link } from "@/i18n/navigation";
 import { Button } from "./ui/button";
 import { articleTitle } from "@/lib/articleTitle";
 
+// Same 3-column row as IssuesSubMenu: meta | title | the link variant's ☜ (::after)
+const rowClass =
+  "grid grid-cols-3 items-center leading-loose px-4 font-baskervilleNeoDisplay normal-case w-full justify-start after:justify-self-end aria-expanded:border-b-transparent aria-expanded:pt-4";
+
+// Opens the article in ArticleReader (/articles/[slug])
 function ArticleRow({ article }: { article: Article }) {
   return (
-    <Button
-      variant="link"
-      size="lg"
-      className=" leading-loose px-20    font-baskervilleNeoDisplay "
-      asChild
-    >
+    <Button variant="link" size="lg" className={rowClass} asChild>
       <Link href={`/articles/${article.slug.current}`}>
-        <span className="min-w-0 truncate">{articleTitle(article.title)}</span>
+        <span className="justify-self-start">{article.author?.name}</span>
+        <span className="justify-self-start text-left">
+          {articleTitle(article.title)}
+        </span>
       </Link>
     </Button>
   );
@@ -43,31 +45,25 @@ export default function ArticleSubMenu() {
         {seriesGroups.map(({ series: s, articles: seriesArticles }) => {
           const isOpen = openSeries === s._id;
           return (
-            <div key={s._id} className="flex flex-col w-full ">
+            <div key={s._id} className="flex flex-col w-full">
               <Button
                 variant="link"
                 size="lg"
-                className="font-baskervilleNeoDisplay  pl-12 pr-6 aria-expanded:pl-18"
+                className={rowClass}
                 aria-expanded={isOpen}
                 onClick={() => setOpenSeries(isOpen ? null : s._id)}
               >
-                <span className="min-w-0 truncate">{s.title}</span>
+                <span className="justify-self-start">
+                  ({seriesArticles.length})
+                </span>
+                <span className="justify-self-start text-left">
+                  {s.title}
+                </span>
               </Button>
-              <AnimatePresence>
-                {isOpen && (
-                  <motion.div
-                    className="flex flex-col  w-full overflow-hidden"
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.25, ease: "easeOut" }}
-                  >
-                    {seriesArticles.map((article) => (
-                      <ArticleRow key={article._id} article={article} />
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              {isOpen &&
+                seriesArticles.map((article) => (
+                  <ArticleRow key={article._id} article={article} />
+                ))}
             </div>
           );
         })}

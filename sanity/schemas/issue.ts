@@ -32,6 +32,20 @@ export default defineType({
       validation: (r) => r.required(),
     }),
     defineField({
+      name: "language",
+      title: "Language",
+      type: "string",
+      options: {
+        list: [
+          { title: "Swedish", value: "sv" },
+          { title: "English", value: "en" },
+        ],
+        layout: "radio",
+        direction: "horizontal",
+      },
+      initialValue: "sv",
+    }),
+    defineField({
       name: "cover",
       title: "Cover",
       type: "image",
@@ -121,6 +135,61 @@ export default defineType({
           },
         },
       ],
+    }),
+    defineField({
+      name: "contributors",
+      title: "Contributors",
+      type: "text",
+    }),
+    defineField({
+      name: "themeEditors",
+      title: "Theme Editors",
+      type: "text",
+    }),
+    defineField({
+      name: "designer",
+      title: "Designer",
+      type: "text",
+    }),
+    defineField({
+      name: "quotes",
+      title: "Quotes",
+      type: "array",
+      of: [
+        {
+          type: "object",
+          name: "quote",
+          title: "Quote",
+          fields: [
+            defineField({ name: "text", title: "Text", type: "text" }),
+            defineField({ name: "author", title: "Author", type: "string" }),
+          ],
+          preview: { select: { title: "text", subtitle: "author" } },
+        },
+      ],
+    }),
+    defineField({
+      name: "credits",
+      title: "Credits",
+      type: "array",
+      of: [
+        {
+          type: "object",
+          name: "credit",
+          title: "Credit",
+          fields: [
+            defineField({ name: "role", title: "Role", type: "string" }),
+            defineField({ name: "name", title: "Name", type: "string" }),
+          ],
+          preview: { select: { title: "name", subtitle: "role" } },
+        },
+      ],
+    }),
+    defineField({
+      name: "interviews",
+      title: "Interviews",
+      type: "array",
+      of: [{ type: "text" }],
     }),
     defineField({
       name: "price",

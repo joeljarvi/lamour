@@ -7,6 +7,7 @@ export type Issue = {
   title: string;
   slug: { current: string };
   issueNumber: number;
+  language?: "sv" | "en";
   cover?: { asset: { _ref: string }; alt?: string };
   spine?: { asset: { _ref: string }; alt?: string };
   back?: { asset: { _ref: string }; alt?: string };
@@ -19,6 +20,12 @@ export type Issue = {
     spine?: { width: number };
   };
   description?: any[];
+  contributors?: string;
+  themeEditors?: string;
+  designer?: string;
+  quotes?: Array<{ _key: string; text?: string; author?: string }>;
+  credits?: Array<{ _key: string; role?: string; name?: string }>;
+  interviews?: string[];
   previewImages?: Array<{ _key: string; asset: any; alt?: string }>;
 };
 

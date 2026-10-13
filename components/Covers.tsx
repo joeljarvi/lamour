@@ -5,10 +5,7 @@ import { Link } from "@/i18n/navigation";
 import type { Issue } from "@/lib/contexts/IssuesContext";
 import type { Article } from "@/lib/contexts/ArticlesContext";
 import { urlFor } from "@/lib/sanity/image";
-import { getDimensions } from "@/lib/getDimensions";
 import { articleTitle } from "@/lib/articleTitle";
-
-const DEFAULT_DIMS = getDimensions();
 
 // ─── Issue front cover ────────────────────────────────────────────────────
 
@@ -19,7 +16,6 @@ export function IssueFront({
   issue: Issue;
   onSelect: (issue: Issue) => void;
 }) {
-  const dims = getDimensions(issue.dimensions);
   const src = issue.cover?.asset ? urlFor(issue.cover).url() : null;
 
   return (
@@ -29,18 +25,19 @@ export function IssueFront({
         e.preventDefault();
         onSelect(issue);
       }}
-      className="relative block w-full max-w-md overflow-hidden shadow hover:opacity-90 transition-opacity duration-300"
-      style={{ aspectRatio: dims.coverAspectRatio }}
+      className="relative block w-full overflow-hidden shadow hover:opacity-90 transition-opacity duration-300"
     >
       {src ? (
         <Image
           src={src}
-          fill
+          width={0}
+          height={0}
+          sizes="100vw"
           alt={issue.cover?.alt ?? issue.title}
-          className="object-cover"
+          className="w-full h-auto"
         />
       ) : (
-        <div className="absolute inset-0 bg-foreground/20 flex flex-col justify-end items-start p-6">
+        <div className="aspect-[3/4] bg-foreground/20 flex flex-col justify-end items-start p-6">
           <span className="font-baskervilleSC text-foreground lowercase text-lg tracking-widest leading-tight">
             {issue.title}
           </span>
@@ -63,18 +60,19 @@ export function ArticleFront({ article }: { article: Article }) {
   return (
     <Link
       href={`/articles/${article.slug.current}`}
-      className="relative block w-full max-w-md overflow-hidden shadow hover:opacity-80 transition-opacity duration-300"
-      style={{ aspectRatio: DEFAULT_DIMS.coverAspectRatio }}
+      className="relative block w-full overflow-hidden shadow hover:opacity-80 transition-opacity duration-300"
     >
       {src ? (
         <Image
           src={src}
-          fill
+          width={0}
+          height={0}
+          sizes="100vw"
           alt={article.coverImage?.alt ?? articleTitle(article.title)}
-          className="object-cover"
+          className="w-full h-auto"
         />
       ) : (
-        <div className="absolute inset-0 bg-foreground/10 flex flex-col justify-center items-center p-6">
+        <div className="aspect-[3/4] bg-foreground/10 flex flex-col justify-center items-center p-6">
           <span className="font-baskervilleSC text-center text-foreground lowercase text-lg tracking-widest leading-tight">
             {articleTitle(article.title)}
           </span>

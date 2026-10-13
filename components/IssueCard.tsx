@@ -46,7 +46,7 @@ function Lightbox({
 
       {img?.asset && (
         <div
-          className="relative w-full h-full max-w-3xl p-8"
+          className="relative w-full h-full  p-8"
           onClick={(e) => e.stopPropagation()}
         >
           <Image

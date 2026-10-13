@@ -4,10 +4,12 @@ import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ScrollContainerContext } from "@/lib/ScrollContainerContext";
 import SanityPortableText from "@/components/SanityPortableText";
+import ArticleNav from "@/components/ArticleNav";
 import { urlFor } from "@/lib/sanity/image";
 import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { issueTitle } from "@/lib/issueTitle";
 
 type ArticleReaderProps = {
   title: string;
@@ -34,12 +36,14 @@ export default function ArticleReader({
   body,
   author,
   issue,
+  series,
   coverImage,
   category,
 }: ArticleReaderProps) {
   const t = useTranslations("Article");
   const scrollRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: heroRef,
     offset: ["start start", "end start"],
@@ -48,47 +52,27 @@ export default function ArticleReader({
 
   return (
     <>
-      <div className="fixed z-20 w-full">
-        <div className="flex  justify-between items-center lg:grid lg:grid-cols-3 gap-16  px-2 pt-2 lg:px-4 w-full ">
-          {category && (
-            <div className="font-universTypewriter text-xs text-lime uppercase whitespace-normal flex flex-col items-center justify-center gap-1">
-              <div className="font-baskervilleSC lowercase flex gap-x-0.5 text-2xl">
-                {"{"}
-                <span>A</span>
-                {"}"}
-              </div>
-              <span>{category === "interview" ? t("interview") : category}</span>
-            </div>
-          )}
-          {issue && (
-            <div className="font-universTypewriter text-xs text-lime  uppercase whitespace-normal">
-              <Link
-                href={`/shop/${issue.slug?.current}`}
-                className="hover:opacity-60 transition-opacity flex flex-col items-center gap-0"
-              >
-                <div className="font-baskervilleSC lowercase flex gap-x-1 text-2xl mb-1">
-                  {"{"}
-                  <span>I</span>
-                  {"}"}
-                </div>
-                {t("fromIssue", { number: issue.issueNumber, title: issue.title })}
-              </Link>
-            </div>
-          )}
-
-          <Link
-            href="/articles"
-            className="font-universTypewriter text-xs text-lime uppercase whitespace-normal flex flex-col items-center justify-center gap-1 hover:opacity-60 transition-opacity"
-          >
-            <div className="font-baskervilleSC lowercase flex gap-x-0.5 text-2xl">
-              {"{"}
-              <span>X</span>
-              {"}"}
-            </div>
-            <span>{t("close")}</span>
-          </Link>
-        </div>
-      </div>
+      <ArticleNav bodyRef={bodyRef} />
+      {/* "ur: LL#n — title" top centre, linking to the issue */}
+      {issue && (
+        <Link
+          href={`/shop/${issue.slug?.current}`}
+          className="fixed top-6 left-1/2 -translate-x-1/2 z-20 font-baskervilleNeoText tracking-[12%] text-sm uppercase whitespace-nowrap hover:opacity-60 transition-opacity"
+        >
+          {t("fromIssue", {
+            number: issue.issueNumber,
+            title: issueTitle(issue.title),
+          })}
+        </Link>
+      )}
+      {/* Close: Baskerville Neo's swash X (OpenType "swsh"), back to the list */}
+      <Link
+        href="/articles"
+        aria-label={t("close")}
+        className="fixed top-6 right-6 z-20 font-baskervilleNeoDisplay text-2xl leading-none [font-feature-settings:'swsh'_1] hover:opacity-60 transition-opacity"
+      >
+        X
+      </Link>
       <motion.div
         ref={scrollRef}
         className="w-full"
@@ -101,15 +85,18 @@ export default function ArticleReader({
             {/* Hero */}
             <div ref={heroRef} className="relative h-dvh overflow-hidden">
               {coverImage?.asset && (
+                // Centred, at most a third of the page wide
                 <motion.div
-                  className="absolute inset-0"
+                  className="absolute inset-0 flex items-center justify-center"
                   style={{ scale: imageScale }}
                 >
                   <Image
                     src={urlFor(coverImage).url()}
                     alt={coverImage.alt ?? title}
-                    fill
-                    className="object-cover"
+                    width={0}
+                    height={0}
+                    sizes="33vw"
+                    className="w-full opacity-0 max-w-1/3 h-auto"
                   />
                 </motion.div>
               )}
@@ -117,27 +104,30 @@ export default function ArticleReader({
               {/* Text content */}
               <div className="relative z-10 flex flex-col h-full justify-center items-center px-8 pt-12 pb-4 text-center">
                 <div className="flex flex-col items-center justify-center gap-0">
-                  {author && (
-                    <Link
-                      href={`/authors/${author.slug.current}`}
-                      className="font-baskerVilleOld text-3xl  tracking-wider hover:opacity-60 transition-opacity"
-                    >
-                      {author.name}
-                    </Link>
-                  )}
-                  <h1 className="font-baskerVV text-7xl  tracking-widest leading-[1] mb-2 lg:max-w-3xl">
-                    {title}
+                  <h1 className="font-baskervilleNeoDisplay text-4xl uppercase tracking-widest leading-[1.5]  lg:max-w-3xl mb-6">
+                    {/* "{series}: {title}", with the title in italics */}
+                    {series && <>{series.title}: </>}
+                    <span className="italic">{title}</span>
                   </h1>
                   {subtitle && (
-                    <h2 className="font-baskerVilleOld text-2xl leading-[1.2] tracking-widest ">
+                    <h2 className="font-baskervilleNeoDisplay text-2xl leading-[1.2] tracking-[6%] ">
                       {subtitle}
                     </h2>
                   )}
                 </div>
+                {/* Author pinned to the bottom centre of the hero */}
+                {author && (
+                  <Link
+                    href={`/authors/${author.slug.current}`}
+                    className="absolute bottom-8 left-1/2 -translate-x-1/2 font-baskervilleNeoDisplay text-lg tracking-wider hover:opacity-60 transition-opacity"
+                  >
+                    {author.name}
+                  </Link>
+                )}
               </div>
             </div>
 
-            <div className="pt-2 px-2">
+            <div ref={bodyRef} className="pt-2 px-2">
               {body && <SanityPortableText value={body} category={category} />}
             </div>
           </article>
