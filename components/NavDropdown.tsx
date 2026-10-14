@@ -122,11 +122,6 @@ export default function NavDropdown({
 
   // Issues come newest first (ordered by issueNumber desc)
   const latest = issues[0];
-  // One name per line or comma in Sanity's Contributors field
-  const latestContributors = (latest?.contributors ?? "")
-    .split(/[\n,]/)
-    .map((name) => name.trim())
-    .filter(Boolean);
   function addLatestToCart() {
     if (!latest) return;
     addToCart({
@@ -143,7 +138,7 @@ export default function NavDropdown({
       {section && (
         <motion.nav
           aria-label={t(section)}
-          className="hidden lg:grid grid-cols-2 mt-6 border-t border-t-foreground px-12 gap-0 min-h-[50vh] bg-neutral-100 shadow"
+          className="hidden lg:grid grid-cols-2 mt-6 border-t border-t-foreground px-12 gap-0 min-h-[50vh] bg-background shadow"
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
@@ -201,61 +196,43 @@ export default function NavDropdown({
             ))}
           </ul>
 
-          {/* Right half: intro text | latest title + contributors | latest
-              cover; add to cart along the bottom across all three columns */}
-          <div className="col-span-1 grid grid-cols-3 grid-rows-[1fr_auto] gap-x-12 gap-y-8 p-8 bg-neutral-100">
-            <div className="flex justify-start items-start font-baskervilleNeoText text-sm tracking-[6%]">
-              L'Amour — La Mort är en oberoende tidskrift.
-            </div>
-            {latest && (
-              <>
-                {/* Latest issue: title + contributors ("Medv. A, B, C") */}
-                <div className="col-start-2 flex flex-col gap-4">
-                  <span className="font-universTypewriter text-xs tracking-wide">
-                    Latest issue:
-                  </span>
-                  <span className="font-universTypewriter text-xs  ">
-                    LL#{latest.issueNumber} {issueTitle(latest.title)}
-                  </span>
-                  {latestContributors.length > 0 && (
-                    <p className="font-universTypewriter text-base leading-snug">
-                      <span className="tracking-[12%]">Medv. </span>
-                      <span className="italic tracking-[6%]">
-                        {latestContributors.join(", ")}
-                      </span>
-                    </p>
-                  )}
-                </div>
+          {/* Right half: intro text and latest cover pushed to opposite
+              sides (flex, justify-between); add to cart along the bottom */}
+          <div className="col-span-1 flex flex-col gap-8 p-8 bg-background">
+            <div className="flex flex-1 justify-between items-start gap-12">
+              <div className="font-baskervilleNeoText text-sm tracking-[6%] max-w-xs">
+                L&apos;Amour — La Mort är en oberoende tidskrift.
+              </div>
+              {latest?.cover?.asset && (
                 <Link
                   href={`/shop/${latest.slug.current}`}
                   onClick={onNavigate}
-                  className="col-start-3 flex justify-end hover:opacity-90 transition-opacity"
+                  className="shrink-0 hover:opacity-90 transition-opacity"
                 >
-                  {latest.cover?.asset && (
-                    <Image
-                      src={urlFor(latest.cover).url()}
-                      alt={latest.cover.alt ?? latest.title}
-                      width={0}
-                      height={0}
-                      sizes="17vw"
-                      // Natural shape; capped so a tall cover can't stretch the drop-down
-                      className="w-auto h-auto max-w-full max-h-[40vh]"
-                    />
-                  )}
+                  <Image
+                    src={urlFor(latest.cover).url()}
+                    alt={latest.cover.alt ?? latest.title}
+                    width={0}
+                    height={0}
+                    sizes="17vw"
+                    // Natural shape; capped so a tall cover can't stretch the drop-down
+                    className="w-auto h-auto max-w-[17vw] max-h-[40vh]"
+                  />
                 </Link>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={latest.inStock === false}
-                  // Bottom row, across all three columns
-                  className="col-span-3 self-end w-full justify-center disabled:opacity-30 font-universTypewriter uppercase hover:bg-foreground hover:text-background"
-                  onClick={addLatestToCart}
-                >
-                  {latest.inStock === false
-                    ? tIssue("soldOut")
-                    : tIssue("addToCart")}
-                </Button>
-              </>
+              )}
+            </div>
+            {latest && (
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={latest.inStock === false}
+                className="w-full justify-center disabled:opacity-30 font-baskervilleNeoText text-xs tracking-[24%] uppercase hover:bg-foreground hover:text-background"
+                onClick={addLatestToCart}
+              >
+                {latest.inStock === false
+                  ? tIssue("soldOut")
+                  : tIssue("addToCart")}
+              </Button>
             )}
           </div>
         </motion.nav>
