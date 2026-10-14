@@ -14,6 +14,14 @@
     "issues": "Issues",
     "articles": "Articles",
     "login": "Log in",
+    "clues": "Clues",
+    "terms": "Terms",
+    "changeLanguage": "Change language",
+    "lightMode": "Light mode",
+    "explore": "Explore",
+    "series": "Series",
+    "menu": "Menu",
+    "cartLabel": "Cart",
     "cart": "Cart ({count})"
   },
   "Cart": {

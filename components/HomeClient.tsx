@@ -1,74 +1,82 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
-import { useIssues, type Issue } from "@/lib/contexts/IssuesContext";
-import { useArticles } from "@/lib/contexts/ArticlesContext";
-import { IssueFront, ArticleFront } from "./Covers";
-import IssueCard from "./IssueCard";
-import { Link } from "@/i18n/navigation";
-import { urlFor } from "@/lib/sanity/image";
-import { getDimensions } from "@/lib/getDimensions";
+import { useEffect, useState } from "react";
+import { motion } from "motion/react";
+import ShopClient from "./ShopClient";
+import { HERO_PHOTO_DELAY_MS } from "@/lib/heroIntro";
 
-// ─── Hero: front cover of the latest issue ───────────────────────────────
+// ─── Hero: "L'Amour — La Mort" fades in, "en tids skrift" fades in on top of
+// it, then the bookshelf photo appears between them while the title slides up
+// above it and the subtitle slides down below it ─────────────────────────
 
-function Hero({
-  issue,
-  onSelect,
-}: {
-  issue: Issue;
-  onSelect: (issue: Issue) => void;
-}) {
-  if (!issue.cover?.asset) return null;
-  const dims = getDimensions(issue.dimensions);
+const FADE = { duration: 1.2, ease: "easeOut" } as const;
+const MOVE = { duration: 0.9, ease: "easeInOut" } as const;
+
+function Hero() {
+  const [photoShown, setPhotoShown] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setPhotoShown(true), HERO_PHOTO_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
-    <section className="relative w-full h-dvh flex flex-col items-center justify-center pt-8 bg-purple-100">
-      <Link
-        href={`/shop/${issue.slug.current}`}
-        onClick={(e) => {
-          e.preventDefault();
-          onSelect(issue);
-        }}
-        className="relative block h-full max-w-3/4 overflow-hidden shadow max-h-[50dvh] hover:opacity-90 transition-opacity duration-300"
-        style={{ aspectRatio: dims.coverAspectRatio }}
-      >
-        <Image
-          src={urlFor(issue.cover).url()}
-          fill
-          priority
-          sizes="75vw"
-          alt={issue.cover.alt ?? issue.title}
-          className="object-object-contain"
-        />
-      </Link>
+    <section className="relative w-full min-h-dvh flex items-center justify-center pt-12">
+      {/* One grid column. Before the photo, title and subtitle share row 1
+          (overlapping); after, it's title / photo / subtitle in rows 1–3.
+          `layout` animates the texts from one arrangement to the other */}
+      <div className="grid place-items-center gap-y-8">
+        <motion.h1
+          layout
+          className="col-start-1 row-start-1 text-white mix-blend-difference font-baskervilleNeoDisplay text-3xl lg:text-7xl tracking-wide whitespace-nowrap"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ opacity: FADE, layout: MOVE }}
+        >
+          L&apos;Amour — La Mort
+        </motion.h1>
+
+        {photoShown && (
+          // Square photo (1000×1000): 45% of the width on small screens, 40%
+          // of the height on wide ones
+          <motion.div
+            layout
+            className="col-start-1 row-start-2 relative aspect-square w-[min(45vw,40dvh)]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ opacity: { ...FADE, delay: 0.3 }, layout: MOVE }}
+          >
+            <Image
+              src="/Boknas-bokhylla.jpg"
+              alt=""
+              fill
+              priority
+              sizes="(min-width: 1024px) 40vh, 45vw"
+              className="object-cover"
+            />
+          </motion.div>
+        )}
+
+        <motion.h2
+          layout
+          className={`col-start-1 ${photoShown ? "row-start-3" : "row-start-1"} text-[rgb(0,255,0)] mix-blend-difference font-baskervilleNeoDisplay text-3xl lg:text-7xl tracking-wide italic whitespace-nowrap`}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ opacity: { ...FADE, delay: 1 }, layout: MOVE }}
+        >
+          en tids skrift
+        </motion.h2>
+      </div>
     </section>
   );
 }
 
 export default function HomeClient() {
-  const issues = useIssues();
-  const { articles } = useArticles();
-  const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
-
-  const latestIssue = issues[0];
-
   return (
     <>
-      {latestIssue && <Hero issue={latestIssue} onSelect={setSelectedIssue} />}
-      <div className="flex flex-col items-center gap-12 w-full px-4 pt-20 pb-16 lg:pt-24">
-        {issues.map((issue) => (
-          <IssueFront
-            key={issue._id}
-            issue={issue}
-            onSelect={setSelectedIssue}
-          />
-        ))}
-        {articles.map((article) => (
-          <ArticleFront key={article._id} article={article} />
-        ))}
-      </div>
-      <IssueCard issue={selectedIssue} onClose={() => setSelectedIssue(null)} />
+      <Hero />
+      {/* Shop grid (with its filter bar) below the hero — also on /shop */}
+      <ShopClient />
     </>
   );
 }

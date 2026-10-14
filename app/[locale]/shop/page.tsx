@@ -13,7 +13,7 @@ export default async function ShopPage({
   setRequestLocale(locale as Locale);
 
   return (
-    <section className="flex flex-col w-full">
+    <section className="flex flex-col w-full mt-16">
       <ShopClient />
     </section>
   );

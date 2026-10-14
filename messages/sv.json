@@ -14,6 +14,14 @@
     "issues": "Nummer",
     "articles": "Artiklar",
     "login": "Logga in",
+    "clues": "Ledtrådar",
+    "terms": "Villkor",
+    "changeLanguage": "Byt språk",
+    "lightMode": "Ljust läge",
+    "explore": "Utforska",
+    "series": "Serier",
+    "menu": "Meny",
+    "cartLabel": "Varukorgen",
     "cart": "Varukorg ({count})"
   },
   "Cart": {

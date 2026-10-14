@@ -25,7 +25,7 @@ export function IssueFront({
         e.preventDefault();
         onSelect(issue);
       }}
-      className="relative block w-full overflow-hidden shadow hover:opacity-90 transition-opacity duration-300"
+      className="relative block  border border-foreground w-full overflow-hidden shadow hover:opacity-90 transition-opacity duration-300"
     >
       {src ? (
         <Image

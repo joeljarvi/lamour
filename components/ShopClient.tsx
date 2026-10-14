@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { useInView } from "motion/react";
 import { useIssues, type Issue } from "@/lib/contexts/IssuesContext";
 import IssueCard from "./IssueCard";
 import IssueTile from "./IssueTile";
@@ -25,13 +26,22 @@ export default function ShopClient() {
   const [filter, setFilter] = useState("all");
   const visibleIssues = issues.filter((issue) => matchesFilter(issue, filter));
 
+  // The bottom bar only shows once the grid has reached the top of the screen
+  // (i.e. the home page hero has been scrolled past), until the grid has
+  // scrolled away. The observed area is the top 10% of the viewport
+  const gridRef = useRef<HTMLDivElement>(null);
+  const gridInView = useInView(gridRef, { margin: "0px 0px -90% 0px" });
+
   return (
     <>
       {/* Heading spans the page; issues below as a 2/3-column grid of tiles */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 px-0 pt-16 lg:pt-36 pb-16 w-full">
-        <div className="lg:col-span-3">
+      <div
+        ref={gridRef}
+        className="grid grid-cols-1 lg:grid-cols-4 px-0 pt-16 lg:pt-0 pb-16 w-full"
+      >
+        <div className="lg:col-span-4">
           {/* 1px grid lines: tiles draw right + bottom, grid draws top + left */}
-          <div className="grid grid-cols-2 lg:grid-cols-3 border-t border-t-[0.5px] border-l border-neutral-300">
+          <div className="grid grid-cols-1 lg:grid-cols-4  border-l border-neutral-300">
             {visibleIssues.map((issue) => (
               <IssueTile
                 key={issue._id}
@@ -44,6 +54,7 @@ export default function ShopClient() {
       </div>
       <IssueCard issue={selectedIssue} onClose={() => setSelectedIssue(null)} />
       <LLBottomBar
+        visible={gridInView}
         filters={FILTERS}
         activeFilter={filter}
         onFilterChange={setFilter}

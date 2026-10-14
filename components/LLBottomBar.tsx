@@ -3,18 +3,21 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Button } from "./ui/button";
-import GlyphBorder from "./GlyphBorder";
 
 export type BarFilter = { id: string; label: string };
 
-// Floating bottom nav, bordered top ❦ (flipped) / left ☙ / bottom ❦ / right ❧.
+// Floating bottom nav.
 // "filter" grows the bar upwards with one row per filter.
 export default function LLBottomBar({
+  visible = true,
   filters = [],
   activeFilter,
   onFilterChange,
   onSearch,
 }: {
+  // Hidden bars fade out and ignore clicks but stay mounted, so the open
+  // filters / search text survive
+  visible?: boolean;
   filters?: BarFilter[];
   activeFilter?: string;
   onFilterChange?: (id: string) => void;
@@ -29,29 +32,20 @@ export default function LLBottomBar({
   }
 
   return (
-    // Open filters stretch the bar across the screen (inset 24px each side).
-    // The controls row keeps one width either way, so the filter button never
-    // moves: pinned right on mobile, fixed-width row centred on desktop
+    // Pinned bottom right on mobile, bottom left on desktop. Open filters
+    // stretch the bar across the screen (inset 24px each side); the controls
+    // row keeps one width and stays on its side, so the filter button never
+    // moves
     <nav
-      className={`fixed bottom-6 right-6 z-50 flex flex-col justify-end items-end lg:justify-start lg:items-start  bg-transparent font-baskervilleNeoText text-xl leading-none gap-0 ${
+      className={`fixed bottom-6 z-50 flex flex-col items-end lg:items-start bg-transparent font-baskervilleNeoText text-xl leading-none gap-0 transition-opacity duration-300 ${
+        visible ? "opacity-100" : "opacity-0 pointer-events-none"
+      } ${
         filtersOpen
-          ? "left-6"
-          : "left-auto lg:left-1/2 lg:right-auto lg:-translate-x-1/2"
+          ? "left-6 right-6"
+          : "right-6 left-auto lg:left-6 lg:right-auto"
       }`}
     >
-      {/* Borders fade from transparent (outer edge) to yellow-50 (inner edge);
-          the top strip is flipped, so its to-t gradient ends up pointing down */}
-      <GlyphBorder
-        glyph="❦"
-        trimEnd={2}
-        className="-scale-y-100 bg-linear-to-t from-transparent to-background ml-3 -mr-3"
-      />
-      <div className="flex w-full">
-        <GlyphBorder
-          glyph="☙"
-          vertical
-          className="bg-linear-to-r from-transparent to-background"
-        />
+      <div className="flex w-full bg-background border border-foreground">
         <div className="flex flex-col w-full">
           <AnimatePresence initial={false}>
             {filtersOpen && (
@@ -78,7 +72,7 @@ export default function LLBottomBar({
               </motion.div>
             )}
           </AnimatePresence>
-          <span className="flex items-center justify-end lg:justify-start lg:self-center px-1.5 w-full lg:w-[calc(50vw-48px)]">
+          <span className="flex items-center justify-start self-end lg:self-start px-1.5 w-auto lg:w-[calc(50vw-48px)]">
             {/* Search; a swash X clears it once something is typed */}
             <div className="relative hidden lg:block w-full">
               <input
@@ -123,17 +117,7 @@ export default function LLBottomBar({
             </Button>
           </span>
         </div>
-        <GlyphBorder
-          glyph="❧"
-          vertical
-          className="bg-linear-to-l from-transparent to-background"
-        />
       </div>
-      <GlyphBorder
-        glyph="❦"
-        trimEnd={2}
-        className="bg-linear-to-t from-transparent to-yellow-50 ml-3 -mr-3"
-      />
     </nav>
   );
 }

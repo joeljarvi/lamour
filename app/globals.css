@@ -4,6 +4,19 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Baskerville Neo Text's diagonal pointing hands, which have no Unicode code
+   point in the original font, re-mapped to Private Use Area code points
+   (built from BaskervilleNeo-Text.woff2 with fontTools):
+   U+E000 NE white · E001 NW white · E002 SE white · E003 SW white
+   U+E004 NE black · E005 NW black · E006 SE black · E007 SW black */
+@font-face {
+  font-family: "Baskerville Neo Hands";
+  src: url("/fonts/baskerville-neo/text/BaskervilleNeo-TextHands.woff2")
+    format("woff2");
+  unicode-range: U+E000-E007;
+  font-display: block;
+}
+
 @theme inline {
   --color-dark-plum: var(--dark-plum);
   --color-dark-brown: var(--dark-brown);
@@ -31,6 +44,7 @@
   --font-johnSans: var(--font-john-sans);
   --font-baskervilleNeoDisplay: var(--font-baskerville-neo-display);
   --font-baskervilleNeoText: var(--font-baskerville-neo-text);
+  --font-hands: "Baskerville Neo Hands";
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);

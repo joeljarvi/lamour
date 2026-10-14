@@ -9,6 +9,8 @@ import { useCart } from "@/lib/contexts/CartContext";
 import { Link, usePathname } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { Button } from "./ui/button";
+import NavDropdown, { type NavSection } from "./NavDropdown";
+import { HERO_INTRO_MS } from "@/lib/heroIntro";
 
 function useTypingAnimation(fullText: string, collapsed: boolean, speed = 70) {
   const [text, setText] = useState("");
@@ -133,6 +135,9 @@ function NavOverlay({
 export default function LLNav() {
   const pathname = usePathname();
   const [navOpen, setNavOpen] = useState(false);
+  // Desktop: issue list dropped down while hovering Nummer
+  // Which desktop drop-down section is open (on hover)
+  const [section, setSection] = useState<NavSection | null>(null);
   const { totalItems, setDrawerOpen } = useCart();
   const t = useTranslations("Nav");
   const locale = useLocale();
@@ -147,53 +152,146 @@ export default function LLNav() {
   const lamourText = useTypingAnimation("L'Amour", scrolled);
   const lamortText = useTypingAnimation("La Mort", scrolled);
 
+  // A visit that starts on the home page waits for the hero intro to finish
+  // before the nav fades in (mobile and desktop); any other entry page shows
+  // it straight away. (Read once on first render — the nav stays mounted
+  // across pages)
+  const [introOnLoad] = useState(() => pathname === "/");
+
   if (pathname.startsWith("/studio") || pathname.startsWith("/articles/"))
     return null;
 
   return (
-    <div
-      className={`fixed lg:absolute top-0 left-0 right-0 z-50 flex flex-col transition-colors duration-500
-        ${navOpen ? "h-dvh bg-yellow-50" : "h-14 lg:h-16"}`}
+    <motion.div
+      className={`fixed top-0 left-0 right-0 z-50 flex flex-col transition-colors duration-500
+        ${navOpen ? "h-dvh bg-yellow-50" : "h-14 lg:h-auto"}`}
+      initial={introOnLoad ? { opacity: 0 } : false}
+      animate={{ opacity: 1 }}
+      transition={{
+        duration: 0.6,
+        ease: "easeOut",
+        delay: introOnLoad ? HERO_INTRO_MS / 1000 : 0,
+      }}
     >
+      {/* ── DESKTOP: home (col 1) · nummer (col 3) · artiklar (col 6) · cart ──
+          Hovering Nummer drops the issue list down below the bar; leaving
+          the bar + list area closes it */}
+      <div className="hidden lg:block" onMouseLeave={() => setSection(null)}>
+        {/* Bottom border shows (in foreground colour) while a drop-down is open */}
+        <div className="grid grid-cols-12 gap-6 items-center h-12 px-12 pt-12 bg-background">
+          <Button
+            variant="link"
+            size="xs"
+            className="col-start-1 h-auto w-auto justify-self-start "
+            asChild
+          >
+            <Link
+              href="/"
+              aria-current={isActive(pathname, "/") ? "page" : undefined}
+              onMouseEnter={() => setSection(null)}
+            >
+              {t("home")}
+            </Link>
+          </Button>
+          <Button
+            variant="link"
+            size="xs"
+            className="col-start-2 h-auto w-auto justify-self-start"
+            asChild
+          >
+            <Link
+              href="/shop"
+              aria-current={isActive(pathname, "/shop") ? "page" : undefined}
+              aria-expanded={section === "issues"}
+              onMouseEnter={() => setSection("issues")}
+              onFocus={() => setSection("issues")}
+            >
+              {t("issues")}
+            </Link>
+          </Button>
+          <Button
+            variant="link"
+            size="xs"
+            className="col-start-4 w-auto h-auto justify-self-start"
+            asChild
+          >
+            <Link
+              href="/articles"
+              aria-current={
+                isActive(pathname, "/articles") ? "page" : undefined
+              }
+              aria-expanded={section === "articles"}
+              onMouseEnter={() => setSection("articles")}
+              onFocus={() => setSection("articles")}
+            >
+              {t("articles")}
+            </Link>
+          </Button>
+          {/* Utforska: centred (columns 6–7 straddle the middle of 12); drop-down
+              only, lists the remaining nav links */}
+          <Button
+            variant="link"
+            size="xs"
+            // Centred in the bar and the label centred in the button: no ☜
+            // (after:hidden frees its reserved space) and the hand hangs
+            // outside the label instead of taking up width
+            className="relative col-start-6 col-span-2 justify-self-center h-auto w-auto justify-center text-center after:hidden"
+            aria-expanded={section === "explore"}
+            onMouseEnter={() => setSection("explore")}
+            onFocus={() => setSection("explore")}
+          >
+            {t("explore")}
+            {/* Baskerville Neo's north-east pointing hand (U+E000 in the
+                hands font, see globals.css) */}
+            <span
+              aria-hidden
+              className="absolute left-full top-1/2 -translate-y-1/2 font-hands"
+            >
+              {"\uE000"}
+            </span>
+          </Button>
+          {/* TODO: no subscribe page yet — link it once it exists */}
+          <Button
+            variant="link"
+            size="xs"
+            className="col-start-9 w-auto h-auto justify-self-start"
+            onMouseEnter={() => setSection(null)}
+          >
+            {t("subscribe")}
+          </Button>
+          <Button
+            variant="link"
+            size="xs"
+            className="col-start-11 w-auto h-auto justify-self-start"
+            onMouseEnter={() => setSection(null)}
+          >
+            {t("login")}
+          </Button>
+          <Button
+            variant="link"
+            size="xs"
+            // Cart is just its item count, in the bar's top-right corner
+            className="col-start-12 w-auto justify-self-end self-start h-auto after:content-none"
+            onClick={() => setDrawerOpen(true)}
+            aria-label={t("openCart")}
+          >
+            <motion.span
+              key={totalItems}
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+            >
+              {totalItems}
+            </motion.span>
+          </Button>
+        </div>
+        <NavDropdown section={section} onNavigate={() => setSection(null)} />
+      </div>
+
       {/* ── HEADER ── */}
       <div
-        className={`relative grid grid-cols-4 lg:grid-cols-3 items-start w-full shrink-0   h-16 lg:h-24 px-0 lg:px-3.5 pt-0 transition-colors  duration-200 shadow ${navOpen ? "bg-yellow-50" : "bg-background"}`}
+        className={`relative grid grid-cols-4 lg:hidden items-start w-full shrink-0   h-16 lg:h-24 px-0 lg:px-3.5 pt-0 transition-colors duration-300 ${navOpen ? "bg-yellow-50" : "bg-background"}`}
       >
-        {/* Desktop: left column — 3×2 link grid */}
-        <nav className="hidden lg:grid grid-cols-3 grid-rows-2 gap-x-3 gap-0 items-center px-0 pt-3 pb-3 ">
-          {[
-            { label: t("home"), href: "/", cell: "col-start-1 row-start-1" },
-            {
-              label: t("issues"),
-              href: "/shop",
-              cell: "col-start-1 row-start-2",
-            },
-            { label: t("about"), href: "/", cell: "col-start-2 row-start-1" },
-            {
-              label: t("articles"),
-              href: "/articles",
-              cell: "col-start-2 row-start-2",
-            },
-            // TODO: no terms page yet — point at it once it exists
-            { label: "Villkor", href: "/", cell: "col-start-3 row-start-1" },
-          ].map(({ label, href, cell }) => (
-            <Button
-              key={label}
-              variant="link"
-              size="xs"
-              className={`  ${cell}`}
-              asChild
-            >
-              <Link
-                href={href}
-                aria-current={isActive(pathname, href) ? "page" : undefined}
-              >
-                {label}
-              </Link>
-            </Button>
-          ))}
-        </nav>
-
         {/* Menu toggle — mobile only, first column */}
         <Button
           onClick={() => setNavOpen((v) => !v)}
@@ -205,7 +303,7 @@ export default function LLNav() {
           [<span className="">{navOpen ? "−" : "+"}</span>]
         </Button>
 
-        {/* Logo — middle two columns on mobile, middle column on desktop */}
+        {/* Logo — middle two columns (mobile header) */}
         <Link
           href="/"
           className="col-span-2 lg:col-span-1 justify-self-stretch lg:justify-self-center flex items-center justify-center gap-2  font-baskervilleNeoDisplay text-xl lg:text-xl lg:w-full tracking-wide   h-16 lg:h-24 px-6 
@@ -220,55 +318,6 @@ export default function LLNav() {
           />
           La Mort
         </Link>
-
-        {/* Desktop: right column — subscribe + log in | languages; cart pinned top-right */}
-        <div className="hidden lg:grid grid-cols-3 grid-rows-2 items-start justify-start w-full gap-x-4 pt-3 ">
-          {/* Column 1: subscribe with log in stacked below */}
-          <span className="col-start-1 row-span-2 flex  flex-col">
-            <Button variant="link" size="xs">
-              Prenum.
-            </Button>
-            {/* TODO: no accounts yet — wire up when login exists */}
-            <Button variant="link" size="xs">
-              {t("login")}
-            </Button>
-          </span>
-          {/* Column 2: one language button per row */}
-          {LANGUAGES.map(({ locale: l, label }, i) => (
-            <Button
-              key={l}
-              variant="link"
-              size="xs"
-              className={`col-start-2 justify-start ${i === 0 ? "row-start-1" : "row-start-2"}`}
-              asChild
-            >
-              <Link
-                href={pathname}
-                locale={l}
-                aria-current={l === locale ? "page" : undefined}
-              >
-                {label}
-              </Link>
-            </Button>
-          ))}
-          {/* Cart — pinned to the header's top-right corner */}
-          <Button
-            variant="link"
-            size="xs"
-            className="w-auto col-start-3 row-start-1 justify-end   after:content-none"
-            onClick={() => setDrawerOpen(true)}
-            aria-label={t("openCart")}
-          >
-            <motion.span
-              key={totalItems}
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
-            >
-              Varukorgen {totalItems}
-            </motion.span>
-          </Button>
-        </div>
 
         {/* Cart — mobile only, last column */}
         <Button
@@ -294,6 +343,6 @@ export default function LLNav() {
       >
         <NavOverlay navOpen={navOpen} setNavOpen={setNavOpen} />
       </div>
-    </div>
+    </motion.div>
   );
 }

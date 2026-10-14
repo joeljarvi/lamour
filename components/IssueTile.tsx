@@ -31,9 +31,9 @@ export default function IssueTile({
         e.preventDefault();
         onSelect(issue);
       }}
-      className=" group block relative bg-background hover:bg-[rgb(0,255,0)] transition-all border-r border-b border-neutral-300 aspect-square w-full p-6 lg:p-6 text-left cursor-pointer"
+      className=" group block relative bg-background hover:bg-[rgb(0,255,0)] transition-all border-r border-b border-neutral-300 aspect-square w-full p-6 lg:p-6 text-center lg:text-left cursor-pointer"
     >
-      <span className="relative lg:z-10 block font-baskervilleNeoDisplay tracking-[48%] lg:tracking-[24%] text-xs lg:text-sm uppercase">
+      <span className="relative lg:z-10 block font-baskervilleNeoDisplay tracking-wide  lg:font-baskervilleNeoText text-xl lg:text-xs lg:tracking-[24%] uppercase">
         {issueTitle(issue.title)}
       </span>
 
@@ -45,7 +45,7 @@ export default function IssueTile({
             src={src}
             width={0}
             height={0}
-            sizes="(min-width: 1024px) 33vw, 50vw"
+            sizes="(min-width: 1024px) 25vw, 100vw"
             alt={issue.cover?.alt ?? issue.title}
             className="w-auto h-auto max-w-full max-h-[calc(50%+48px)] lg:group-hover:max-h-1/2 transition-[max-height] duration-300 ease-out shadow"
           />
