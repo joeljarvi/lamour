@@ -171,7 +171,7 @@ export default function NavDropdown({
                 ) : item.href ? (
                   <Button
                     variant="default"
-                    className="px-0 h-auto  text-xs tracking-[24%] font-baskervilleNeoText uppercase  min-w-0"
+                    className="px-0 h-auto  text-sm tracking-[6%] font-baskervilleNeoDisplay uppercase   min-w-0"
                     size="xs"
                     asChild
                   >
@@ -191,7 +191,7 @@ export default function NavDropdown({
                 ) : (
                   <Button
                     variant="default"
-                    className="px-0 h-auto font-universTypewriter tracking-normal min-w-0"
+                    className="px-0 h-auto font-baskervilleNeoDisplay tracking-[6%] text-sm  uppercase min-w-0"
                     size="xs"
                   >
                     <span className="truncate">{item.label}</span>
@@ -203,8 +203,8 @@ export default function NavDropdown({
 
           {/* Right half: intro text | latest title + contributors | latest
               cover; add to cart along the bottom across all three columns */}
-          <div className="col-span-1 grid grid-cols-3 grid-rows-[1fr_auto] gap-x-8 gap-y-8 p-8 bg-neutral-100">
-            <div className="flex justify-start items-start font-universTypewriter text-xs tracking-wide">
+          <div className="col-span-1 grid grid-cols-3 grid-rows-[1fr_auto] gap-x-12 gap-y-8 p-8 bg-neutral-100">
+            <div className="flex justify-start items-start font-baskervilleNeoText text-sm tracking-[6%]">
               L'Amour — La Mort är en oberoende tidskrift.
             </div>
             {latest && (

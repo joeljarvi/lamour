@@ -26,7 +26,7 @@ const buttonVariants = cva(
       size: {
         default:
           "h-14 lg:h-20   has-[>svg]:px-3 uppercase font-universTypewriter text-base lg:text-sm hover:text-foreground/80 cursor-pointer ",
-        xs: "h-6  gap-1 justify-start rounded-none  font-baskervilleNeoText tracking-[24%] uppercase px-0 text-[12px] has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
+        xs: "h-6  gap-1 justify-start rounded-none  font-baskervilleNeoDisplay tracking-[3%]  px-0 text-base has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
         sm: " text-sm font-baskervilleNeoText uppercase has-[>svg]:px-3 px-4 justify-start h-12 gap-x-4  ",
         lg: "h-14 font-baskervilleNeoDisplay  px-6 has-[>svg]:px-4 justify-between w-full text-xl border-b border-b-foreground ",
         icon: "size-9",

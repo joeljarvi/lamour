@@ -235,7 +235,7 @@ export default function LLNav() {
             // Centred in the bar and the label centred in the button: no ☜
             // (after:hidden frees its reserved space) and the hand hangs
             // outside the label instead of taking up width
-            className="relative col-start-6 col-span-2 justify-self-center h-auto w-auto justify-center text-center after:hidden"
+            className="relative col-start-6 col-span-2 justify-self-center h-auto w-auto gap-x-3 flex justify-center text-center after:hidden"
             aria-expanded={section === "explore"}
             onMouseEnter={() => setSection("explore")}
             onFocus={() => setSection("explore")}
