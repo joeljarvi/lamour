@@ -32,25 +32,21 @@ export default function LLBottomBar({
   }
 
   return (
-    // Pinned bottom right on mobile, bottom left on desktop. Open filters
-    // stretch the bar across the screen (inset 24px each side); the controls
-    // row keeps one width and stays on its side, so the filter button never
-    // moves
+    // Pinned bottom right on mobile, bottom centre on desktop. On mobile open
+    // filters stretch the bar across the screen (inset 24px each side); on
+    // desktop they open above the controls at the same width. Either way the
+    // controls row keeps its place, so the filter button never moves
     <nav
-      className={`fixed bottom-6 z-50 flex flex-col items-end lg:items-start bg-transparent font-baskervilleNeoText text-xl leading-none gap-0 transition-opacity duration-300 ${
+      className={`fixed bottom-6 z-50 flex flex-col items-end lg:items-center lg:left-1/2 lg:right-auto lg:-translate-x-1/2 bg-transparent font-baskervilleNeoText text-xl leading-none gap-0 transition-opacity duration-300 ${
         visible ? "opacity-100" : "opacity-0 pointer-events-none"
-      } ${
-        filtersOpen
-          ? "left-6 right-6"
-          : "right-6 left-auto lg:left-6 lg:right-auto"
-      }`}
+      } ${filtersOpen ? "left-6 right-6" : "right-6 left-auto"}`}
     >
-      <div className="flex w-full bg-background border border-foreground">
+      <div className="flex w-full bg-pergament">
         <div className="flex flex-col w-full">
           <AnimatePresence initial={false}>
             {filtersOpen && (
               <motion.div
-                className="flex flex-col gap-6 p-6 overflow-hidden bg-background "
+                className="flex flex-col gap-6 p-6 overflow-hidden bg-pergament "
                 initial={{ height: 0 }}
                 animate={{ height: "auto" }}
                 exit={{ height: 0 }}
@@ -72,7 +68,7 @@ export default function LLBottomBar({
               </motion.div>
             )}
           </AnimatePresence>
-          <span className="flex items-center justify-start self-end lg:self-start px-1.5 w-auto lg:w-[calc(50vw-48px)]">
+          <span className="flex items-center justify-start self-end lg:self-center px-1.5 w-auto lg:w-[calc(50vw-48px)]">
             {/* Search; a swash X clears it once something is typed */}
             <div className="relative hidden lg:block w-full">
               <input
@@ -81,7 +77,7 @@ export default function LLBottomBar({
                 aria-label="sök"
                 value={query}
                 onChange={(e) => updateQuery(e.target.value)}
-                className="h-16 w-full bg-background pl-6 pr-14 font-baskervilleNeoDisplay tracking-[24%] text-sm uppercase placeholder:text-foreground outline-none [&::-webkit-search-cancel-button]:appearance-none"
+                className="h-16 w-full bg-pergament pl-6 pr-14 font-baskervilleNeoDisplay tracking-[48%] text-xs uppercase placeholder:italic placeholder:text-foreground outline-none [&::-webkit-search-cancel-button]:appearance-none"
               />
               {query && (
                 // Baskerville Neo's swash X (OpenType "swsh")
@@ -89,7 +85,7 @@ export default function LLBottomBar({
                   type="button"
                   aria-label="rensa sökning"
                   onClick={() => updateQuery("")}
-                  className="absolute right-0 inset-y-0 w-14 flex items-center justify-center cursor-pointer font-baskervilleNeoDisplay text-base [font-feature-settings:'swsh'_1] hover:opacity-60 transition-opacity"
+                  className="absolute right-0 inset-y-0 w-14 flex items-center justify-center cursor-pointer font-baskervilleNeoDisplay text-xs tracking-[48%] [font-feature-settings:'swsh'_1] hover:opacity-60 transition-opacity"
                 >
                   X
                 </button>
@@ -98,7 +94,7 @@ export default function LLBottomBar({
             <Button
               variant="ghost"
               size="sm"
-              className="w-auto h-16 px-6 gap-6"
+              className="w-auto h-16 px-6 gap-6 font-baskervilleNeoDisplay bg-pergament tracking-[48%] text-xs"
               aria-expanded={filtersOpen}
               onClick={() => setFiltersOpen((o) => !o)}
             >

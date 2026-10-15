@@ -21,14 +21,14 @@ function Hero() {
   }, []);
 
   return (
-    <section className="relative w-full min-h-dvh flex items-center justify-center pt-12">
+    <section className="relative w-full min-h-dvh flex items-center justify-center pt-12 px-12">
       {/* One grid column. Before the photo, title and subtitle share row 1
           (overlapping); after, it's title / photo / subtitle in rows 1–3.
           `layout` animates the texts from one arrangement to the other */}
-      <div className="grid place-items-center gap-y-8">
+      <div className="flex flex-col gap-y-6 w-full lg:w-[33.3vw] h-48 lg:h-[33.3vh] mx-auto items-center justify-center p-12 rounded-xs bg-pergament">
         <motion.h1
           layout
-          className="col-start-1 row-start-1 text-white mix-blend-difference font-baskervilleNeoDisplay text-3xl lg:text-7xl tracking-wide whitespace-nowrap"
+          className="font-baskervilleNeoDisplay text-sm lg:text-xl tracking-[24%] uppercase"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ opacity: FADE, layout: MOVE }}
@@ -36,30 +36,9 @@ function Hero() {
           L&apos;Amour — La Mort
         </motion.h1>
 
-        {photoShown && (
-          // Square photo (1000×1000): 45% of the width on small screens, 40%
-          // of the height on wide ones
-          <motion.div
-            layout
-            className="col-start-1 row-start-2 relative aspect-square w-[min(45vw,40dvh)]"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ opacity: { ...FADE, delay: 0.3 }, layout: MOVE }}
-          >
-            <Image
-              src="/Boknas-bokhylla.jpg"
-              alt=""
-              fill
-              priority
-              sizes="(min-width: 1024px) 40vh, 45vw"
-              className="object-cover"
-            />
-          </motion.div>
-        )}
-
         <motion.h2
           layout
-          className={`col-start-1 ${photoShown ? "row-start-3" : "row-start-1"} text-[rgb(0,255,0)] mix-blend-difference font-baskervilleNeoDisplay text-3xl lg:text-7xl tracking-wide italic whitespace-nowrap`}
+          className={`font-baskervilleNeoDisplay italic uppercase tracking-[48%] text-xs lg:text-sm `}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ opacity: { ...FADE, delay: 1 }, layout: MOVE }}

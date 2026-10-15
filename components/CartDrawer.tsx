@@ -41,20 +41,21 @@ export default function CartDrawer() {
 
           {/* Drawer panel */}
           <motion.div
-            className="fixed top-0 right-0 z-50 h-full w-full max-w-md bg-[#B3F7FE]  flex flex-col shadow-md"
+            className="fixed top-0 right-0 z-50 h-full w-full lg:max-w-1/3 bg-pergament flex flex-col shadow-md"
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-4  h-14 lg:h-20  w-full">
-              <span className="lowercase text-lg lg:text-xl w-full font-baskervilleSC tracking-widest flex items-center">
+            <div className="flex items-center justify-between pt-12 px-12  h-14 lg:h-24   w-full">
+              <Button variant="link" size="xs" className="w-min">
                 {t("title", { count: totalItems })}
-              </span>
+              </Button>
               <Button
-                variant="ghost"
-                className="hover:opacity-50 transition-opacity px-4 w-min whitespace-nowrap bg-transparent hover:bg-transparent hover:text-foreground/80 "
+                variant="link"
+                size="xs"
+                className="w-min"
                 onClick={() => setDrawerOpen(false)}
                 aria-label={t("closeLabel")}
               >
@@ -63,32 +64,37 @@ export default function CartDrawer() {
             </div>
 
             {/* Items */}
-            <div className="flex-1 overflow-y-auto px-4 gap-4 pt-4 flex flex-col ">
+            <div className="flex-1 overflow-y-auto p-12  gap-6  flex flex-col ">
               {items.length === 0 ? (
-                <p className="font-baskervilleSC tracking-widest text-foreground/50  lowercase text-lg lg:text-xl pt-0 px-4">
+                <p className="font-baskervilleNeoText text-xs tracking-[3%] text-neutral-700 leading-[1.5]">
                   {t("empty")}
                 </p>
               ) : (
                 items.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-baseline  justify-between bg-background pb-4 pt-4 px-4"
+                    // Title on top, remove (x) below it
+                    className="flex flex-col items-start gap-12 bg-background p-6 w-full"
                   >
-                    <div className="flex flex-col gap-0.5">
-                      <span className="font-baskervilleSC text-4xl uppercase tracking-wider">
-                        {item.title}
+                    {/* Title on the left, price on the right */}
+                    <div className="flex w-full justify-between items-baseline gap-6">
+                      <span className="font-baskervilleNeoDisplay text-xs uppercase tracking-[24%] whitespace-nowrap">
+                        LL{item.title}
                       </span>
-                      <span className="font-baskervilleSC lowercase text-lg lg:text-xl tracking-widest text-foreground flex px-4 items-baseline">
+                      <span className="font-baskervilleNeoDisplay text-xs uppercase tracking-[24%] whitespace-nowrap">
                         {item.price} x {item.quantity}
                       </span>
                     </div>
-                    <button
-                      className="hover:opacity-50 transition-opacity px-4 w-min font-baskervilleSC whitespace-nowrap bg-transparent hover:bg-transparent text-4xl items-start uppercase tracking-wider hover:text-foreground/80  ml-4"
+
+                    <Button
+                      variant="link"
+                      size="xs"
+                      className="font-baskervilleNeoDisplay text-xs uppercase tracking-[24%]"
                       onClick={() => removeFromCart(item.id)}
                       aria-label={t("remove", { title: item.title })}
                     >
-                      (<span className="lowercase">x</span>)
-                    </button>
+                      Rensa korg (<span className="lowercase">x</span>)
+                    </Button>
                   </div>
                 ))
               )}
@@ -96,26 +102,28 @@ export default function CartDrawer() {
 
             {/* Footer */}
             {items.length > 0 && (
-              <div className="px-6 flex flex-col gap-4 pb-6">
-                <div className="flex justify-between items-baseline h-14 lg:h-20">
-                  <span className="font-baskervilleSC    text-lg lg:text-xl  lowercase tracking-widest">
+              <div className="p-12 flex flex-col gap-6 ">
+                <div className="flex justify-center gap-6 items-baseline h-14 lg:h-24">
+                  <span className="font-baskervilleNeoDisplay text-xs uppercase tracking-[48%]">
                     {t("subtotal")}
                   </span>
-                  <span className="font-baskervilleSC    text-lg lg:text-xl  lowercase tracking-widest">
+                  <span className="font-baskervilleNeoDisplay text-xs uppercase tracking-[48%]">
                     {subtotal % 1 === 0 ? subtotal : subtotal.toFixed(2)} kr
                   </span>
                 </div>
 
-                <Button variant="default" className="">
+                <Button variant="outline" size="default" className="">
                   {t("checkout")}
                 </Button>
 
-                <button
-                  className="font-baskervilleSC hidden lowercase text-sm  text-foreground/50 hover:text-foreground transition-colors tracking-wider text-center "
+                <Button
+                  variant="link"
+                  size="xs"
+                  className="hidden "
                   onClick={clearCart}
                 >
                   {t("clear")}
-                </button>
+                </Button>
               </div>
             )}
           </motion.div>

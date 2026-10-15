@@ -6,6 +6,8 @@ import { useIssues, type Issue } from "@/lib/contexts/IssuesContext";
 import IssueCard from "./IssueCard";
 import IssueTile from "./IssueTile";
 import LLBottomBar, { type BarFilter } from "./LLBottomBar";
+import { Button } from "./ui/button";
+import { useTranslations } from "next-intl";
 
 const FILTERS: BarFilter[] = [
   { id: "all", label: "alla" },
@@ -22,6 +24,7 @@ function matchesFilter(issue: Issue, filter: string) {
 
 export default function ShopClient() {
   const issues = useIssues();
+  const t = useTranslations("Nav");
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
   const [filter, setFilter] = useState("all");
   const visibleIssues = issues.filter((issue) => matchesFilter(issue, filter));
@@ -37,11 +40,21 @@ export default function ShopClient() {
       {/* Heading spans the page; issues below as a 2/3-column grid of tiles */}
       <div
         ref={gridRef}
-        className="grid grid-cols-1 lg:grid-cols-4 px-0 pt-16 lg:pt-0 pb-16 w-full"
+        className="grid grid-cols-1 lg:grid-cols-4 px-0 pt-16 lg:pt-24 lg:px-6 pb-16 w-full gap-12"
       >
+        {/* Header: page title left, subscribe right */}
+        <div className="lg:col-span-4 flex items-center justify-between h-auto lg:h-auto px-6">
+          <h1 className="font-baskervilleNeoDisplay text-xs uppercase tracking-[24%]">
+            alla nummer 2017–nu
+          </h1>
+          {/* TODO: no subscribe page yet — link it once it exists */}
+          <Button variant="link" size="xs" className="w-auto h-auto">
+            {t("becomeSubscriber")}
+          </Button>
+        </div>
         <div className="lg:col-span-4">
           {/* 1px grid lines: tiles draw right + bottom, grid draws top + left */}
-          <div className="grid grid-cols-1 lg:grid-cols-4  border-l border-neutral-300">
+          <div className="grid grid-cols-1 lg:grid-cols-4  ">
             {visibleIssues.map((issue) => (
               <IssueTile
                 key={issue._id}
@@ -53,12 +66,15 @@ export default function ShopClient() {
         </div>
       </div>
       <IssueCard issue={selectedIssue} onClose={() => setSelectedIssue(null)} />
-      <LLBottomBar
-        visible={gridInView}
-        filters={FILTERS}
-        activeFilter={filter}
-        onFilterChange={setFilter}
-      />
+      {/* Desktop only — on mobile the bar would hold just the filter button */}
+      <div className="hidden lg:block">
+        <LLBottomBar
+          visible={gridInView}
+          filters={FILTERS}
+          activeFilter={filter}
+          onFilterChange={setFilter}
+        />
+      </div>
     </>
   );
 }

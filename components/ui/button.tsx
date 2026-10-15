@@ -13,7 +13,8 @@ const buttonVariants = cva(
           "bg-transparent text-foreground h hover:bg-primary hover:text-primary-foreground whitespace-nowrap justify-center",
         destructive:
           "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
-        outline: "border-1 border-x-foreground border-y-transparent",
+        outline:
+          "border-1 border-x-foreground border-y-transparent hover:bg-foreground hover:text-background ",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: " tracking-[24%] bg-background ",
@@ -25,9 +26,9 @@ const buttonVariants = cva(
       },
       size: {
         default:
-          "h-14 lg:h-20   has-[>svg]:px-3 uppercase font-universTypewriter text-base lg:text-sm hover:text-foreground/80 cursor-pointer ",
-        xs: "h-6  gap-1 justify-start rounded-none  font-baskervilleNeoDisplay tracking-[3%]  px-0 text-base has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
-        sm: " text-sm font-baskervilleNeoText uppercase has-[>svg]:px-3 px-4 justify-start h-12 gap-x-4  ",
+          "h-14 lg:h-20   has-[>svg]:px-3  text-xs font-baskervilleNeoDisplay tracking-[48%] uppercase cursor-pointer ",
+        xs: "h-6   gap-1 justify-start rounded-none  font-baskervilleNeoDisplay tracking-[24%]  uppercase px-0 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
+        sm: " text-xs font-baskervilleNeoDisplay uppercase has-[>svg]:px-3 px-4 justify-center tracking-[48%] h-12 gap-x-4  ",
         lg: "h-14 font-baskervilleNeoDisplay  px-6 has-[>svg]:px-4 justify-between w-full text-xl border-b border-b-foreground ",
         icon: "size-9",
         "icon-xs": "size-6 rounded-md [&_svg:not([class*='size-'])]:size-3",

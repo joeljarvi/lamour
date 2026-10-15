@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import { Baskervville, Baskervville_SC } from "next/font/google";
+import {
+  Baskervville,
+  Baskervville_SC,
+  UnifrakturMaguntia,
+} from "next/font/google";
 import localFont from "next/font/local";
 import "../globals.css";
 import LLNav from "@/components/LLNav";
@@ -17,6 +21,13 @@ import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 
 export const revalidate = 3600;
+
+const unifraktur = UnifrakturMaguntia({
+  variable: "--font-unifraktur-maguntia",
+  display: "swap",
+  weight: "400",
+  subsets: ["latin"],
+});
 
 const baskervilleSC = Baskervville_SC({
   variable: "--font-baskervilleSC",
@@ -118,7 +129,7 @@ export default async function RootLayout({
   return (
     <html lang={locale}>
       <body
-        className={`${baskerville.variable} ${baskervilleOldFace.variable} ${baskervilleClassic.variable} ${baskervilleSC.variable} ${universTypewriter.variable} ${johnSans.variable} ${baskervilleNeoDisplay.variable} ${baskervilleNeoText.variable} antialiased`}
+        className={`${baskerville.variable} ${baskervilleOldFace.variable} ${baskervilleClassic.variable} ${baskervilleSC.variable} ${universTypewriter.variable} ${johnSans.variable} ${baskervilleNeoDisplay.variable} ${baskervilleNeoText.variable} ${unifraktur.variable} antialiased`}
       >
         <NextIntlClientProvider>
           <CartProvider>
