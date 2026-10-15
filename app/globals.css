@@ -187,3 +187,31 @@
     font-feature-settings: "swsh" 1;
   }
 }
+
+/* Custom cursor: Baskerville Neo's north-west pointing hand (U+E001 from the
+   hands font, exported to SVG; hotspot on the fingertip), switching to the
+   black hand (U+E005) while the mouse button is held. Unlayered so it also
+   beats Tailwind's cursor-pointer utility. Text fields keep the I-beam */
+html,
+a,
+button,
+label,
+summary,
+[role="button"],
+.cursor-pointer {
+  cursor:
+    url("/cursor-hand-nw.svg") 2 1,
+    auto;
+}
+html:active,
+html:active
+  :is(a, button, label, summary, [role="button"], .cursor-pointer) {
+  cursor:
+    url("/cursor-hand-nw-black.svg") 2 1,
+    auto;
+}
+input:not([type="button"], [type="submit"], [type="checkbox"], [type="radio"]),
+textarea,
+[contenteditable="true"] {
+  cursor: text;
+}

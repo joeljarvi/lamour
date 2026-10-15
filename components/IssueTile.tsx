@@ -49,13 +49,12 @@ export default function IssueTile({
         }}
         className="block relative bg-background  transition-all  aspect-square w-full p-12 lg:p-6 text-center lg:text-left cursor-pointer"
       >
-        <span className="relative lg:z-10 block lg:pr-16 font-baskervilleNeoDisplay  text-sm tracking-[24%] lg:text-xs lg:tracking-[48%] uppercase group-hover:tracking-[48%] group-hover:italic transition-all">
-          {issueTitle(issue.title)}
-        </span>
+        {/* Title for screen readers only; the tile shows the issue number */}
+        <span className="sr-only">{issueTitle(issue.title)}</span>
 
-        {/* Cover: half the card's height on mobile; half + 48px on desktop, shrinking to half on hover.
-          Sits above the title on mobile, below it on desktop */}
-        <div className="absolute inset-6 z-20 lg:z-auto flex items-center justify-center">
+        {/* Cover: half the card's height on mobile; half + 48px on desktop,
+            shrinking to half on hover. Issue number below it, always shown */}
+        <div className="absolute inset-6 z-20 lg:z-auto flex flex-col gap-6 items-center justify-center">
           {src && (
             <Image
               src={src}
@@ -66,6 +65,12 @@ export default function IssueTile({
               className="w-auto h-auto max-w-full max-h-1/2 lg:max-h-[calc(50%+48px)] lg:group-hover:max-h-1/2 transition-[max-height] duration-300 ease-out shadow"
             />
           )}
+          <span
+            aria-hidden
+            className="font-baskervilleNeoDisplay text-xs uppercase tracking-[24%] group-hover:tracking-[48%] group-hover:italic transition-all"
+          >
+            #{issue.issueNumber}
+          </span>
         </div>
 
         {/* One running sentence ("Medv. A, B, C"), clamped to two lines */}

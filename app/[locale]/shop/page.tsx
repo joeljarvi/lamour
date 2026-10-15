@@ -1,20 +1,12 @@
-import type { Locale } from "next-intl";
-import { setRequestLocale } from "next-intl/server";
-import ShopClient from "@/components/ShopClient";
+import { redirect } from "@/i18n/navigation";
+import type { Locale } from "@/i18n/routing";
 
-export const revalidate = 3600;
-
+// The shop lives at the home page now; keep old /shop links working
 export default async function ShopPage({
   params,
 }: {
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  setRequestLocale(locale as Locale);
-
-  return (
-    <section className="flex flex-col w-full mt-16">
-      <ShopClient />
-    </section>
-  );
+  redirect({ href: "/", locale: locale as Locale });
 }

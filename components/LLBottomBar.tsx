@@ -37,7 +37,7 @@ export default function LLBottomBar({
     // desktop they open above the controls at the same width. Either way the
     // controls row keeps its place, so the filter button never moves
     <nav
-      className={`fixed bottom-6 z-50 flex flex-col items-end lg:items-center lg:left-1/2 lg:right-auto lg:-translate-x-1/2 bg-transparent font-baskervilleNeoText text-xl leading-none gap-0 transition-opacity duration-300 ${
+      className={`fixed hidden  bottom-6 z-50 flex flex-col items-end lg:items-center lg:left-1/2 lg:right-auto lg:-translate-x-1/2 bg-transparent font-baskervilleNeoText text-xl leading-none gap-0 transition-opacity duration-300 ${
         visible ? "opacity-100" : "opacity-0 pointer-events-none"
       } ${filtersOpen ? "left-6 right-6" : "right-6 left-auto"}`}
     >

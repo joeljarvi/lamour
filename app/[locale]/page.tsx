@@ -1,8 +1,10 @@
 import type { Locale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
-import HomeClient from "@/components/HomeClient";
-import Footer from "@/components/Footer";
+import ShopClient from "@/components/ShopClient";
 
+export const revalidate = 3600;
+
+// The shop is the home page
 export default async function Home({
   params,
 }: {
@@ -12,9 +14,8 @@ export default async function Home({
   setRequestLocale(locale as Locale);
 
   return (
-    <section className="flex flex-col w-full ">
-      <HomeClient />
-      <Footer />
+    <section className="flex flex-col w-full mt-16">
+      <ShopClient />
     </section>
   );
 }

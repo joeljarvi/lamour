@@ -26,7 +26,8 @@ export async function POST(request: NextRequest) {
     );
 
   if (type === "issue") {
-    revalidate("/shop");
+    // The shop is the home page
+    revalidate("/");
     if (slug) revalidate(`/shop/${slug}`);
   } else if (type === "article") {
     revalidate("/articles");

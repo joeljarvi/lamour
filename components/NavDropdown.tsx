@@ -33,8 +33,8 @@ export function exploreItems(
   locale: string,
 ): ListItem[] {
   return [
-    { key: "about", label: t("about"), href: "/" },
     // TODO: no pages for these yet — add hrefs once they exist
+    { key: "about", label: t("about") },
     { key: "clues", label: t("clues") },
     { key: "terms", label: t("terms") },
     { key: "contact", label: t("contact") },
@@ -55,18 +55,19 @@ const ROW_HEIGHT = 32;
 const LIST_COLUMNS = 2;
 
 // Lay a flat list out row by row across LIST_COLUMNS columns
-function flowRows(items: ListItem[]): (ListItem | null)[] {
+function flowRows(items: (ListItem | null)[]): (ListItem | null)[] {
   return items;
 }
 
-// Put each list in its own column (one list per column), padding the shorter
-// ones with empty cells so the grid stays row-aligned
-function columnsToRows(columns: ListItem[][]): (ListItem | null)[] {
-  const rows = Math.max(0, ...columns.map((c) => c.length));
-  const cells: (ListItem | null)[] = [];
-  for (let r = 0; r < rows; r++)
-    for (const column of columns) cells.push(column[r] ?? null);
-  return cells;
+// A heading on its own row, then its items flowing row by row; padded with
+// empty cells so the next group's heading starts on a fresh row
+function headedGroup(
+  heading: ListItem,
+  items: ListItem[],
+): (ListItem | null)[] {
+  const pad = (n: number) =>
+    Array<null>((LIST_COLUMNS - (n % LIST_COLUMNS)) % LIST_COLUMNS).fill(null);
+  return [heading, ...pad(1), ...items, ...pad(items.length)];
 }
 
 // Full-width call-to-action along the bottom of the right half
@@ -102,17 +103,21 @@ export default function NavDropdown({
   const cells: (ListItem | null)[] =
     section === "issues"
       ? flowRows(
-          issues.map((issue) => ({
-            key: issue._id,
-            label: issueTitle(issue.title),
-            href: `/shop/${issue.slug.current}`,
-          })),
+          headedGroup(
+            { key: "issues-heading", label: t("allIssues"), heading: true },
+            issues.map((issue) => ({
+              key: issue._id,
+              label: issueTitle(issue.title),
+              href: `/shop/${issue.slug.current}`,
+            })),
+          ),
         )
       : section === "articles"
-        ? // Series in column 1, articles without a series in column 2
-          columnsToRows([
-            [
-              ...series
+        ? // Series, then the articles without a series, in one flowing list
+          flowRows([
+            ...headedGroup(
+              { key: "series-heading", label: t("series"), heading: true },
+              series
                 .filter((s) =>
                   articles.some(
                     (a) => a.series?.slug.current === s.slug.current,
@@ -124,16 +129,21 @@ export default function NavDropdown({
                   // No series pages yet — the articles page lists them
                   href: "/articles",
                 })),
-            ],
-            [
-              ...articles
+            ),
+            ...headedGroup(
+              {
+                key: "articles-heading",
+                label: t("allArticles"),
+                heading: true,
+              },
+              articles
                 .filter((a) => !a.series)
                 .map((a) => ({
                   key: a._id,
                   label: articleTitle(a.title),
                   href: `/articles/${a.slug.current}`,
                 })),
-            ],
+            ),
           ])
         : section === "explore"
           ? flowRows(exploreItems(t, pathname, locale))
@@ -172,7 +182,7 @@ export default function NavDropdown({
           {/* List for the open section, in the left half; cells go row by
               row across LIST_COLUMNS columns */}
           <ul
-            className="col-start-1 col-span-1 grid pt-12 content-start gap-y-0 gap-x-6 list-none px-12"
+            className="col-start-1 col-span-1 grid pt-6 content-start gap-y-0 gap-x-6 list-none px-12"
             style={{
               gridTemplateColumns: `repeat(${LIST_COLUMNS}, minmax(0, 1fr))`,
             }}
@@ -185,7 +195,7 @@ export default function NavDropdown({
                 style={{ height: ROW_HEIGHT }}
               >
                 {!item ? null : item.heading ? (
-                  <span className="px-0 font-baskervilleNeoDisplay italic text-xs uppercase tracking-[48%] mb-3">
+                  <span className="px-0 font-baskervilleNeoDisplay italic text-xs uppercase tracking-[48%] mb-6">
                     {item.label}
                   </span>
                 ) : item.href ? (
@@ -221,48 +231,78 @@ export default function NavDropdown({
             ))}
           </ul>
 
-          {/* RIGHT HALF: text and image pushed to opposite sides; a full-width
-              button along the bottom. Content depends on the section */}
-          <div className="col-span-1 flex flex-col gap-12 p-12 bg-pergament">
-            {section === "issues" && (
-              <>
-                <div className="flex flex-1 justify-between items-start gap-12">
-                  <div className="flex flex-col gap-6 min-w-0 max-w-xs">
-                    <h3 className="truncate font-baskervilleNeoDisplay uppercase text-xs tracking-[24%]">
-                      LL#21 – CAN’T HELP MYSELF
-                    </h3>
-                    <p className="font-baskervilleNeoText text-xs tracking-[3%] text-neutral-700 leading-[1.5]">
-                      vi sa följande vi ringde upp alla vi sa kära författare
-                      håll inte tillbaka ge oss allt du vill släpp fram
-                      tvångstanken regla dörren rotera barnet aptera bomben håll
-                      skeppet sjunkande / brinnande här samsas tjugo röster en
-                      hyllning till blodmaskinen välkommen in till l’amour – la
-                      morts tjugoförsta nummer
-                    </p>
+          {/* RIGHT HALF: heading row, the section's content, then a
+              full-width button along the bottom */}
+          <div className="col-span-1 flex flex-col gap-12 p-6 bg-pergament">
+            {/* Heading on the left, the section's latest item on the right:
+                in article mode the title, author and date, the title on the
+                heading's baseline (items-baseline aligns the column's first
+                line); in issue mode the cover, its top level with the
+                heading's, and the issue number below it */}
+            <div
+              className={`flex justify-between gap-12 ${section === "issues" ? "items-start" : "items-baseline"}`}
+            >
+              <h2 className="shrink-0 font-baskervilleNeoDisplay italic text-xs uppercase tracking-[48%]">
+                {section === "issues"
+                  ? t("latestIssue")
+                  : section === "articles"
+                    ? t("latestArticle")
+                    : "L'Amour — La Mort"}
+              </h2>
+              {section === "articles" && latestArticle && (
+                <div className="flex flex-col items-end gap-6 min-w-0 max-w-xs text-right">
+                  <h3 className="max-w-full truncate font-baskervilleNeoDisplay uppercase text-xs tracking-[24%] leading-[1.5]">
+                    <Link
+                      href={latestArticleHref}
+                      onClick={onNavigate}
+                      className="hover:opacity-60 transition-opacity"
+                    >
+                      {articleTitle(latestArticle.title)}
+                    </Link>
+                  </h3>
+                  <div className="flex flex-col items-end gap-1 font-baskervilleNeoText text-xs tracking-[3%] text-neutral-700 leading-[1.5]">
+                    {latestArticle.author && (
+                      <span>{latestArticle.author.name}</span>
+                    )}
+                    {latestArticle.publishedAt && (
+                      <time dateTime={latestArticle.publishedAt}>
+                        {formatDate(locale, latestArticle.publishedAt)}
+                      </time>
+                    )}
                   </div>
+                </div>
+              )}
+              {section === "issues" && (
+                <div className="flex flex-col items-end gap-3">
                   {latest?.cover?.asset && (
-                    <div className="flex flex-col gap-y-3 gap-x-4 items-start justify-end">
-                      <Link
-                        href={`/shop/${latest.slug.current}`}
-                        onClick={onNavigate}
-                        className="shrink-0 hover:opacity-90 transition-opacity"
-                      >
-                        <Image
-                          src={urlFor(latest.cover).url()}
-                          alt={latest.cover.alt ?? latest.title}
-                          width={0}
-                          height={0}
-                          sizes="17vw"
-                          // Natural shape; capped so a tall cover can't stretch the drop-down
-                          className="rounded-xs w-auto h-auto max-w-[17vw] max-h-[40vh]"
-                        />
-                      </Link>
-                      <h3 className="font-unifraktur text-base pl-0 tracking-[12%] text-neutral-600">
-                        nytt nummer ute nu
-                      </h3>
-                    </div>
+                    <Link
+                      href={`/shop/${latest.slug.current}`}
+                      onClick={onNavigate}
+                      className="shrink-0 hover:opacity-90 transition-opacity"
+                    >
+                      <Image
+                        src={urlFor(latest.cover).url()}
+                        alt={latest.cover.alt ?? latest.title}
+                        width={0}
+                        height={0}
+                        sizes="17vw"
+                        // Natural shape; capped so a tall cover can't stretch the drop-down
+                        className="rounded-xs w-auto h-auto max-w-[17vw] max-h-[40vh]"
+                      />
+                    </Link>
+                  )}
+                  {latest && (
+                    <span className="font-baskervilleNeoDisplay text-xs uppercase tracking-[24%]">
+                      LL#{latest.issueNumber}
+                    </span>
                   )}
                 </div>
+              )}
+            </div>
+            {section === "issues" && (
+              <>
+                {/* Cover and number are in the heading row above */}
+                <div className="flex-1" />
                 {latest && (
                   <Button
                     variant="outline"
@@ -281,53 +321,8 @@ export default function NavDropdown({
 
             {section === "articles" && latestArticle && (
               <>
-                <div className="flex flex-1 justify-between items-start gap-12">
-                  <div className="flex flex-col gap-6 min-w-0 max-w-xs">
-                    <h3 className="truncate font-baskervilleNeoDisplay uppercase text-xs tracking-[24%] leading-[1.5]">
-                      <Link
-                        href={latestArticleHref}
-                        onClick={onNavigate}
-                        className="hover:opacity-60 transition-opacity"
-                      >
-                        {articleTitle(latestArticle.title)}
-                      </Link>
-                    </h3>
-                    <div className="flex flex-col gap-1 font-baskervilleNeoText text-xs tracking-[3%] text-neutral-700 leading-[1.5]">
-                      {latestArticle.author && (
-                        <span>{latestArticle.author.name}</span>
-                      )}
-                      {latestArticle.publishedAt && (
-                        <time dateTime={latestArticle.publishedAt}>
-                          {formatDate(locale, latestArticle.publishedAt)}
-                        </time>
-                      )}
-                    </div>
-                  </div>
-                  {latestArticle.coverImage?.asset && (
-                    <div className="flex flex-col gap-y-3 gap-x-4 items-start justify-end">
-                      <Link
-                        href={latestArticleHref}
-                        onClick={onNavigate}
-                        className="shrink-0 hover:opacity-90 transition-opacity"
-                      >
-                        <Image
-                          src={urlFor(latestArticle.coverImage).url()}
-                          alt={
-                            latestArticle.coverImage.alt ??
-                            articleTitle(latestArticle.title)
-                          }
-                          width={0}
-                          height={0}
-                          sizes="17vw"
-                          className="shadow w-auto h-auto max-w-[17vw] max-h-[40vh]"
-                        />
-                      </Link>
-                      <h3 className="font-unifraktur text-base tracking-[12%] text-neutral-600">
-                        senaste artikeln
-                      </h3>
-                    </div>
-                  )}
-                </div>
+                {/* Title, author and date are in the heading row above */}
+                <div className="flex-1" />
                 <Button
                   variant="outline"
                   size="sm"

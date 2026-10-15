@@ -8,6 +8,7 @@ import localFont from "next/font/local";
 import "../globals.css";
 import LLNav from "@/components/LLNav";
 import CartDrawer from "@/components/CartDrawer";
+import Footer from "@/components/Footer";
 import { client } from "@/lib/sanity/client";
 import { issuesQuery, articlesQuery, seriesQuery } from "@/lib/sanity/queries";
 import { IssuesProvider } from "@/lib/contexts/IssuesContext";
@@ -137,6 +138,7 @@ export default async function RootLayout({
               <ArticlesProvider articles={articles} series={series}>
                 <LLNav />
                 {children}
+                <Footer />
               </ArticlesProvider>
             </IssuesProvider>
             <CartDrawer />

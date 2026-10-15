@@ -9,7 +9,6 @@ import { useCart } from "@/lib/contexts/CartContext";
 import { Link, usePathname } from "@/i18n/navigation";
 import { Button } from "./ui/button";
 import NavDropdown, { exploreItems, type NavSection } from "./NavDropdown";
-import { HERO_INTRO_MS } from "@/lib/heroIntro";
 
 function useTypingAnimation(fullText: string, collapsed: boolean, speed = 70) {
   const [text, setText] = useState("");
@@ -28,10 +27,11 @@ function useTypingAnimation(fullText: string, collapsed: boolean, speed = 70) {
   return text;
 }
 
-// "/" only matches the home page; other links also match their sub-pages
+// Links also match their sub-pages. "/" is the shop, so it matches the home
+// page and the issue pages under /shop/
 function isActive(pathname: string, href: string) {
   return href === "/"
-    ? pathname === "/"
+    ? pathname === "/" || pathname.startsWith("/shop/")
     : pathname === href || pathname.startsWith(`${href}/`);
 }
 
@@ -118,7 +118,7 @@ function ExploreItem({ onNavigate }: { onNavigate: () => void }) {
   );
 }
 
-// Same items as the desktop bar: Nummer and Artiklar go straight to their
+// Same items as the desktop bar: Affären and Artiklar go straight to their
 // pages, Utforska opens a submenu with the desktop drop-down's explore links
 function NavOverlay({
   navOpen,
@@ -134,8 +134,7 @@ function NavOverlay({
   const close = () => setNavOpen(false);
 
   const pageLinks = [
-    { label: t("home"), href: "/" },
-    { label: t("issues"), href: "/shop" },
+    { label: t("shop"), href: "/" },
     { label: t("articles"), href: "/articles" },
   ];
 
@@ -173,15 +172,6 @@ function NavOverlay({
 
           <ExploreItem onNavigate={close} />
 
-          {/* TODO: no subscribe page or accounts yet — wire up once they exist */}
-          {[t("subscribe"), t("login")].map((label) => (
-            <motion.li key={label} className="w-full" variants={ITEM_VARIANTS}>
-              <Button variant="link" size="sm" className={OVERLAY_BUTTON_CLASS}>
-                {label}
-              </Button>
-            </motion.li>
-          ))}
-
           <motion.li className="w-full" variants={ITEM_VARIANTS}>
             <Button
               variant="link"
@@ -201,6 +191,11 @@ function NavOverlay({
   );
 }
 /* ─── MAIN NAV ─── */
+
+// Drop-down triggers: the link variant's ☜ (current page / hover) rotates a
+// quarter turn to point down (☟) while the trigger's drop-down is open
+const DROPDOWN_HAND_CLASS =
+  "after:inline-block after:transition-all after:duration-300 aria-expanded:after:-rotate-90";
 
 export default function LLNav() {
   const pathname = usePathname();
@@ -222,12 +217,6 @@ export default function LLNav() {
   const lamourText = useTypingAnimation("L'Amour", scrolled);
   const lamortText = useTypingAnimation("La Mort", scrolled);
 
-  // A visit that starts on the home page waits for the hero intro to finish
-  // before the nav fades in (mobile and desktop); any other entry page shows
-  // it straight away. (Read once on first render — the nav stays mounted
-  // across pages)
-  const [introOnLoad] = useState(() => pathname === "/");
-
   if (pathname.startsWith("/studio") || pathname.startsWith("/articles/"))
     return null;
 
@@ -235,110 +224,80 @@ export default function LLNav() {
     <motion.div
       className={`fixed top-0 left-0 right-0 z-50 flex flex-col transition-colors duration-500
         ${navOpen ? "h-dvh bg-pergament" : "h-14 lg:h-auto"}`}
-      initial={introOnLoad ? { opacity: 0 } : false}
-      animate={{ opacity: 1 }}
-      transition={{
-        duration: 0.6,
-        ease: "easeOut",
-        delay: introOnLoad ? HERO_INTRO_MS / 1000 : 0,
-      }}
     >
-      {/* ── DESKTOP: home (col 1) · nummer (col 3) · artiklar (col 6) · cart ──
-          Hovering Nummer drops the issue list down below the bar; leaving
-          the bar + list area closes it */}
+      {/* ── DESKTOP: affären (col 1) · artiklar (col 3) · logo (centre) ·
+          utforska (col 11) · cart ──
+          Hovering Affären / Artiklar / Utforska drops its list down below
+          the bar; leaving the bar + list area closes it */}
       <div className="hidden lg:block" onMouseLeave={() => setSection(null)}>
-        {/* Bottom border shows (in foreground colour) while a drop-down is open */}
         {/* Bar turns yellow while a drop-down is open */}
         <div
-          className={`grid grid-cols-12 gap-6 items-center h-24 px-12 pt-12 transition-colors duration-300 ${section ? "bg-pergament" : "bg-background"}`}
+          className={`grid grid-cols-12 gap-6 items-center h-24 px-12 pt-6 transition-colors duration-300 ${section ? "bg-pergament" : "bg-background"}`}
         >
-          <Button
-            variant="link"
-            size="xs"
-            className="col-start-1  h-auto w-auto justify-self-start "
-            asChild
-          >
-            <Link
-              href="/"
-              aria-current={isActive(pathname, "/") ? "page" : undefined}
-              onMouseEnter={() => setSection(null)}
+          {/* Affären and Artiklar: link to their page, hover opens the
+              drop-down. The link variant's ☜ marks the current page and
+              turns to point down while the drop-down is open */}
+          {(
+            [
+              {
+                key: "issues",
+                label: t("shop"),
+                href: "/",
+                col: "col-start-1",
+              },
+              {
+                key: "articles",
+                label: t("articles"),
+                href: "/articles",
+                col: "col-start-3",
+              },
+            ] as const
+          ).map(({ key, label, href, col }) => (
+            <Button
+              key={key}
+              variant="link"
+              size="xs"
+              className={`${col} h-auto w-auto justify-self-start ${DROPDOWN_HAND_CLASS}`}
+              asChild
             >
-              {t("home")}
-            </Link>
-          </Button>
-          <Button
-            variant="link"
-            size="xs"
-            className="col-start-2  h-auto w-auto justify-self-start"
-            asChild
+              <Link
+                href={href}
+                aria-current={isActive(pathname, href) ? "page" : undefined}
+                aria-expanded={section === key}
+                onMouseEnter={() => setSection(key)}
+                onFocus={() => setSection(key)}
+              >
+                {label}
+              </Link>
+            </Button>
+          ))}
+
+          {/* Logo, centred (columns 5–8 straddle the middle of 12); the dash
+              shrinks while a drop-down is open */}
+          <Link
+            href="/"
+            aria-label="L'Amour — La Mort"
+            onMouseEnter={() => setSection(null)}
+            className="col-start-5 col-span-4 justify-self-center flex items-center gap-3 font-baskervilleNeoDisplay text-xs uppercase tracking-[24%] whitespace-nowrap hover:opacity-60 transition-opacity"
           >
-            <Link
-              href="/shop"
-              aria-current={isActive(pathname, "/shop") ? "page" : undefined}
-              aria-expanded={section === "issues"}
-              onMouseEnter={() => setSection("issues")}
-              onFocus={() => setSection("issues")}
-            >
-              {t("issues")}
-            </Link>
-          </Button>
+            L&apos;Amour
+            <span
+              aria-hidden
+              className={`block shrink-0 bg-foreground transition-[width] duration-300 h-[0.5px] ${section ? "w-3" : "w-12"}`}
+            />
+            La Mort
+          </Link>
+
+          {/* Utforska: drop-down only, lists the remaining nav links */}
           <Button
             variant="link"
             size="xs"
-            className="col-start-4 w-auto h-auto justify-self-start"
-            asChild
-          >
-            <Link
-              href="/articles"
-              aria-current={
-                isActive(pathname, "/articles") ? "page" : undefined
-              }
-              aria-expanded={section === "articles"}
-              onMouseEnter={() => setSection("articles")}
-              onFocus={() => setSection("articles")}
-            >
-              {t("articles")}
-            </Link>
-          </Button>
-          {/* Utforska: centred (columns 6–7 straddle the middle of 12); drop-down
-              only, lists the remaining nav links */}
-          <Button
-            variant="link"
-            size="xs"
-            // Centred in the bar and the label centred in the button: no ☜
-            // (after:hidden frees its reserved space) and the hand hangs
-            // outside the label instead of taking up width
-            className="relative col-start-6 col-span-2 justify-self-center h-auto w-auto gap-x-3 flex justify-center text-center after:hidden"
+            className={`col-start-11 justify-self-start h-auto w-auto ${DROPDOWN_HAND_CLASS}`}
             aria-expanded={section === "explore"}
             onMouseEnter={() => setSection("explore")}
             onFocus={() => setSection("explore")}
           >
             {t("explore")}
-            {/* Baskerville Neo's north-east pointing hand (U+E000 in the
-                hands font, see globals.css) */}
-            <span
-              aria-hidden
-              className="absolute left-full ml-3 top-1/2 -translate-y-1/2 font-hands"
-            >
-              {"\uE000"}
-            </span>
-          </Button>
-          {/* TODO: no subscribe page yet — link it once it exists */}
-          <Button
-            variant="link"
-            size="xs"
-            className="col-start-9 w-auto h-auto justify-self-start"
-            onMouseEnter={() => setSection(null)}
-          >
-            {t("subscribe")}
-          </Button>
-          <Button
-            variant="link"
-            size="xs"
-            className="col-start-11 w-auto h-auto justify-self-start"
-            onMouseEnter={() => setSection(null)}
-          >
-            {t("login")}
           </Button>
           <Button
             variant="link"
