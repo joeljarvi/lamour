@@ -78,10 +78,7 @@ export default function IssueTile({
       {soldOut ? (
         <>
           {/* Sold out: blurred, faded and not a link */}
-          <div
-            aria-disabled
-            className={`${tileClass} blur-md grayscale opacity-40 select-none`}
-          >
+          <div aria-disabled className={`${tileClass}   opacity-0 select-none`}>
             {content}
           </div>
           {/* Label centred on top of the cover, outside the blurred tile so
@@ -91,7 +88,7 @@ export default function IssueTile({
               the label moves up by that much */}
           <span
             aria-hidden
-            className="absolute inset-0 z-30 -translate-y-8 flex items-center justify-center font-unifraktur text-xs  lowercase lg:text-sm tracking-[24%] lg:tracking-[12%]"
+            className="absolute inset-0 z-30 -translate-y-8 flex items-center justify-center font-unifraktur text-xs  lowercase lg:text-sm text-red-700 tracking-[24%] lg:tracking-[12%]"
           >
             {t("soldOut")}
           </span>
