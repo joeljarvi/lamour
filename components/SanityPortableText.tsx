@@ -9,9 +9,10 @@ function buildComponents(category?: string): PortableTextComponents {
       normal: ({ children, value }) => {
         if ((value as any)._empty) return null;
         const indent = (value as any)._indented ? "indent-16" : "";
+        const dropcap = (value as any)._dropcap ? "dropcap" : "";
         return (
           <p
-            className={`font-baskervilleNeoText text-xl ${normalAlign} ${indent} max-w-3xl mx-auto `}
+            className={`font-baskervilleNeoText text-lg lg:text-lg text-neutral-600 tracking-normal leading-[1.5] ${normalAlign} ${indent} ${dropcap}  mx-auto `}
           >
             {children}
           </p>
@@ -73,8 +74,14 @@ function buildComponents(category?: string): PortableTextComponents {
     },
     marks: {
       em: ({ children }) => <em className="italic">{children}</em>,
+      // Added by markDropcap, not by editors in Sanity
+      firstWord: ({ children }) => (
+        <span className="dropcap-word font-normal">{children}</span>
+      ),
       strong: ({ children }) => (
-        <strong className="font-bold">{children}</strong>
+        <strong className="font-bold font-baskervilleNeoText tracking-[1.5%] [font-variant-caps:all-small-caps]">
+          {children}
+        </strong>
       ),
       link: ({ value, children }) => (
         <a
@@ -129,16 +136,51 @@ function normalizeStyles(blocks: any[], category?: string): any[] {
   });
 }
 
+// Marks the first non-empty normal block for a drop cap, and splits the first
+// word of its text into its own span with a "firstWord" mark
+function markDropcap(blocks: any[]): any[] {
+  const i = blocks.findIndex(
+    (b) =>
+      b._type === "block" &&
+      b.style === "normal" &&
+      !b._empty &&
+      b.children?.some((c: any) => c.text?.trim()),
+  );
+  if (i === -1) return blocks;
+  const block = blocks[i];
+  const j = block.children.findIndex((c: any) => c.text?.trim());
+  const span = block.children[j];
+  const [, word, rest] = span.text.match(/^(\s*\S+)([\s\S]*)$/);
+  const marks = [...(span.marks ?? []), "firstWord"];
+  const split = [
+    { ...span, _key: `${span._key}-first`, text: word, marks },
+    ...(rest ? [{ ...span, text: rest }] : []),
+  ];
+  const children = [
+    ...block.children.slice(0, j),
+    ...split,
+    ...block.children.slice(j + 1),
+  ];
+  return blocks.map((b, k) =>
+    k === i ? { ...block, children, _dropcap: true } : b,
+  );
+}
+
 export default function SanityPortableText({
   value,
   category,
+  dropcap,
 }: {
   value: any;
   category?: string;
+  // Large first letter, with the rest of the first word in tracked capitals
+  dropcap?: boolean;
 }) {
-  const normalized = Array.isArray(value)
+  let normalized = Array.isArray(value)
     ? normalizeStyles(value, category)
     : value;
+  if (dropcap && Array.isArray(normalized))
+    normalized = markDropcap(normalized);
   return (
     <div className="flex flex-col items-start justify-start gap-4">
       <PortableText value={normalized} components={buildComponents(category)} />

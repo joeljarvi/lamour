@@ -70,6 +70,16 @@ function headedGroup(
   return [heading, ...pad(1), ...items, ...pad(items.length)];
 }
 
+// Put each list in its own column (one list per column), padding the shorter
+// ones with empty cells so the grid stays row-aligned
+function columnsToRows(columns: ListItem[][]): (ListItem | null)[] {
+  const rows = Math.max(0, ...columns.map((c) => c.length));
+  const cells: (ListItem | null)[] = [];
+  for (let r = 0; r < rows; r++)
+    for (const column of columns) cells.push(column[r] ?? null);
+  return cells;
+}
+
 // Full-width call-to-action along the bottom of the right half
 const CTA_CLASS =
   "w-full justify-center disabled:opacity-30 font-baskervilleNeoText text-xs tracking-[24%] uppercase hover:bg-foreground hover:text-background";
@@ -113,11 +123,11 @@ export default function NavDropdown({
           ),
         )
       : section === "articles"
-        ? // Series, then the articles without a series, in one flowing list
-          flowRows([
-            ...headedGroup(
+        ? // Series in column 1, articles without a series in column 2
+          columnsToRows([
+            [
               { key: "series-heading", label: t("series"), heading: true },
-              series
+              ...series
                 .filter((s) =>
                   articles.some(
                     (a) => a.series?.slug.current === s.slug.current,
@@ -129,21 +139,21 @@ export default function NavDropdown({
                   // No series pages yet — the articles page lists them
                   href: "/articles",
                 })),
-            ),
-            ...headedGroup(
+            ],
+            [
               {
                 key: "articles-heading",
                 label: t("allArticles"),
                 heading: true,
               },
-              articles
+              ...articles
                 .filter((a) => !a.series)
                 .map((a) => ({
                   key: a._id,
                   label: articleTitle(a.title),
                   href: `/articles/${a.slug.current}`,
                 })),
-            ),
+            ],
           ])
         : section === "explore"
           ? flowRows(exploreItems(t, pathname, locale))
@@ -182,7 +192,7 @@ export default function NavDropdown({
           {/* List for the open section, in the left half; cells go row by
               row across LIST_COLUMNS columns */}
           <ul
-            className="col-start-1 col-span-1 grid pt-6 content-start gap-y-0 gap-x-6 list-none px-12"
+            className="col-start-1 col-span-1 grid grid-cols-2  pt-6 content-start gap-y-0 gap-x-6 list-none px-12"
             style={{
               gridTemplateColumns: `repeat(${LIST_COLUMNS}, minmax(0, 1fr))`,
             }}

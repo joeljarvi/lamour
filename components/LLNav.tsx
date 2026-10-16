@@ -8,7 +8,7 @@ import { useCart } from "@/lib/contexts/CartContext";
 
 import { Link, usePathname } from "@/i18n/navigation";
 import { Button } from "./ui/button";
-import NavDropdown, { exploreItems, type NavSection } from "./NavDropdown";
+import NavDropdown, { type NavSection } from "./NavDropdown";
 
 function useTypingAnimation(fullText: string, collapsed: boolean, speed = 70) {
   const [text, setText] = useState("");
@@ -42,84 +42,14 @@ const ITEM_VARIANTS = {
 
 /* ─── NAV OVERLAY (mobile) ─── */
 
-// Overlay buttons span the row with the label centred and the pointing hand
-// (the link variant's ::after) pinned to the right edge
+// Overlay buttons (and the submenu's rows) span the row with the label
+// left-aligned and the pointing hand (the link variant's ::after) pinned to
+// the right edge
 const OVERLAY_BUTTON_CLASS =
-  "relative justify-center text-center after:absolute after:right-4 after:ml-0";
-// Submenu rows: same, but the label is left-aligned
-const SUBMENU_BUTTON_CLASS =
-  "relative justify-start text-left after:absolute after:right-4 after:ml-0";
+  "relative justify-start text-left after:absolute after:right-4 after:ml-0 border-b border-b-neutral-400";
 
-// Utforska with its submenu. Its open state lives here, so it starts
-// collapsed each time the overlay opens (the overlay's list remounts this)
-function ExploreItem({ onNavigate }: { onNavigate: () => void }) {
-  const t = useTranslations("Nav");
-  const locale = useLocale();
-  const pathname = usePathname();
-  const [exploreOpen, setExploreOpen] = useState(false);
-
-  return (
-    <motion.li className="w-full" variants={ITEM_VARIANTS}>
-      <Button
-        variant="link"
-        size="sm"
-        className={OVERLAY_BUTTON_CLASS}
-        aria-expanded={exploreOpen}
-        onClick={() => setExploreOpen((v) => !v)}
-      >
-        {t("explore")}
-      </Button>
-      <AnimatePresence initial={false}>
-        {exploreOpen && (
-          <motion.ul
-            className="list-none overflow-hidden py-3 pl-3 border-b border-b-neutral-500 mb-3"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
-          >
-            {exploreItems(t, pathname, locale).map((item) => (
-              <li key={item.key} className="w-full  ">
-                {item.href ? (
-                  <Button
-                    variant="link"
-                    size="sm"
-                    className={SUBMENU_BUTTON_CLASS}
-                    asChild
-                  >
-                    <Link
-                      href={item.href}
-                      locale={item.locale}
-                      aria-current={
-                        !item.locale && pathname === item.href
-                          ? "page"
-                          : undefined
-                      }
-                      onClick={onNavigate}
-                    >
-                      {item.label}
-                    </Link>
-                  </Button>
-                ) : (
-                  <Button
-                    variant="link"
-                    size="sm"
-                    className={SUBMENU_BUTTON_CLASS}
-                  >
-                    {item.label}
-                  </Button>
-                )}
-              </li>
-            ))}
-          </motion.ul>
-        )}
-      </AnimatePresence>
-    </motion.li>
-  );
-}
-
-// Same items as the desktop bar: Affären and Artiklar go straight to their
-// pages, Utforska opens a submenu with the desktop drop-down's explore links
+// Affären and Artiklar go straight to their pages, then Om oss, Logga in and
+// the cart
 function NavOverlay({
   navOpen,
   setNavOpen,
@@ -142,7 +72,7 @@ function NavOverlay({
     <AnimatePresence>
       {navOpen && (
         <motion.ul
-          className="flex flex-col w-full justify-center items-center font-baskerville   py-0 mt-24 px-0 list-none gap-y-0"
+          className="flex flex-col w-full justify-center items-center font-baskerville   py-0 mt-24 px-6 list-none gap-y-0"
           initial="hidden"
           animate="visible"
           exit="hidden"
@@ -152,7 +82,7 @@ function NavOverlay({
           }}
         >
           {pageLinks.map(({ label, href }) => (
-            <motion.li key={href} className="w-full" variants={ITEM_VARIANTS}>
+            <motion.li key={href} className="w-full " variants={ITEM_VARIANTS}>
               <Button
                 variant="link"
                 size="sm"
@@ -170,7 +100,14 @@ function NavOverlay({
             </motion.li>
           ))}
 
-          <ExploreItem onNavigate={close} />
+          {/* TODO: no about / login pages yet — link them once they exist */}
+          {[t("about"), t("login")].map((label) => (
+            <motion.li key={label} className="w-full" variants={ITEM_VARIANTS}>
+              <Button variant="link" size="sm" className={OVERLAY_BUTTON_CLASS}>
+                {label}
+              </Button>
+            </motion.li>
+          ))}
 
           <motion.li className="w-full" variants={ITEM_VARIANTS}>
             <Button
@@ -226,9 +163,9 @@ export default function LLNav() {
         ${navOpen ? "h-dvh bg-pergament" : "h-14 lg:h-auto"}`}
     >
       {/* ── DESKTOP: affären (col 1) · artiklar (col 3) · logo (centre) ·
-          utforska (col 11) · cart ──
-          Hovering Affären / Artiklar / Utforska drops its list down below
-          the bar; leaving the bar + list area closes it */}
+          filter (col 11) · cart ──
+          Hovering Affären / Artiklar drops its list down below the bar;
+          leaving the bar + list area closes it */}
       <div className="hidden lg:block" onMouseLeave={() => setSection(null)}>
         {/* Bar turns yellow while a drop-down is open */}
         <div
@@ -288,16 +225,16 @@ export default function LLNav() {
             La Mort
           </Link>
 
-          {/* Utforska: drop-down only, lists the remaining nav links */}
+          {/* Filter (replaces Utforska on desktop; the mobile overlay keeps
+              Utforska). Hovering it closes any open drop-down */}
+          {/* TODO: placeholder — doesn't filter anything yet */}
           <Button
             variant="link"
             size="xs"
-            className={`col-start-11 justify-self-start h-auto w-auto ${DROPDOWN_HAND_CLASS}`}
-            aria-expanded={section === "explore"}
-            onMouseEnter={() => setSection("explore")}
-            onFocus={() => setSection("explore")}
+            className="col-start-11 justify-self-start h-auto w-auto"
+            onMouseEnter={() => setSection(null)}
           >
-            {t("explore")}
+            {t("filter")}
           </Button>
           <Button
             variant="link"
@@ -324,15 +261,32 @@ export default function LLNav() {
       <div
         className={`relative grid grid-cols-4 lg:hidden items-start w-full shrink-0   h-16 lg:h-24 px-0 lg:px-3.5 pt-0 transition-colors duration-300 ${navOpen ? "bg-pergament" : "bg-pergament"}`}
       >
-        {/* Menu toggle — mobile only, fixed at the bottom centre of the screen */}
+        {/* Menu toggle — mobile only, square, top left: three thin
+            horizontal lines that animate into an X while the menu is open
+            (outer lines meet in the middle and turn ±45°, the middle one
+            fades, and the X's lines shorten from 24px to 16px) */}
         <Button
           onClick={() => setNavOpen((v) => !v)}
           variant="link"
-          className="lg:hidden fixed z-50 left-1/2 -translate-x-1/2 bottom-[max(1.5rem,env(safe-area-inset-bottom))] h-12 px-4 w-auto justify-center text-center items-center font-baskervilleNeoDisplay normal-case border border-neutral-300 bg-pergament  text-sm gap-x-0 after:content-none"
-          aria-label="Menu"
+          className="lg:hidden col-start-1 justify-self-start h-16 w-16  aspect-square px-0 justify-center items-center after:content-none"
+          aria-label={t("menu")}
           aria-expanded={navOpen}
         >
-          [<span className="">{navOpen ? "x" : "menu"}</span>]
+          <span
+            aria-hidden
+            className="flex flex-col items-center gap-[4px] pb-1"
+          >
+            {[
+              "w-4 translate-y-[4.5px] rotate-45",
+              "opacity-0",
+              "w-4 -translate-y-[4.5px] -rotate-45",
+            ].map((open, i) => (
+              <span
+                key={i}
+                className={`block h-[0.5px] bg-foreground transition-all duration-300 ease-out ${navOpen ? open : "w-6"}`}
+              />
+            ))}
+          </span>
         </Button>
 
         {/* Logo — middle two columns (mobile header) */}
@@ -346,7 +300,7 @@ export default function LLNav() {
           {/* Dash between the names — widens while the menu is open */}
           <span
             aria-hidden
-            className={`block shrink-0 bg-foreground transition-[width] duration-300 h-[0.5px] mt-0 ${navOpen ? "w-3" : "w-12"}`}
+            className={`block shrink-0 bg-foreground transition-[width] duration-300 h-[0.5px] mb-0.5 ${navOpen ? "w-6" : "w-12"}`}
           />
           La Mort
         </Link>

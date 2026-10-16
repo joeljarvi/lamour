@@ -20,13 +20,15 @@ export const issuesQuery = groq`*[_type == "issue"] | order(issueNumber desc) {
   inStock,
   publishedAt,
   dimensions,
+  pageCount,
+  isbn,
+  binding,
   description,
   contributors,
-  themeEditors,
-  designer,
+  // Renamed from themeEditors; falls back to it for issues saved before
+  "editors": coalesce(editors, themeEditors),
   quotes,
   credits,
-  interviews,
   "previewImages": previewImages[] { _key, alt, asset }
 }`;
 
@@ -42,17 +44,19 @@ export const issueBySlugQuery = groq`*[_type == "issue" && slug.current == $slug
   "previewImages": previewImages[] { _key, alt, asset },
   description,
   contributors,
-  themeEditors,
-  designer,
+  // Renamed from themeEditors; falls back to it for issues saved before
+  "editors": coalesce(editors, themeEditors),
   quotes,
   credits,
-  interviews,
   price,
   weight,
   stripePriceId,
   inStock,
   publishedAt,
-  dimensions
+  dimensions,
+  pageCount,
+  isbn,
+  binding
 }`;
 
 export const seriesQuery = groq`*[_type == "series"] | order(title asc) {

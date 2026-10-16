@@ -32,11 +32,16 @@ export default function Footer() {
 
   return (
     <footer className="flex flex-col items-center gap-6 w-full px-6 lg:px-12 pt-24 pb-12">
-      <ul className="flex flex-wrap justify-center gap-x-8 gap-y-2 list-none">
+      <ul className="flex flex-wrap justify-center gap-x-8 gap-y-6 list-none">
         {items.map((item) => (
           <li key={item.key}>
             {item.href ? (
-              <Button variant="link" size="xs" className="w-auto" asChild>
+              <Button
+                variant="link"
+                size="xs"
+                className="w-auto text-[8px]"
+                asChild
+              >
                 <Link
                   href={item.href}
                   locale={item.locale}
@@ -56,7 +61,7 @@ export default function Footer() {
           </li>
         ))}
       </ul>
-      <span className="font-baskervilleNeoText text-xs tracking-[3%] text-neutral-700">
+      <span className="font-baskervilleNeoText text-xs tracking-[48%] uppercase text-neutral-700 italic">
         © {new Date().getFullYear()} L&apos;Amour — La Mort
       </span>
     </footer>

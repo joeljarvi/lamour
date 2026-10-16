@@ -27,7 +27,8 @@
     "series": "Series",
     "menu": "Menu",
     "cartLabel": "Cart",
-    "cart": "Cart ({count})"
+    "cart": "Cart ({count})",
+    "filter": "Filter"
   },
   "Cart": {
     "title": "cart ({count})",
@@ -44,7 +45,26 @@
     "seeAllImages": "See all images",
     "soldOut": "sold out",
     "addToCart": "add to cart",
-    "buyNow": "Buy now"
+    "back": "Back",
+    "previousImage": "Previous image",
+    "nextImage": "Next image",
+    "information": "Information",
+    "credits": "Credits",
+    "description": "Description",
+    "contributors": "Contributors",
+    "editors": "Editors",
+    "buyNow": "Buy now",
+    "related": "Related items",
+    "productInfo": "Product info",
+    "productPages": "Pages",
+    "productDimensions": "{width} × {height} cm",
+    "productYear": "Year",
+    "productFormat": "Format",
+    "productBinding": "Binding",
+    "productBindingType": "{binding, select, hardcover {Hardcover} other {Softcover}}",
+    "productLanguage": "Language",
+    "productWeight": "Weight",
+    "backToShop": "Back to shop"
   },
   "Article": {
     "close": "close",

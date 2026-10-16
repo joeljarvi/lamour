@@ -58,10 +58,26 @@ const baskervilleClassic = localFont({
 
 const universTypewriter = localFont({
   src: [
-    { path: "../../public/fonts/univers-typewriter/UniversNextTypewrtrPro-Rg.woff2", weight: "400", style: "normal" },
-    { path: "../../public/fonts/univers-typewriter/UniversNextTypewrtrPro-It.woff2", weight: "400", style: "italic" },
-    { path: "../../public/fonts/univers-typewriter/UniversNextTypewrtrPro-Bd.woff2", weight: "700", style: "normal" },
-    { path: "../../public/fonts/univers-typewriter/UniversNextTypewrtrPro-BdIt.woff2", weight: "700", style: "italic" },
+    {
+      path: "../../public/fonts/univers-typewriter/UniversNextTypewrtrPro-Rg.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/univers-typewriter/UniversNextTypewrtrPro-It.woff2",
+      weight: "400",
+      style: "italic",
+    },
+    {
+      path: "../../public/fonts/univers-typewriter/UniversNextTypewrtrPro-Bd.woff2",
+      weight: "700",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/univers-typewriter/UniversNextTypewrtrPro-BdIt.woff2",
+      weight: "700",
+      style: "italic",
+    },
   ],
   variable: "--font-univers-tw",
   display: "swap",
@@ -76,8 +92,16 @@ const johnSans = localFont({
 
 const baskervilleNeoDisplay = localFont({
   src: [
-    { path: "../../public/fonts/baskerville-neo/display/BaskervilleNeo-Display.woff2", weight: "400", style: "normal" },
-    { path: "../../public/fonts/baskerville-neo/display/BaskervilleNeo-DisplayItalic.woff2", weight: "400", style: "italic" },
+    {
+      path: "../../public/fonts/baskerville-neo/display/BaskervilleNeo-Display.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/baskerville-neo/display/BaskervilleNeo-DisplayItalic.woff2",
+      weight: "400",
+      style: "italic",
+    },
   ],
   variable: "--font-baskerville-neo-display",
   display: "swap",
@@ -85,9 +109,21 @@ const baskervilleNeoDisplay = localFont({
 
 const baskervilleNeoText = localFont({
   src: [
-    { path: "../../public/fonts/baskerville-neo/text/BaskervilleNeo-Text.woff2", weight: "400", style: "normal" },
-    { path: "../../public/fonts/baskerville-neo/text/BaskervilleNeo-TextItalic.woff2", weight: "400", style: "italic" },
-    { path: "../../public/fonts/baskerville-neo/text/BaskervilleNeo-TextBold.woff2", weight: "700", style: "normal" },
+    {
+      path: "../../public/fonts/baskerville-neo/text/BaskervilleNeo-Text.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/baskerville-neo/text/BaskervilleNeo-TextItalic.woff2",
+      weight: "400",
+      style: "italic",
+    },
+    {
+      path: "../../public/fonts/baskerville-neo/text/BaskervilleNeo-TextBold.woff2",
+      weight: "700",
+      style: "normal",
+    },
   ],
   variable: "--font-baskerville-neo-text",
   display: "swap",
@@ -104,9 +140,12 @@ export function generateStaticParams() {
 
 export default async function RootLayout({
   children,
+  modal,
   params,
 }: Readonly<{
   children: React.ReactNode;
+  // @modal slot: the issue modal (intercepted /shop/[slug]), else nothing
+  modal: React.ReactNode;
   params: Promise<{ locale: string }>;
 }>) {
   const { locale } = await params;
@@ -139,6 +178,7 @@ export default async function RootLayout({
                 <LLNav />
                 {children}
                 <Footer />
+                {modal}
               </ArticlesProvider>
             </IssuesProvider>
             <CartDrawer />

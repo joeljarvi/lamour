@@ -19,13 +19,14 @@ export type Issue = {
     cover?: { width: number; height: number };
     spine?: { width: number };
   };
+  pageCount?: number;
+  isbn?: string;
+  binding?: "softcover" | "hardcover";
   description?: any[];
   contributors?: string;
-  themeEditors?: string;
-  designer?: string;
+  editors?: string;
   quotes?: Array<{ _key: string; text?: string; author?: string }>;
   credits?: Array<{ _key: string; role?: string; name?: string }>;
-  interviews?: string[];
   previewImages?: Array<{ _key: string; asset: any; alt?: string }>;
 };
 

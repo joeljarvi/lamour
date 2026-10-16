@@ -142,14 +142,10 @@ export default defineType({
       type: "text",
     }),
     defineField({
-      name: "themeEditors",
-      title: "Theme Editors",
+      name: "editors",
+      title: "Editors",
       type: "text",
-    }),
-    defineField({
-      name: "designer",
-      title: "Designer",
-      type: "text",
+      description: "One name per line or comma",
     }),
     defineField({
       name: "quotes",
@@ -184,12 +180,6 @@ export default defineType({
           preview: { select: { title: "name", subtitle: "role" } },
         },
       ],
-    }),
-    defineField({
-      name: "interviews",
-      title: "Interviews",
-      type: "array",
-      of: [{ type: "text" }],
     }),
     defineField({
       name: "price",
@@ -243,6 +233,30 @@ export default defineType({
           ],
         }),
       ],
+    }),
+    defineField({
+      name: "pageCount",
+      title: "Number of Pages",
+      type: "number",
+    }),
+    defineField({
+      name: "isbn",
+      title: "ISBN",
+      type: "string",
+      description: "e.g. 978-3-85676-501-9",
+    }),
+    defineField({
+      name: "binding",
+      title: "Binding",
+      type: "string",
+      options: {
+        list: [
+          { title: "Softcover", value: "softcover" },
+          { title: "Hardcover", value: "hardcover" },
+        ],
+        layout: "radio",
+        direction: "horizontal",
+      },
     }),
   ],
 });
