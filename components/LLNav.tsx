@@ -259,7 +259,7 @@ export default function LLNav() {
 
       {/* ── HEADER ── */}
       <div
-        className={`relative grid grid-cols-4 lg:hidden items-start w-full shrink-0   h-16 lg:h-24 px-0 lg:px-3.5 pt-0 transition-colors duration-300 ${navOpen ? "bg-pergament" : "bg-pergament"}`}
+        className={`relative grid grid-cols-4 lg:hidden items-start w-full shrink-0   h-16 lg:h-24 px-0 lg:px-3.5 pt-0 transition-colors duration-300 ${navOpen ? "bg-pergament" : "bg-transparent"}`}
       >
         {/* Menu toggle — mobile only, square, top left: three thin
             horizontal lines that animate into an X while the menu is open

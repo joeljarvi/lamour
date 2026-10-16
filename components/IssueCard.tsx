@@ -243,7 +243,7 @@ export default function IssueCard({
                 {/* Carousel, title and price, centred in the rest of the screen.
                 The bottom padding clears the pinned add-to-cart (5rem tall on
                 mobile, 6.5rem on desktop) and its 2rem fade */}
-                <div className="flex flex-1 min-h-0 flex-col items-center justify-center gap-6 lg:gap-12 px-6 lg:px-12 pb-28 lg:pb-34 lg:pt-36">
+                <div className="flex flex-1 min-h-0 flex-col items-center justify-center gap-12 lg:gap-12 px-6 lg:px-12 pb-28 lg:pb-34 lg:pt-36">
                   {/* Image carousel: one image at a time, pointing hands ☜ / ☞
                   right beside it, vertically centred, and the position below
                   it ([1/3]). Wraps around at either end */}
@@ -275,7 +275,7 @@ export default function IssueCard({
                               width={0}
                               height={0}
                               sizes="(min-width: 1024px) 40vw, 70vw"
-                              className="shadow w-auto h-[40dvh] max-w-full lg:max-w-[70vw] object-contain"
+                              className=" w-auto h-[40dvh] max-w-full lg:max-w-[70vw] object-contain"
                             />
                           </motion.div>
                         </AnimatePresence>
@@ -299,7 +299,7 @@ export default function IssueCard({
                   )}
 
                   {/* Below the indicators: number + title, price below it, add to cart */}
-                  <div className="flex shrink-0 flex-col items-center mt-6 lg:mt-0 gap-3 lg:gap-6">
+                  <div className="flex shrink-0 flex-col items-center mt-6 lg:mt-0 gap-6 lg:gap-6">
                     <h2 className="text-center font-baskervilleNeoDisplay text-xs uppercase tracking-[24%]">
                       <span>
                         #{issue.issueNumber} — {issueTitle(issue.title)}
