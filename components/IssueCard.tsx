@@ -377,9 +377,9 @@ export default function IssueCard({
                 </div>
                 {/* Column 1: contributors, editors and product information,
                     each collapsed until its button is clicked */}
-                <div className="flex flex-col gap-3 lg:gap-6 lg:col-start-1 lg:row-start-1">
+                <div className="flex flex-col gap-12 lg:gap-6 lg:col-start-1 lg:row-start-1">
                   {/* Contributors: one name per line */}
-                  <div className="flex w-full flex-col items-start gap-6">
+                  <div className="flex w-full flex-col items-start gap-6 ">
                     <Button
                       variant="link"
                       size="xs"
@@ -390,7 +390,7 @@ export default function IssueCard({
                       {t("contributors")}
                     </Button>
                     {open.contributors && contributors.length > 0 && (
-                      <ul className="flex flex-col items-start text-left font-baskervilleNeoDisplay italic tracking-[6%] text-sm leading-snug">
+                      <ul className="flex flex-col items-start text-left font-baskervilleNeoText text-neutral-700 leading-[1.5] tracking-[6%] text-sm ">
                         {contributors.map((name, i) => (
                           <li key={i}>{name}</li>
                         ))}
@@ -410,7 +410,7 @@ export default function IssueCard({
                         {t("editors")}
                       </Button>
                       {open.editors && (
-                        <ul className="flex flex-col items-start text-left font-baskervilleNeoDisplay italic tracking-[6%] text-sm leading-snug">
+                        <ul className="flex flex-col items-start text-left font-baskervilleNeoText text-neutral-700 leading-[1.5] tracking-[6%] text-sm">
                           {editors.map((name, i) => (
                             <li key={i}>{name}</li>
                           ))}
@@ -431,13 +431,13 @@ export default function IssueCard({
                       {t("productInfo")}
                     </Button>
                     {open.productInfo && (
-                      <dl className="flex w-full flex-col font-baskervilleNeoText uppercase text-xs tracking-[3%] text-neutral-700 leading-[1.5]">
+                      <dl className="flex w-full flex-col gap-3 font-baskervilleNeoText text-neutral-700 leading-[1.5] tracking-[6%] text-xs">
                         {productInfo.map((row) => (
                           <div
                             key={row.label}
                             className="grid grid-cols-[6rem_1fr] gap-6  tracking-[24%]"
                           >
-                            <dt className=" not-italic text-neutral-400 ">
+                            <dt className=" not-italic uppercase text-xs text-neutral-400 ">
                               {row.label}
                             </dt>
                             <dd>{row.value}</dd>
