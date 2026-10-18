@@ -292,7 +292,7 @@ export default function LLNav() {
         {/* Logo — middle two columns (mobile header) */}
         <Link
           href="/"
-          className="col-start-2 col-span-2 lg:col-span-1 justify-self-stretch lg:justify-self-center flex items-center justify-center h-16 lg:h-24 font-baskervilleNeoDisplay text-sm uppercase tracking-[24%] gap-3 
+          className="col-start-2 col-span-2 lg:col-span-1 justify-self-stretch lg:justify-self-center flex items-center justify-center h-16 lg:h-24 font-baskervilleNeoText  text-sm uppercase tracking-[24%] gap-3 text-neutral-700
        
           hover:opacity-60 transition-opacity whitespace-nowrap"
         >

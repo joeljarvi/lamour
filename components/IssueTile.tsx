@@ -64,7 +64,7 @@ export default function IssueTile({
         )}
         <span
           aria-hidden
-          className="font-baskervilleNeoDisplay text-xs uppercase tracking-[24%] group-hover:tracking-[48%] group-hover:italic transition-all"
+          className="font-baskervilleNeoText text-xs uppercase tracking-[24%] group-hover:tracking-[48%] group-hover:italic transition-all"
         >
           #{issue.issueNumber}
         </span>
