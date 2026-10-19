@@ -88,7 +88,7 @@ export default function IssueTile({
               the label moves up by that much */}
           <span
             aria-hidden
-            className="absolute inset-0 z-30 -translate-y-8 flex items-center justify-center font-unifraktur text-xs  lowercase lg:text-sm text-red-700 tracking-[24%] lg:tracking-[12%]"
+            className="absolute inset-0 z-30 -translate-y-8 flex items-center justify-center font-baskervilleNeoText uppercase text-xs   lg:text-xs italic  tracking-[24%] lg:tracking-[48%]"
           >
             {t("soldOut")}
           </span>

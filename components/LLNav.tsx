@@ -159,8 +159,8 @@ export default function LLNav() {
 
   return (
     <motion.div
-      className={`fixed top-0 left-0 right-0 z-50 flex flex-col transition-colors duration-500
-        ${navOpen ? "h-dvh bg-pergament" : "h-14 lg:h-auto"}`}
+      className={`fixed top-3 left-3 right-3 z-50 flex flex-col transition-colors duration-500
+        ${navOpen ? "h-dvh bg-pergament" : "bg-background h-12 lg:h-auto"}`}
     >
       {/* ── DESKTOP: affären (col 1) · artiklar (col 3) · logo (centre) ·
           filter (col 11) · cart ──
@@ -169,7 +169,7 @@ export default function LLNav() {
       <div className="hidden lg:block" onMouseLeave={() => setSection(null)}>
         {/* Bar turns yellow while a drop-down is open */}
         <div
-          className={`grid grid-cols-12 gap-6 items-center h-24 px-12 pt-6 transition-colors duration-300 ${section ? "bg-pergament" : "bg-background"}`}
+          className={`grid grid-cols-12 gap-6 items-center h-auto px-3 py-3 transition-colors duration-300 border-b border-b-neutral-400  ${section ? "bg-pergament" : "bg-background"}`}
         >
           {/* Affären and Artiklar: link to their page, hover opens the
               drop-down. The link variant's ☜ marks the current page and
@@ -211,19 +211,20 @@ export default function LLNav() {
 
           {/* Logo, centred (columns 5–8 straddle the middle of 12); the dash
               shrinks while a drop-down is open */}
-          <Link
-            href="/"
-            aria-label="L'Amour — La Mort"
-            onMouseEnter={() => setSection(null)}
-            className="col-start-5 col-span-4 justify-self-center flex items-center gap-3 font-baskervilleNeoDisplay text-xs uppercase tracking-[24%] whitespace-nowrap hover:opacity-60 transition-opacity"
+          <Button
+            variant="link"
+            size="xs"
+            className="col-start-5 col-span-4 justify-self-center flex items-center  whitespace-nowrap h-auto"
+            asChild
           >
-            L&apos;Amour
-            <span
-              aria-hidden
-              className={`block shrink-0 bg-foreground transition-[width] duration-300 h-[0.5px] ${section ? "w-3" : "w-12"}`}
-            />
-            La Mort
-          </Link>
+            <Link
+              href="/"
+              aria-label="L'Amour — La Mort"
+              onMouseEnter={() => setSection(null)}
+            >
+              L&apos;Amour — La Mort
+            </Link>
+          </Button>
 
           {/* Filter (replaces Utforska on desktop; the mobile overlay keeps
               Utforska). Hovering it closes any open drop-down */}
@@ -259,7 +260,7 @@ export default function LLNav() {
 
       {/* ── HEADER ── */}
       <div
-        className={`relative grid grid-cols-4 lg:hidden items-start w-full shrink-0   h-16 lg:h-24 px-0 lg:px-3.5 pt-0 transition-colors duration-300 ${navOpen ? "bg-pergament" : "bg-transparent"}`}
+        className={`relative flex lg:hidden justify-between  items-start w-full shrink-0   h-12 px-0 lg:px-3.5 pt-0 transition-colors duration-300 ${navOpen ? "bg-pergament" : "bg-background"}`}
       >
         {/* Menu toggle — mobile only, square, top left: three thin
             horizontal lines that animate into an X while the menu is open
@@ -268,13 +269,13 @@ export default function LLNav() {
         <Button
           onClick={() => setNavOpen((v) => !v)}
           variant="link"
-          className="lg:hidden col-start-1 justify-self-start h-16 w-16  aspect-square px-0 justify-center items-center after:content-none"
+          className="lg:hidden h-12 w-12  aspect-square px-0 justify-center items-center after:content-none"
           aria-label={t("menu")}
           aria-expanded={navOpen}
         >
           <span
             aria-hidden
-            className="flex flex-col items-center gap-[4px] pb-1"
+            className="flex flex-col items-center gap-[4px] pb-0"
           >
             {[
               "w-4 translate-y-[4.5px] rotate-45",
@@ -289,26 +290,22 @@ export default function LLNav() {
           </span>
         </Button>
 
-        {/* Logo — middle two columns (mobile header) */}
-        <Link
-          href="/"
-          className="col-start-2 col-span-2 lg:col-span-1 justify-self-stretch lg:justify-self-center flex items-center justify-center h-16 lg:h-24 font-baskervilleNeoText  text-sm uppercase tracking-[24%] gap-3 text-neutral-700
-       
-          hover:opacity-60 transition-opacity whitespace-nowrap"
+        {/* Logo — middle two columns (mobile header). Italic while the menu
+            is open, with Baskerville Neo's swashes (.italic turns on "swsh"
+            in globals.css). No pointing hand (the link variant's ::after) */}
+        <Button
+          variant="link"
+          size="xs"
+          className={`flex items-center justify-center px-3 h-12 w-auto after:content-none ${navOpen ? "italic" : ""}`}
+          asChild
         >
-          L'Amour
-          {/* Dash between the names — widens while the menu is open */}
-          <span
-            aria-hidden
-            className={`block shrink-0 bg-foreground transition-[width] duration-300 h-[0.5px] mb-0.5 ${navOpen ? "w-6" : "w-12"}`}
-          />
-          La Mort
-        </Link>
+          <Link href="/">L&apos;Amour — La Mort</Link>
+        </Button>
 
         {/* Cart — mobile only, last column */}
         <Button
           variant="link"
-          className="col-start-4 h-16 aspect-square w-auto text-sm font-baskervilleNeoDisplay  normal-case tracking-[24%] gap-x-2  justify-self-end after:content-none lg:hidden"
+          className=" h-12 aspect-square w-auto   justify-self-end after:content-none lg:hidden"
           onClick={() => setDrawerOpen(true)}
           aria-label={t("openCart")}
         >

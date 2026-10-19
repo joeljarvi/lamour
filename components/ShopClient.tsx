@@ -34,7 +34,7 @@ export default function ShopClient() {
       {/* Heading spans the page; issues below as a 2/3-column grid of tiles */}
       <div
         ref={gridRef}
-        className="grid grid-cols-1 lg:grid-cols-4 px-0 pt-16 lg:pt-24 lg:px-6 pb-16 w-full gap-12"
+        className="grid grid-cols-1 lg:grid-cols-4  pt-12 px-3   w-full gap-12"
       >
         {/* Header: page title, centred */}
 

@@ -179,8 +179,15 @@
   body {
     @apply bg-background text-foreground overflow-x-hidden;
   }
-  /* Swash glyphs on all italics (Baskerville Neo's italics have them; fonts
-     without a swsh feature ignore it) */
+
+  .pStyle {
+    @apply font-baskervilleNeoText text-lg lg:text-lg tracking-normal leading-normal;
+  }
+
+  .h3Style .btnStyle {
+    @apply font-baskervilleNeoText text-xs  tracking-[24%] leading-normal uppercase;
+  }
+
   .italic,
   em,
   i,
@@ -189,10 +196,6 @@
   }
 }
 
-/* Custom cursor: Baskerville Neo's north-west pointing hand (U+E001 from the
-   hands font, exported to SVG; hotspot on the fingertip), switching to the
-   black hand (U+E005) while the mouse button is held. Unlayered so it also
-   beats Tailwind's cursor-pointer utility. Text fields keep the I-beam */
 html,
 a,
 button,
@@ -214,66 +217,4 @@ input:not([type="button"], [type="submit"], [type="checkbox"], [type="radio"]),
 textarea,
 [contenteditable="true"] {
   cursor: text;
-}
-
-/* The drop cap paragraph's font size as an absolute length, so the drop cap
-   can use it while its own em is the letter's (bigger) size */
-@property --dropcap-em {
-  syntax: "<length>";
-  inherits: true;
-  initial-value: 0px;
-}
-
-/* Drop cap settings, set here because ::first-letter can only inherit custom
-   properties. --leading must match the paragraph's line height
-   (leading-[1.5] in SanityPortableText); --dropcap-pad is the space between
-   the letter and its border, in multiples of the text size */
-.dropcap {
-  --dropcap-em: 1em;
-  --leading: 1.5;
-  --dropcap-border: 1px;
-  --dropcap-pad: 0.25;
-}
-
-/* Boxed drop cap on the first letter of a .dropcap paragraph (see
-   SanityPortableText's dropcap prop), floated so it doesn't change the first
-   line's height. The border runs from the first line's cap height to the
-   second line's baseline, with the letter centered inside. Worked out from
-   the Baskerville Neo metrics: Display cap height 0.714, ascent 0.744,
-   descent 0.288; Text cap height 0.704 */
-.dropcap::first-letter {
-  float: left;
-  font-weight: 400;
-  letter-spacing: normal;
-  /* Always a full capital, though the rest of the word is in small caps */
-  text-transform: uppercase;
-  font-variant-caps: normal;
-  font-family: var(--font-baskerville-neo-display);
-  /* The box is (leading + text cap height) tall; the letter's cap height is
-     what's left inside the border and padding */
-  font-size: calc(
-    (
-        (var(--leading) + 0.704 - 2 * var(--dropcap-pad)) * var(--dropcap-em) -
-          2 * var(--dropcap-border)
-      ) /
-      0.714
-  );
-  /* A line height of 0.456 puts the baseline at the bottom of the content
-     box, with the cap top 0.258em above it — the extra top padding makes
-     room for it */
-  line-height: 0.456;
-  padding: calc(0.258em + var(--dropcap-pad) * var(--dropcap-em))
-    calc(var(--dropcap-pad) * var(--dropcap-em))
-    calc(var(--dropcap-pad) * var(--dropcap-em));
-  border: var(--dropcap-border) solid currentColor;
-  /* Down to the first line's cap height */
-  margin-top: calc((var(--leading) / 2 - 0.476) * var(--dropcap-em));
-  margin-right: 0.5rem;
-}
-
-/* The rest of a drop cap paragraph's first word */
-.dropcap-word {
-  font-weight: 700;
-  font-variant-caps: all-small-caps;
-  letter-spacing: 0.12em;
 }

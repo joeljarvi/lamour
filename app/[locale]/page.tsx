@@ -14,7 +14,7 @@ export default async function Home({
   setRequestLocale(locale as Locale);
 
   return (
-    <section className="flex flex-col w-full mt-16">
+    <section className="flex flex-col  ">
       <ShopClient />
     </section>
   );

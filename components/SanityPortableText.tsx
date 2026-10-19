@@ -10,9 +10,10 @@ function buildComponents(category?: string): PortableTextComponents {
         if ((value as any)._empty) return null;
         const indent = (value as any)._indented ? "indent-16" : "";
         const dropcap = (value as any)._dropcap ? "dropcap" : "";
+        const initial = (value as any)._initial ? "initial" : "";
         return (
           <p
-            className={`font-baskervilleNeoText text-lg lg:text-lg text-neutral-600 tracking-normal leading-[1.5] ${normalAlign} ${indent} ${dropcap}  mx-auto `}
+            className={`pStyle ${normalAlign} ${indent} ${dropcap} ${initial}  mx-auto `}
           >
             {children}
           </p>
@@ -79,7 +80,7 @@ function buildComponents(category?: string): PortableTextComponents {
         <span className="dropcap-word font-normal">{children}</span>
       ),
       strong: ({ children }) => (
-        <strong className="font-bold font-baskervilleNeoText tracking-[1.5%] [font-variant-caps:all-small-caps]">
+        <strong className="font-baskervilleNeoText font-normal  tracking-[24%] [font-variant-caps:all-small-caps]">
           {children}
         </strong>
       ),
@@ -136,16 +137,21 @@ function normalizeStyles(blocks: any[], category?: string): any[] {
   });
 }
 
-// Marks the first non-empty normal block for a drop cap, and splits the first
-// word of its text into its own span with a "firstWord" mark
-function markDropcap(blocks: any[]): any[] {
-  const i = blocks.findIndex(
+// Index of the first normal block with text, or -1
+function firstTextBlock(blocks: any[]): number {
+  return blocks.findIndex(
     (b) =>
       b._type === "block" &&
       b.style === "normal" &&
       !b._empty &&
       b.children?.some((c: any) => c.text?.trim()),
   );
+}
+
+// Marks the first non-empty normal block for a drop cap, and splits the first
+// word of its text into its own span with a "firstWord" mark
+function markDropcap(blocks: any[]): any[] {
+  const i = firstTextBlock(blocks);
   if (i === -1) return blocks;
   const block = blocks[i];
   const j = block.children.findIndex((c: any) => c.text?.trim());
@@ -166,21 +172,32 @@ function markDropcap(blocks: any[]): any[] {
   );
 }
 
+// Marks the first non-empty normal block for a raised initial
+function markInitial(blocks: any[]): any[] {
+  const i = firstTextBlock(blocks);
+  return blocks.map((b, k) => (k === i ? { ...b, _initial: true } : b));
+}
+
 export default function SanityPortableText({
   value,
   category,
   dropcap,
+  initial,
 }: {
   value: any;
   category?: string;
   // Large first letter, with the rest of the first word in tracked capitals
   dropcap?: boolean;
+  // Large first letter on the first line (not dropped)
+  initial?: boolean;
 }) {
   let normalized = Array.isArray(value)
     ? normalizeStyles(value, category)
     : value;
   if (dropcap && Array.isArray(normalized))
     normalized = markDropcap(normalized);
+  if (initial && Array.isArray(normalized))
+    normalized = markInitial(normalized);
   return (
     <div className="flex flex-col items-start justify-start gap-4">
       <PortableText value={normalized} components={buildComponents(category)} />

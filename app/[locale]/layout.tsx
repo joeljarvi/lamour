@@ -169,7 +169,7 @@ export default async function RootLayout({
   return (
     <html lang={locale}>
       <body
-        className={`${baskerville.variable} ${baskervilleOldFace.variable} ${baskervilleClassic.variable} ${baskervilleSC.variable} ${universTypewriter.variable} ${johnSans.variable} ${baskervilleNeoDisplay.variable} ${baskervilleNeoText.variable} ${unifraktur.variable} antialiased`}
+        className={`${baskerville.variable} ${baskervilleOldFace.variable} ${baskervilleClassic.variable} ${baskervilleSC.variable} ${universTypewriter.variable} ${johnSans.variable} ${baskervilleNeoDisplay.variable} ${baskervilleNeoText.variable} ${unifraktur.variable} antialiased bg-neutral-300`}
       >
         <NextIntlClientProvider>
           <CartProvider>

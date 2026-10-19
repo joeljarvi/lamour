@@ -354,19 +354,8 @@ export default function IssueCard({
                 ref={infoRef}
                 className="grid min-h-dvh grid-cols-1 lg:grid-cols-4 content-start items-stretch gap-12 px-6 lg:px-12 pt-12 pb-12"
               >
-                {/* Description across columns 2–3 (first on mobile). Its
-                    button scrolls the panel here; the link variant's
-                    hover-only ☜ after the label becomes an always-visible
-                    down-pointing hand (☟) */}
-                <div className="flex flex-col gap-6 lg:col-start-2 lg:col-span-2 lg:row-start-1">
-                  <Button
-                    variant="link"
-                    size="xs"
-                    className="self-start w-auto after:content-['☟'] after:opacity-100"
-                    onClick={() => scrollPanelTo(infoRef.current)}
-                  >
-                    {t("description")}
-                  </Button>
+                {/* Description across columns 2–3 (first on mobile) */}
+                <div className="flex flex-col gap-6 lg:col-start-2 lg:col-span-2 lg:row-start-1 mt-6">
                   {/* Justified, hyphenated (in the page's language) to keep
                       the word spacing even */}
                   {issue.description && (
