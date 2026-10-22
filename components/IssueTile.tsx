@@ -74,7 +74,9 @@ export default function IssueTile({
 
   return (
     // No "group" when sold out, so the hover effects don't run
-    <div className={`${soldOut ? "" : "group"} relative`}>
+    // 1px grid lines without doubling: each tile draws its right and bottom
+    // line, the grid around the tiles its top and left
+    <div className={`${soldOut ? "" : "group"} relative `}>
       {soldOut ? (
         <>
           {/* Sold out: blurred, faded and not a link */}

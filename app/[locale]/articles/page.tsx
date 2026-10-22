@@ -1,6 +1,6 @@
 import type { Locale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
-import ArticlesClient from "@/components/ArticlesClient";
+import ArticlesPageClient from "@/components/ArticlesPageClient";
 
 export default async function ArticlesPage({
   params,
@@ -11,8 +11,8 @@ export default async function ArticlesPage({
   setRequestLocale(locale as Locale);
 
   return (
-    <section className="flex flex-col w-full">
-      <ArticlesClient />
+    <section className="flex flex-col w-full px-3 mt-24">
+      <ArticlesPageClient />
     </section>
   );
 }

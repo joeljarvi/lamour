@@ -31,15 +31,18 @@ export default function Footer() {
   );
 
   return (
-    <footer className="flex flex-col items-center gap-6 w-full px-6 lg:px-12 pt-24 pb-12">
-      <ul className="flex flex-wrap justify-center gap-x-3 lg:gap-x-6 gap-y-6 list-none">
+    // The link buttons set text-foreground: the link variant's own text is
+    // white (text-background, for the navbar's mix-blend-difference), which
+    // would vanish on the page's white background
+    <footer className="flex flex-col items-center justify-start gap-6 w-full px-3 pt-9 pb-0 ">
+      <ul className="flex flex-wrap justify-center gap-x-3 lg:gap-x-6 gap-y-6 list-none border-b bg-background  border-b-neutral-600 border-t border-t-neutral-600 border-r border-r-neutral-600">
         {items.map((item) => (
           <li key={item.key}>
             {item.href ? (
               <Button
                 variant="link"
                 size="xs"
-                className="w-auto text-[8px]"
+                className="w-auto text-[8px] text-foreground"
                 asChild
               >
                 <Link
@@ -54,14 +57,18 @@ export default function Footer() {
               </Button>
             ) : (
               // TODO: no pages for these yet — exploreItems gets the hrefs
-              <Button variant="link" size="xs" className="w-auto text-[8px]">
+              <Button
+                variant="link"
+                size="xs"
+                className="w-auto text-[8px] text-foreground"
+              >
                 {item.label}
               </Button>
             )}
           </li>
         ))}
       </ul>
-      <span className="font-baskervilleNeoText text-[8px] tracking-[48%] uppercase text-neutral-700 italic">
+      <span className="font-baskervilleNeoText text-[8px] tracking-[48%] uppercase text-background italic pb-9 px-6 ">
         © {new Date().getFullYear()} L&apos;Amour — La Mort
       </span>
     </footer>

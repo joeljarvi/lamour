@@ -28,7 +28,7 @@
     "menu": "Meny",
     "cartLabel": "Varukorgen",
     "cart": "Varukorg ({count})",
-    "filter": "Filter"
+    "filter": "Filtrera"
   },
   "Cart": {
     "title": "korg ({count})",
@@ -63,15 +63,37 @@
     "productBindingType": "{binding, select, hardcover {Inbunden} other {Häftad}}",
     "productLanguage": "Språk",
     "productWeight": "Vikt",
-    "backToShop": "Tillbaka till butiken"
+    "backToShop": "Tillbaka till butiken",
+    "readMore": "Läs mer",
+    "readLess": "Visa mindre",
+    "productReleaseDate": "Släppdatum",
+    "imageOf": "{current} av {total}"
   },
   "Article": {
     "close": "stäng",
     "interview": "intervju",
-    "fromIssue": "ur: LL#{number} — {title}"
+    "fromIssue": "ur: LL#{number} — {title}",
+    "partOf": "Del av {series}"
   },
   "Author": {
     "backToArticles": "← Artiklar",
     "articles": "Artiklar"
+  },
+  "Filter": {
+    "year": "År",
+    "language": "Språk",
+    "languageName": "{language, select, sv {Svenska} en {Engelska} other {{language}}}",
+    "inStock": "I lager",
+    "inStockOnly": "Bara i lager",
+    "contributors": "Medverkande",
+    "editors": "Redaktion",
+    "clear": "Rensa",
+    "search": "Sök",
+    "apply": "Visa resultat",
+    "clearSearch": "Rensa sökning",
+    "removeFilter": "Ta bort filtret {filter}",
+    "close": "Stäng",
+    "series": "Serie",
+    "authors": "Författare"
   }
 }

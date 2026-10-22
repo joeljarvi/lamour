@@ -175,9 +175,11 @@
     @apply border-border outline-ring/50;
   }
 
+  /* overflow-x: clip, not hidden: hidden would make body its own scroll
+     container, and sticky elements (the page menu) would then never stick */
   html,
   body {
-    @apply bg-background text-foreground overflow-x-hidden;
+    @apply bg-background text-foreground overflow-x-clip;
   }
 
   .pStyle {
@@ -186,6 +188,13 @@
 
   .h3Style .btnStyle {
     @apply font-baskervilleNeoText text-xs  tracking-[24%] leading-normal uppercase;
+  }
+
+  /* Italic capitals with Baskerville Neo's swashes (the .italic swash rule
+     below doesn't reach italic applied with @apply) */
+  .h2Style {
+    @apply font-baskervilleNeoText italic text-xs uppercase tracking-[48%];
+    font-feature-settings: "swsh" 1;
   }
 
   .italic,
@@ -218,3 +227,29 @@ textarea,
 [contenteditable="true"] {
   cursor: text;
 }
+
+/* Scrollable without a visible scrollbar */
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* Newsroom ticker (see Ticker.tsx): the track holds two copies of the text,
+   so moving it left by half its width loops seamlessly. Paused on hover */
+@keyframes ticker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.ticker {
+  animation: ticker var(--ticker-duration, 10s) linear infinite;
+}
+.ticker:hover {
+  animation-play-state: paused;
+}
+

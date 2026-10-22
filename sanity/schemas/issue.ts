@@ -210,6 +210,12 @@ export default defineType({
       type: "date",
     }),
     defineField({
+      name: "releaseDate",
+      title: "Release Date",
+      type: "date",
+      description: "When the issue is (or was) released",
+    }),
+    defineField({
       name: "dimensions",
       title: "Dimensions",
       type: "object",

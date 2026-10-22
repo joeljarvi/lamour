@@ -15,6 +15,7 @@ export type Issue = {
   weight?: number;
   inStock?: boolean;
   publishedAt?: string;
+  releaseDate?: string;
   dimensions?: {
     cover?: { width: number; height: number };
     spine?: { width: number };

@@ -8,7 +8,6 @@ import { useCart } from "@/lib/contexts/CartContext";
 
 import { Link, usePathname } from "@/i18n/navigation";
 import { Button } from "./ui/button";
-import NavDropdown, { type NavSection } from "./NavDropdown";
 
 function useTypingAnimation(fullText: string, collapsed: boolean, speed = 70) {
   const [text, setText] = useState("");
@@ -46,7 +45,7 @@ const ITEM_VARIANTS = {
 // left-aligned and the pointing hand (the link variant's ::after) pinned to
 // the right edge
 const OVERLAY_BUTTON_CLASS =
-  "relative justify-start text-left after:absolute after:right-4 after:ml-0 border-b border-b-neutral-400";
+  "relative justify-start text-left text-foreground after:absolute after:right-4 after:ml-0 border-b border-b-neutral-400";
 
 // Affären and Artiklar go straight to their pages, then Om oss, Logga in and
 // the cart
@@ -72,7 +71,7 @@ function NavOverlay({
     <AnimatePresence>
       {navOpen && (
         <motion.ul
-          className="flex flex-col w-full justify-center items-center font-baskerville   py-0 mt-24 px-6 list-none gap-y-0"
+          className="flex flex-col w-full justify-center items-center font-baskerville bg-pergament   py-0 mt-24 px-6 list-none gap-y-0"
           initial="hidden"
           animate="visible"
           exit="hidden"
@@ -129,17 +128,9 @@ function NavOverlay({
 }
 /* ─── MAIN NAV ─── */
 
-// Drop-down triggers: the link variant's ☜ (current page / hover) rotates a
-// quarter turn to point down (☟) while the trigger's drop-down is open
-const DROPDOWN_HAND_CLASS =
-  "after:inline-block after:transition-all after:duration-300 aria-expanded:after:-rotate-90";
-
 export default function LLNav() {
   const pathname = usePathname();
   const [navOpen, setNavOpen] = useState(false);
-  // Desktop: issue list dropped down while hovering Nummer
-  // Which desktop drop-down section is open (on hover)
-  const [section, setSection] = useState<NavSection | null>(null);
   const { totalItems, setDrawerOpen } = useCart();
   const t = useTranslations("Nav");
   const locale = useLocale();
@@ -159,34 +150,33 @@ export default function LLNav() {
 
   return (
     <motion.div
-      className={`fixed top-3 left-3 right-3 z-50 flex flex-col transition-colors duration-500
-        ${navOpen ? "h-dvh bg-pergament" : "bg-background h-12 lg:h-auto"}`}
+      // Closed: transparent, its white items blended with
+      // mix-blend-difference so they show inverted over the page. Open: a
+      // solid pergament overlay without the blend (white on pergament would
+      // vanish), its items dark instead
+      // z-90: above the issue modal (z-70 / z-80), which opens beneath it
+      className={`fixed top-0 left-0 right-0 pt-3 px-3  z-90 flex flex-col transition-colors duration-500
+        ${navOpen ? "h-dvh bg-pergament" : "mix-blend-difference bg-transparent h-12 lg:h-auto"}`}
     >
       {/* ── DESKTOP: affären (col 1) · artiklar (col 3) · logo (centre) ·
-          filter (col 11) · cart ──
-          Hovering Affären / Artiklar drops its list down below the bar;
-          leaving the bar + list area closes it */}
-      <div className="hidden lg:block" onMouseLeave={() => setSection(null)}>
-        {/* Bar turns yellow while a drop-down is open */}
-        <div
-          className={`grid grid-cols-12 gap-6 items-center h-auto px-3 py-3 transition-colors duration-300 border-b border-b-neutral-400  ${section ? "bg-pergament" : "bg-background"}`}
-        >
-          {/* Affären and Artiklar: link to their page, hover opens the
-              drop-down. The link variant's ☜ marks the current page and
-              turns to point down while the drop-down is open */}
+          log in (col 9) · cart ── */}
+      <div className="hidden lg:block">
+        <div className="grid grid-cols-12 gap-0 items-center h-auto bg-transparent  ">
+          {/* Affären and Artiklar: link to their page. The link variant's ☜
+              marks the current page */}
           {(
             [
               {
                 key: "issues",
                 label: t("shop"),
                 href: "/",
-                col: "col-start-1",
+                col: "col-start-1 col-span-2",
               },
               {
                 key: "articles",
                 label: t("articles"),
                 href: "/articles",
-                col: "col-start-3",
+                col: "col-start-3 col-span-2",
               },
             ] as const
           ).map(({ key, label, href, col }) => (
@@ -194,48 +184,39 @@ export default function LLNav() {
               key={key}
               variant="link"
               size="xs"
-              className={`${col} h-auto w-auto justify-self-start ${DROPDOWN_HAND_CLASS}`}
+              className={`${col}  w-full justify-between justify-self-start  h-9 px-3`}
               asChild
             >
               <Link
                 href={href}
                 aria-current={isActive(pathname, href) ? "page" : undefined}
-                aria-expanded={section === key}
-                onMouseEnter={() => setSection(key)}
-                onFocus={() => setSection(key)}
               >
                 {label}
               </Link>
             </Button>
           ))}
 
-          {/* Logo, centred (columns 5–8 straddle the middle of 12); the dash
-              shrinks while a drop-down is open */}
+          {/* Logo, centred (columns 5–8 straddle the middle of 12); no
+              pointing hand (the link variant's ::after) */}
           <Button
             variant="link"
             size="xs"
-            className="col-start-5 col-span-4 justify-self-center flex items-center  whitespace-nowrap h-auto"
+            className="col-start-5 col-span-4 justify-self-center flex items-center whitespace-nowrap h-auto after:content-none"
             asChild
           >
-            <Link
-              href="/"
-              aria-label="L'Amour — La Mort"
-              onMouseEnter={() => setSection(null)}
-            >
+            <Link href="/" aria-label="L'Amour — La Mort">
               L&apos;Amour — La Mort
             </Link>
           </Button>
 
-          {/* Filter (replaces Utforska on desktop; the mobile overlay keeps
-              Utforska). Hovering it closes any open drop-down */}
-          {/* TODO: placeholder — doesn't filter anything yet */}
+          {/* Log in, without the pointing hand */}
+          {/* TODO: placeholder — no login page yet */}
           <Button
             variant="link"
             size="xs"
-            className="col-start-11 justify-self-start h-auto w-auto"
-            onMouseEnter={() => setSection(null)}
+            className="col-start-9 justify-self-start h-auto w-auto after:content-none"
           >
-            {t("filter")}
+            {t("login")}
           </Button>
           <Button
             variant="link"
@@ -255,12 +236,11 @@ export default function LLNav() {
             </motion.span>
           </Button>
         </div>
-        <NavDropdown section={section} onNavigate={() => setSection(null)} />
       </div>
 
       {/* ── HEADER ── */}
       <div
-        className={`relative flex lg:hidden justify-between  items-start w-full shrink-0   h-12 px-0 lg:px-3.5 pt-0 transition-colors duration-300 ${navOpen ? "bg-pergament" : "bg-background"}`}
+        className={`relative flex lg:hidden justify-between   items-start w-full shrink-0   h-12 px-0 lg:px-3.5 pt-0 transition-colors duration-300 ${navOpen ? "bg-pergament" : "bg-transparent"}`}
       >
         {/* Menu toggle — mobile only, square, top left: three thin
             horizontal lines that animate into an X while the menu is open
@@ -269,7 +249,7 @@ export default function LLNav() {
         <Button
           onClick={() => setNavOpen((v) => !v)}
           variant="link"
-          className="lg:hidden h-12 w-12  aspect-square px-0 justify-center items-center after:content-none"
+          className="lg:hidden h-12 bg-transparent w-12   aspect-square px-0 justify-center items-center after:content-none"
           aria-label={t("menu")}
           aria-expanded={navOpen}
         >
@@ -278,13 +258,13 @@ export default function LLNav() {
             className="flex flex-col items-center gap-[4px] pb-0"
           >
             {[
-              "w-4 translate-y-[4.5px] rotate-45",
+              "w-3 translate-y-[4.5px] rotate-45",
               "opacity-0",
-              "w-4 -translate-y-[4.5px] -rotate-45",
+              "w-3 -translate-y-[4.5px] -rotate-45",
             ].map((open, i) => (
               <span
                 key={i}
-                className={`block h-[0.5px] bg-foreground transition-all duration-300 ease-out ${navOpen ? open : "w-6"}`}
+                className={`block h-[0.5px] transition-all duration-300 ease-out ${navOpen ? `bg-foreground ${open}` : "w-6 bg-background"}`}
               />
             ))}
           </span>
@@ -296,7 +276,7 @@ export default function LLNav() {
         <Button
           variant="link"
           size="xs"
-          className={`flex items-center justify-center px-3 h-12 w-auto after:content-none ${navOpen ? "italic" : ""}`}
+          className={`flex items-center justify-center px-3 border-none h-12 w-auto after:content-none ${navOpen ? "italic text-foreground" : ""}`}
           asChild
         >
           <Link href="/">L&apos;Amour — La Mort</Link>
@@ -305,7 +285,7 @@ export default function LLNav() {
         {/* Cart — mobile only, last column */}
         <Button
           variant="link"
-          className=" h-12 aspect-square w-auto   justify-self-end after:content-none lg:hidden"
+          className={`h-12 aspect-square w-auto justify-self-end after:content-none lg:hidden ${navOpen ? "text-foreground" : ""}`}
           onClick={() => setDrawerOpen(true)}
           aria-label={t("openCart")}
         >

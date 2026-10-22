@@ -8,10 +8,12 @@ import { type Issue, useIssues } from "@/lib/contexts/IssuesContext";
 import SanityPortableText from "@/components/SanityPortableText";
 import IssueTile from "@/components/IssueTile";
 import Footer from "@/components/Footer";
+import ReadMore from "@/components/ReadMore";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "./ui/button";
 import { useTranslations } from "next-intl";
 import { issueTitle } from "@/lib/issueTitle";
+import { splitNames } from "@/lib/splitNames";
 
 type ImageItem = { asset: any; alt?: string; _key?: string };
 
@@ -20,6 +22,7 @@ const RELATED_COUNT = 4;
 
 // Product information shown where an issue doesn't have it in Sanity
 const PRODUCT_PLACEHOLDER = {
+  releaseDate: "2026-11-12",
   binding: "softcover",
   pages: 125,
   isbn: "978-3-85676-501-9",
@@ -30,7 +33,8 @@ const PRODUCT_PLACEHOLDER = {
 // arrows + position ([1/3]), number + title, price and an Information link;
 // scrolling down shows the second, with the description, contributors, editors
 // and credits, then related issues and the site footer. Add to cart stays
-// pinned to the bottom. Slides in up from the bottom, full width
+// pinned to the bottom. Slides in up from the bottom, below the navbar,
+// full width
 export default function IssueCard({
   issue,
   onClose,
@@ -55,19 +59,6 @@ export default function IssueCard({
     root: scrollRef,
     margin: "0px 0px -50% 0px",
   });
-  // Contributors, editors and product information start collapsed; their
-  // buttons toggle them
-  const [open, setOpen] = useState({
-    contributors: false,
-    editors: false,
-    productInfo: false,
-  });
-  function toggle(section: keyof typeof open) {
-    setOpen((current) => ({ ...current, [section]: !current[section] }));
-  }
-  // The pointing hand: ☞ while collapsed, ☟ when open
-  const handClass = (isOpen: boolean) =>
-    isOpen ? "after:content-['☟']" : "after:content-['☞']";
   // Smooth-scrolls the panel so `el` is at the top
   function scrollPanelTo(el: HTMLElement | null) {
     if (scrollRef.current && el)
@@ -90,6 +81,11 @@ export default function IssueCard({
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: 0 });
   }, [issueId]);
+  // Where the mouse pointer is over the carousel (for its "1 of 5" label),
+  // or null while it's elsewhere
+  const [cursorAt, setCursorAt] = useState<{ x: number; y: number } | null>(
+    null,
+  );
   // Carousel position, per issue — opening another issue starts at its cover
   const [imageAt, setImageAt] = useState<{ id: string; index: number } | null>(
     null,
@@ -112,13 +108,6 @@ export default function IssueCard({
     setImageAt({ id: issue._id, index: ((index % n) + n) % n });
   }
 
-  // One name per line or comma in Sanity's Contributors and Editors
-  // fields
-  const splitNames = (names?: string) =>
-    (names ?? "")
-      .split(/[\n,]/)
-      .map((name) => name.trim())
-      .filter(Boolean);
   const contributors = splitNames(issue?.contributors);
   const editors = splitNames(issue?.editors);
   const credits = issue?.credits?.filter((c) => c.name) ?? [];
@@ -128,6 +117,19 @@ export default function IssueCard({
   const cover = issue?.dimensions?.cover;
   const productInfo = [
     { label: t("productYear"), value: issue?.publishedAt?.slice(0, 4) },
+    // Short date, e.g. 12.11.26 (like the articles list); placeholder until
+    // the issue has a release date in Sanity
+    {
+      label: t("productReleaseDate"),
+      value: new Date(
+        issue?.releaseDate ?? PRODUCT_PLACEHOLDER.releaseDate,
+      ).toLocaleDateString("de-DE", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "2-digit",
+        timeZone: "Europe/Stockholm",
+      }),
+    },
     {
       label: t("productFormat"),
       value:
@@ -158,6 +160,20 @@ export default function IssueCard({
   ].filter((row): row is { label: string; value: string } => !!row.value);
   const soldOut = issue?.inStock === false;
 
+  // Number + title, and the price below
+  const titlePrice = issue && (
+    <>
+      <h2 className="max-w-full truncate font-baskervilleNeoText text-lg uppercase tracking-[24%] mb-1">
+        #{issue.issueNumber} — {issueTitle(issue.title)}
+      </h2>
+      {issue.price != null && (
+        <span className="font-baskervilleNeoText text-lg uppercase italic tracking-[24%]">
+          {issue.price} kr
+        </span>
+      )}
+    </>
+  );
+
   function handleAddToCart() {
     if (!issue) return;
     addToCart({
@@ -173,9 +189,13 @@ export default function IssueCard({
     <AnimatePresence onExitComplete={onExited}>
       {issue && (
         <>
+          {/* Backdrop and panel fill the screen beneath the navbar, which
+              sits above them (z-90) and stays visible; the panel's own
+              header starts below the navbar (60px on mobile: its 12px top
+              padding + 48px header; 48px on desktop) */}
           {/* Backdrop */}
           <motion.div
-            className="fixed inset-0 z-70 w-full bg-foreground/20"
+            className="fixed inset-x-0 bottom-0 top-0 lg:top-0 z-70 w-full bg-background"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -183,10 +203,12 @@ export default function IssueCard({
             onClick={onClose}
           />
 
-          {/* Panel */}
+          {/* Panel, full width. It's the containing block for its fixed
+              add-to-cart bar (contain: layout), so that bar always spans
+              the panel */}
           <motion.aside
             aria-label={issueTitle(issue.title)}
-            className="fixed inset-y-0 right-0 z-80 w-full bg-background flex flex-col shadow-md"
+            className="fixed bottom-0 top-15 lg:top-0 right-0 z-80 w-full bg-background flex flex-col shadow-md [contain:layout]"
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
@@ -196,262 +218,275 @@ export default function IssueCard({
                 add-to-cart stays put */}
             <div
               ref={scrollRef}
-              className="relative flex-1 min-h-0 overflow-y-auto"
+              className="relative  flex-1 min-h-0 overflow-y-auto"
             >
-              {/* First screen: header, carousel, title, price. A full
-                  screen tall, so the information frame starts below the fold */}
-              <section className="flex h-dvh flex-col">
-                {/* Header: back left, cart right */}
-                <div className="flex shrink-0 items-center justify-between gap-3 lg:gap-6 h-16 lg:h-24 px-6 lg:px-12 lg:pt-12">
-                  {/* Left-pointing hand before the label (instead of the link
-                  variant's ☜ after it) */}
-                  <Button
-                    variant="link"
-                    size="xs"
-                    className="justify-self-start w-auto h-auto gap-2 after:content-none"
-                    onClick={onClose}
-                  >
-                    <span aria-hidden className="font-baskervilleNeoDisplay">
-                      ☜
-                    </span>
-                    {t("back")}
-                  </Button>
-                  {/* Cart: closes the panel (it sits above the cart drawer) and
-                  opens the drawer */}
-                  <Button
-                    variant="link"
-                    size="xs"
-                    className="justify-self-end w-auto h-auto after:content-none"
-                    onClick={() => {
-                      onClose();
-                      setDrawerOpen(true);
-                    }}
-                    aria-label={tNav("openCart")}
-                  >
-                    {/* Just the item count, as in the nav header */}
-                    <motion.span
-                      key={totalItems}
-                      initial={{ opacity: 0, y: 4 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.25, ease: "easeOut" }}
+              {/* Two columns on desktop: the carousel on the left, sticking
+                  in place, and title, price, add to cart and the information
+                  frame on the right, scrolling past it. Stacked on mobile */}
+              <div className="lg:grid lg:grid-cols-2 lg:items-start">
+                {/* First screen: header, carousel, title, price. On mobile
+                  as tall as the panel (the screen minus the navbar), so the
+                  information frame starts below the fold; on desktop the
+                  left column, the full screen height, dark (bg-foreground,
+                  light text for the arrows and counter) */}
+                <section className="relative flex h-[calc(100dvh-3.75rem)] lg:h-dvh lg:sticky lg:top-0 flex-col px-3 lg:bg-foreground lg:text-background">
+                  {/* Header: back, top left (the title and price are below
+                      the carousel on mobile, at the top of the right column
+                      on desktop) */}
+                  <div className="flex top-15 lg:top-18 left-3 right-3 z-90 fixed shrink-0 items-start justify-between gap-3 lg:gap-6 h-auto lg:h-9  lg:px-0 lg:pt-0  ">
+                    <Button
+                      variant="link"
+                      size="xs"
+                      className="shrink-0 w-auto h-12 gap-2  after:content-none"
+                      onClick={onClose}
                     >
-                      {totalItems}
-                    </motion.span>
-                  </Button>
-                </div>
+                      <span aria-hidden className="font-baskervilleNeoDisplay">
+                        ☜
+                      </span>
+                      {t("back")}
+                    </Button>
+                  </div>
 
-                {/* Carousel, title and price, centred in the rest of the screen.
-                The bottom padding clears the pinned add-to-cart (5rem tall on
-                mobile, 6.5rem on desktop) and its 2rem fade */}
-                <div className="flex flex-1 min-h-0 flex-col items-center justify-center gap-12 lg:gap-12 px-6 lg:px-12 pb-28 lg:pb-34 lg:pt-36">
-                  {/* Image carousel: one image at a time, pointing hands ☜ / ☞
-                  right beside it, vertically centred, and the position below
-                  it ([1/3]). Wraps around at either end */}
-                  {images.length > 0 && (
-                    <div className="flex w-full shrink-0 flex-col items-center gap-6">
-                      <div className="flex w-full items-center justify-center gap-2">
-                        <button
-                          type="button"
-                          aria-label={t("previousImage")}
-                          className="shrink-0 p-2 font-baskervilleNeoDisplay text-xl hover:opacity-60 transition-opacity"
-                          onClick={() => showImage(imageIndex - 1)}
-                        >
-                          ☜
-                        </button>
-                        {/* min-w-0 lets a wide image shrink to leave room for
-                            the arrows */}
-                        <AnimatePresence mode="wait" initial={false}>
-                          <motion.div
-                            key={imageIndex}
-                            className="min-w-0 max-w-1/2 mx-auto"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.2 }}
-                          >
-                            <Image
-                              src={urlFor(images[imageIndex]).url()}
-                              alt={images[imageIndex].alt ?? ""}
-                              width={0}
-                              height={0}
-                              sizes="(min-width: 1024px) 40vw, 70vw"
-                              className=" w-auto h-[40dvh] max-w-full lg:max-w-[70vw] object-contain"
-                            />
-                          </motion.div>
-                        </AnimatePresence>
-                        <button
-                          type="button"
-                          aria-label={t("nextImage")}
-                          className="shrink-0 p-2 font-baskervilleNeoDisplay text-xl hover:opacity-60 transition-opacity"
+                  {/* Carousel (and, on mobile, title and price), centred in the
+                panel. On mobile the bottom padding clears the pinned
+                add-to-cart (5rem) and its 2rem fade; on desktop the column is
+                the full screen height with no vertical padding or gap (the
+                block after the carousel is empty there), so the image sits in
+                the vertical centre of the viewport */}
+                  <div
+                    className="relative flex flex-1 min-h-0 flex-col items-center justify-center gap-12 lg:gap-0 px-6 lg:px-12 pb-28 lg:py-0"
+                    // With a mouse, a "1 of 5" label follows the pointer
+                    onPointerMove={(e) => {
+                      if (e.pointerType !== "mouse") return;
+                      const box = e.currentTarget.getBoundingClientRect();
+                      setCursorAt({
+                        x: e.clientX - box.left,
+                        y: e.clientY - box.top,
+                      });
+                    }}
+                    onPointerLeave={() => setCursorAt(null)}
+                  >
+                    {/* "1 of 5" next to the mouse pointer while it's over the
+                        carousel */}
+                    {cursorAt && images.length > 0 && (
+                      <span
+                        aria-hidden
+                        className="pointer-events-none absolute z-10 whitespace-nowrap font-baskervilleNeoDisplay text-xs uppercase tracking-[24%]"
+                        style={{ left: cursorAt.x + 16, top: cursorAt.y + 16 }}
+                      >
+                        {t("imageOf", {
+                          current: imageIndex + 1,
+                          total: images.length,
+                        })}
+                      </span>
+                    )}
+                    {/* Image carousel: one image at a time, vertically centred;
+                  clicking moves to the next (wrapping around). The position
+                  shows next to the mouse pointer (desktop) or at the bottom
+                  of the panel (mobile) */}
+                    {images.length > 0 && (
+                      <div className="flex w-1/2 lg:w-full shrink-0 flex-col items-center gap-6">
+                        {/* Clicking (or tapping) the image row shows the
+                            next image */}
+                        <div
+                          className="flex w-full items-center justify-center gap-2 cursor-pointer"
                           onClick={() => showImage(imageIndex + 1)}
                         >
-                          ☞
-                        </button>
-                      </div>
-                      {/* Position, e.g. [1/3]; announced as it changes */}
-                      <span
-                        aria-live="polite"
-                        className="font-baskervilleNeoDisplay text-xs tracking-[24%]"
-                      >
-                        [{imageIndex + 1}/{images.length}]
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Below the indicators: number + title, price below it, add to cart */}
-                  <div className="flex shrink-0 flex-col items-center mt-6 lg:mt-0 gap-6 lg:gap-6">
-                    <h2 className="text-center font-baskervilleNeoDisplay text-xs uppercase tracking-[24%]">
-                      <span>
-                        #{issue.issueNumber} — {issueTitle(issue.title)}
-                      </span>
-                    </h2>
-                    {issue.price != null && (
-                      <span className="font-baskervilleNeoDisplay text-xs uppercase italic tracking-[24%]">
-                        {issue.price} kr
-                      </span>
-                    )}
-                    {/* Scrolls down to the information frame */}
-                    <Button
-                      variant="link"
-                      size="xs"
-                      className="w-auto mb-0 lg:mb-12 after:content-['☟'] after:opacity-100"
-                      onClick={() => scrollPanelTo(infoRef.current)}
-                    >
-                      {t("information")}
-                    </Button>
-                    {/* Add to cart: pinned to the bottom of the screen (fixed is
-                    relative to the panel, which fills the screen). Full width
-                    on mobile, centred and at most 320px wide on desktop. A
-                    2rem strip above it fades from transparent to the
-                    background, so content scrolls under a soft edge */}
-                    <div className="fixed inset-x-0  bottom-0 z-10 bg-background before:absolute before:inset-x-0 before:bottom-full before:h-8 before:bg-linear-to-b before:from-transparent before:to-background before:pointer-events-none px-6 lg:px-12 pt-0 pb-[max(1.5rem,env(safe-area-inset-bottom))] lg:pb-6">
-                      {/* Back to shop instead once the related items are in
-                          view */}
-                      <Button
-                        variant="outline"
-                        size="default"
-                        disabled={!atEnd && soldOut}
-                        className="w-full lg:mx-auto lg:flex justify-center bg-background disabled:opacity-30 disabled:cursor-not-allowed font-baskervilleNeoText text-xs tracking-[24%] uppercase hover:bg-foreground hover:text-background"
-                        onClick={atEnd ? onClose : handleAddToCart}
-                      >
-                        {atEnd
-                          ? t("backToShop")
-                          : soldOut
-                            ? t("soldOut")
-                            : t("addToCart")}
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              {/* Information frame: a four-column grid on desktop —
-                  contributors, editors and product information (collapsible)
-                  in column 1, the description across columns 2–3, the credits
-                  list in column 4. Stacked on mobile with the description
-                  first. At least a screen tall, longer if the text needs it */}
-              <section
-                ref={infoRef}
-                className="grid min-h-dvh grid-cols-1 lg:grid-cols-4 content-start items-stretch gap-12 px-6 lg:px-12 pt-12 pb-12"
-              >
-                {/* Description across columns 2–3 (first on mobile) */}
-                <div className="flex flex-col gap-6 lg:col-start-2 lg:col-span-2 lg:row-start-1 mt-6">
-                  {/* Justified, hyphenated (in the page's language) to keep
-                      the word spacing even */}
-                  {issue.description && (
-                    <div className="flex  flex-col [&_p]:text-justify [&_p]:hyphens-auto">
-                      <SanityPortableText value={issue.description} />
-                    </div>
-                  )}
-                </div>
-                {/* Column 1: contributors, editors and product information,
-                    each collapsed until its button is clicked */}
-                <div className="flex flex-col gap-12 lg:gap-6 lg:col-start-1 lg:row-start-1">
-                  {/* Contributors: one name per line */}
-                  <div className="flex w-full flex-col items-start gap-6 ">
-                    <Button
-                      variant="link"
-                      size="xs"
-                      className={`self-start w-auto ${handClass(open.contributors)} after:opacity-100`}
-                      aria-expanded={open.contributors}
-                      onClick={() => toggle("contributors")}
-                    >
-                      {t("contributors")}
-                    </Button>
-                    {open.contributors && contributors.length > 0 && (
-                      <ul className="flex flex-col items-start text-left font-baskervilleNeoText text-neutral-700 leading-[1.5] tracking-[6%] text-sm ">
-                        {contributors.map((name, i) => (
-                          <li key={i}>{name}</li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                  {/* Editors, styled like contributors */}
-                  {editors.length > 0 && (
-                    <div className="flex w-full flex-col items-start gap-6">
-                      <Button
-                        variant="link"
-                        size="xs"
-                        className={`self-start w-auto ${handClass(open.editors)} after:opacity-100`}
-                        aria-expanded={open.editors}
-                        onClick={() => toggle("editors")}
-                      >
-                        {t("editors")}
-                      </Button>
-                      {open.editors && (
-                        <ul className="flex flex-col items-start text-left font-baskervilleNeoText text-neutral-700 leading-[1.5] tracking-[6%] text-sm">
-                          {editors.map((name, i) => (
-                            <li key={i}>{name}</li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  )}
-                  {/* Product information: titles in a fixed-width column so
-                      the values line up */}
-                  <div className="flex w-full flex-col items-start gap-6">
-                    <Button
-                      variant="link"
-                      size="xs"
-                      className={`self-start w-auto ${handClass(open.productInfo)} after:opacity-100`}
-                      aria-expanded={open.productInfo}
-                      onClick={() => toggle("productInfo")}
-                    >
-                      {t("productInfo")}
-                    </Button>
-                    {open.productInfo && (
-                      <dl className="flex w-full flex-col gap-3 font-baskervilleNeoText text-neutral-700 leading-[1.5] tracking-[6%] text-xs">
-                        {productInfo.map((row) => (
-                          <div
-                            key={row.label}
-                            className="grid grid-cols-[6rem_1fr] gap-6  tracking-[24%]"
+                          {/* Keyboard / screen reader: previous and next,
+                              invisible until focused */}
+                          <button
+                            type="button"
+                            aria-label={t("previousImage")}
+                            className="sr-only focus-visible:not-sr-only"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              showImage(imageIndex - 1);
+                            }}
                           >
-                            <dt className=" not-italic uppercase text-xs text-neutral-400 ">
-                              {row.label}
-                            </dt>
-                            <dd>{row.value}</dd>
-                          </div>
-                        ))}
-                      </dl>
+                            ☜
+                          </button>
+                          <AnimatePresence mode="wait" initial={false}>
+                            <motion.div
+                              key={imageIndex}
+                              className="min-w-0 max-w-1/2 lg:max-w-full mx-auto"
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              exit={{ opacity: 0 }}
+                              transition={{ duration: 0.2 }}
+                            >
+                              <Image
+                                src={urlFor(images[imageIndex]).url()}
+                                alt={images[imageIndex].alt ?? ""}
+                                width={0}
+                                height={0}
+                                sizes="(min-width: 1024px) 40vw, 70vw"
+                                className=" w-auto h-[50dvh] max-w-full object-contain"
+                              />
+                            </motion.div>
+                          </AnimatePresence>
+                          <button
+                            type="button"
+                            aria-label={t("nextImage")}
+                            className="sr-only focus-visible:not-sr-only"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              showImage(imageIndex + 1);
+                            }}
+                          >
+                            ☞
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Below the indicators: number + title, price below it, add to cart */}
+                    <div className="flex shrink-0 flex-col items-center mt-18 lg:mt-0 gap-6 lg:gap-6">
+                      {/* Mobile: number + title and price below the carousel (on
+                          desktop they're at the top of the right column) */}
+                      <div className="flex w-full min-w-0 flex-col items-start lg:hidden">
+                        {titlePrice}
+                      </div>
+                      <div className="fixed inset-x-0 lg:left-1/2 bottom-0 z-10 bg-background lg:bg-transparent before:absolute before:inset-x-0 before:bottom-full before:h-8 before:bg-linear-to-b before:from-transparent before:to-background before:pointer-events-none px-6 lg:px-12 pt-0 pb-[max(1.5rem,env(safe-area-inset-bottom))] lg:pb-6">
+                        {/* Back to shop instead once the related items are in
+                          view */}
+                        <Button
+                          variant="default"
+                          size="default"
+                          disabled={!atEnd && soldOut}
+                          className="w-full lg:mx-auto lg:flex justify-center bg-foreground disabled:opacity-30 disabled:cursor-not-allowed font-baskervilleNeoText text-xs tracking-[24%] uppercase hover:bg-foreground text-background"
+                          onClick={atEnd ? onClose : handleAddToCart}
+                        >
+                          {atEnd
+                            ? t("backToShop")
+                            : soldOut
+                              ? t("soldOut")
+                              : t("addToCart")}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Position, e.g. "1 of 5": on mobile at the bottom of the
+                      carousel panel, just above the pinned add-to-cart and
+                      its fade; on desktop only for screen readers (the label
+                      by the pointer shows it). Announced as it changes */}
+                  {images.length > 0 && (
+                    <span
+                      aria-live="polite"
+                      className="absolute inset-x-0 bottom-28 text-center font-baskervilleNeoDisplay text-xs uppercase tracking-[24%] lg:sr-only"
+                    >
+                      {t("imageOf", {
+                        current: imageIndex + 1,
+                        total: images.length,
+                      })}
+                    </span>
+                  )}
+                </section>
+
+                {/* Information frame (the right column on desktop), one
+                  column: the description, then contributors, editors and
+                  product information (collapsible), then the credits list.
+                  At least a screen tall, longer if the text needs it */}
+                <section
+                  ref={infoRef}
+                  className="flex flex-col min-h-dvh gap-12 px-6 lg:px-12 pt-12 pb-12 0"
+                >
+                  {/* Desktop: number + title and price, fixed at top-18 like
+                      the back button, at the start of the right column. The
+                      title sits in a 36px row with its text centred, like
+                      the button's label, so the two share a baseline. On
+                      mobile they're below the carousel */}
+                  <div className="hidden lg:flex lg:fixed lg:top-18 lg:left-1/2 lg:px-12 z-90 flex-col items-start gap-0 [&>h2]:h-9 [&>h2]:flex [&>h2]:items-center">
+                    {titlePrice}
+                  </div>
+                  {/* Description */}
+                  <div className="flex flex-col gap-6 mt-6 lg:mt-36 col-span-2">
+                    {/* Justified, hyphenated (in the page's language) to keep
+                      the word spacing even */}
+                    {issue.description && (
+                      // Cut short behind "Läs mer" (new per issue, so it
+                      // starts folded each time)
+                      <ReadMore key={issue._id}>
+                        <div className="flex  flex-col [&_p]:text-justify [&_p]:hyphens-auto">
+                          <SanityPortableText value={issue.description} />
+                        </div>
+                      </ReadMore>
                     )}
                   </div>
-                </div>
-                {/* Fourth column: the credits list */}
-                {credits.length > 0 && (
-                  <dl className="flex flex-col items-start gap-1 font-baskervilleNeoText text-xs tracking-[3%] text-neutral-700 leading-[1.5] lg:col-start-4 lg:row-start-1">
-                    {credits.map((c) => (
-                      <div key={c._key} className="flex gap-2">
-                        {c.role && <dt>{c.role}:</dt>}
-                        <dd>{c.name}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                )}
-              </section>
+                  {/* Produktinfo: always shown, a two-column table — rows
+                      stacked with no gaps, each drawing its sides and bottom
+                      (the table draws the top line, so no line doubles), a
+                      line between the title (first half) and the value. Contributors and editors first (one name per
+                      line), then the product details */}
+                  <div className="flex w-full flex-col items-start gap-0 col-span-2">
+                    <dl className="flex w-full flex-col border-t border-t-neutral-600 font-baskervilleNeoText text-neutral-700 leading-[1.5] tracking-[6%] text-xs">
+                      {[
+                        ...(contributors.length > 0
+                          ? [
+                              {
+                                label: t("contributors"),
+                                names: contributors,
+                              },
+                            ]
+                          : []),
+                        ...(editors.length > 0
+                          ? [{ label: t("editors"), names: editors }]
+                          : []),
+                      ].map((row) => (
+                        <div
+                          key={row.label}
+                          className="grid grid-cols-2 tracking-[24%] border-x border-b border-neutral-600"
+                        >
+                          <dt className="not-italic uppercase text-xs text-neutral-400 px-3 py-2 border-r border-r-neutral-600">
+                            {row.label}
+                          </dt>
+                          {/* One name per line, each with a line under it
+                                running the cell's width; the padding moves
+                                onto the names, and the last has no line (the
+                                row's own border closes it) */}
+                          <dd>
+                            <ul>
+                              {row.names.map((name, i) => (
+                                <li
+                                  key={i}
+                                  className="px-3 py-2 border-b border-b-neutral-600 last:border-b-0"
+                                >
+                                  {name}
+                                </li>
+                              ))}
+                            </ul>
+                          </dd>
+                        </div>
+                      ))}
+                      {productInfo.map((row) => (
+                        <div
+                          key={row.label}
+                          className="grid grid-cols-2 tracking-[24%] border-x border-b border-neutral-600"
+                        >
+                          <dt className="not-italic uppercase text-xs text-neutral-400 px-3 py-2 border-r border-r-neutral-600">
+                            {row.label}
+                          </dt>
+                          <dd className="px-3 py-2">{row.value}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </div>
+                  {/* Credits list */}
+                  {credits.length > 0 && (
+                    <dl className="flex flex-col items-start gap-0 font-baskervilleNeoText text-xs tracking-[3%] text-neutral-700 leading-[1.5]">
+                      {credits.map((c) => (
+                        <div key={c._key} className="flex gap-2">
+                          {c.role && <dt>{c.role}:</dt>}
+                          <dd>{c.name}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  )}
+                </section>
+              </div>
 
               <div ref={endRef}>
                 {/* Related items: the other issues nearest in number, as shop
-                  tiles (two columns on mobile); picking one opens it
+                  tiles (two columns on mobile, four on desktop); picking one opens it
                   in this panel, replacing this one in the history */}
                 {related.length > 0 && (
                   <section
@@ -466,7 +501,8 @@ export default function IssueCard({
                     >
                       {t("related")}
                     </Button>
-                    <div className="grid w-full grid-cols-2 lg:grid-cols-4">
+                    {/* Top and left line; the tiles draw the rest */}
+                    <div className="grid w-full grid-cols-2 lg:grid-cols-4 border-t border-l border-neutral-600">
                       {related.map((other) => (
                         <IssueTile key={other._id} issue={other} replace />
                       ))}

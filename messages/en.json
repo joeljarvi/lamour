@@ -28,7 +28,7 @@
     "menu": "Menu",
     "cartLabel": "Cart",
     "cart": "Cart ({count})",
-    "filter": "Filter"
+    "filter": "Filter & sort"
   },
   "Cart": {
     "title": "cart ({count})",
@@ -63,15 +63,37 @@
     "productBindingType": "{binding, select, hardcover {Hardcover} other {Softcover}}",
     "productLanguage": "Language",
     "productWeight": "Weight",
-    "backToShop": "Back to shop"
+    "backToShop": "Back to shop",
+    "readMore": "Read more",
+    "readLess": "Show less",
+    "productReleaseDate": "Release date",
+    "imageOf": "{current} of {total}"
   },
   "Article": {
     "close": "close",
     "interview": "interview",
-    "fromIssue": "from: LL#{number} — {title}"
+    "fromIssue": "from: LL#{number} — {title}",
+    "partOf": "Part of {series}"
   },
   "Author": {
     "backToArticles": "← Articles",
     "articles": "Articles"
+  },
+  "Filter": {
+    "year": "Year",
+    "language": "Language",
+    "languageName": "{language, select, sv {Swedish} en {English} other {{language}}}",
+    "inStock": "In stock",
+    "inStockOnly": "In stock only",
+    "contributors": "Contributors",
+    "editors": "Editors",
+    "clear": "Clear",
+    "search": "Search",
+    "apply": "Apply filters",
+    "clearSearch": "Clear search",
+    "removeFilter": "Remove filter {filter}",
+    "close": "Close",
+    "series": "Series",
+    "authors": "Authors"
   }
 }

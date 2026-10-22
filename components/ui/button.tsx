@@ -18,7 +18,7 @@ const buttonVariants = cva(
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: " tracking-[24%] bg-background ",
-        link: " text-primary hover:text-primary/80 border s   ",
+        link: " text-background    ",
         navLink:
           "font-baskervilleSC lowercase tracking-widest text-foreground bg-transparent hover:bg-foreground hover:text-background transition-colors justify-start",
         navLinkDesktop:
@@ -27,7 +27,7 @@ const buttonVariants = cva(
       size: {
         default:
           "h-14 lg:h-20   has-[>svg]:px-3  text-xs font-baskervilleNeoDisplay tracking-[48%] uppercase cursor-pointer ",
-        xs: "h-6   font-baskervilleNeoText text-xs  tracking-[48%] leading-[1] uppercase gap-1 rounded-none has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
+        xs: "h-6 lg:h-9 px-3   font-baskervilleNeoText text-xs  tracking-[48%] leading-[1] uppercase gap-1 rounded-none has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
         sm: " text-xs font-baskervilleNeoText uppercase has-[>svg]:px-3 px-4 justify-center tracking-[48%] h-12 gap-x-4  ",
         lg: "h-14 font-baskervilleNeoDisplay  px-6 has-[>svg]:px-4 justify-between w-full text-xl border-b border-b-foreground ",
         icon: "size-9",

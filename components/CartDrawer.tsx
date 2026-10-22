@@ -31,7 +31,7 @@ export default function CartDrawer() {
         <>
           {/* Backdrop */}
           <motion.div
-            className="fixed inset-0 z-50 bg-foreground/0 "
+            className="fixed inset-0 z-100 bg-foreground/0 "
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -41,7 +41,7 @@ export default function CartDrawer() {
 
           {/* Drawer panel */}
           <motion.div
-            className="fixed top-0 right-0 z-50 h-full w-full lg:max-w-1/3 bg-pergament flex flex-col shadow-md"
+            className="fixed top-0 right-0 z-100 h-full w-full lg:max-w-1/3 bg-pergament flex flex-col shadow-md"
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
