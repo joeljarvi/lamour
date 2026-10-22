@@ -183,7 +183,7 @@
   }
 
   .pStyle {
-    @apply font-baskervilleNeoText text-lg lg:text-base tracking-normal leading-normal;
+    @apply font-baskervilleNeoText text-base lg:text-base tracking-[3%] leading-normal;
   }
 
   .h3Style .btnStyle {

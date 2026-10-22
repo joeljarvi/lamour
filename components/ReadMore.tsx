@@ -8,7 +8,15 @@ import { Button } from "./ui/button";
 // bottom edge — from the background up to transparent — and a "Läs mer"
 // button that shows all of it ("Visa mindre" folds it again). Only when the
 // content is taller than that; shorter content shows as it is
-export default function ReadMore({ children }: { children: ReactNode }) {
+export default function ReadMore({
+  children,
+  aside,
+}: {
+  children: ReactNode;
+  // Shown at the right end of the button's line, on its baseline (and on
+  // its own when there's no button)
+  aside?: ReactNode;
+}) {
   const t = useTranslations("Issue");
   const contentRef = useRef<HTMLDivElement>(null);
   const [overflows, setOverflows] = useState(false);
@@ -44,16 +52,22 @@ export default function ReadMore({ children }: { children: ReactNode }) {
           />
         )}
       </div>
-      {(overflows || expanded) && (
-        <Button
-          variant="link"
-          size="xs"
-          aria-expanded={expanded}
-          className={`w-auto after:opacity-100 mt-6 text-foreground ${expanded ? "after:content-['☝']" : "after:content-['☟']"}`}
-          onClick={() => setExpanded((e) => !e)}
-        >
-          {expanded ? t("readLess") : t("readMore")}
-        </Button>
+      {(overflows || expanded || aside) && (
+        // The button on the left, `aside` on the right, on one baseline
+        <div className="mt-6 flex w-full items-baseline justify-between gap-6">
+          {(overflows || expanded) && (
+            <Button
+              variant="link"
+              size="xs"
+              aria-expanded={expanded}
+              className={`w-auto after:opacity-100 text-foreground ${expanded ? "after:content-['☝']" : "after:content-['☟']"}`}
+              onClick={() => setExpanded((e) => !e)}
+            >
+              {expanded ? t("readLess") : t("readMore")}
+            </Button>
+          )}
+          {aside && <span className="ml-auto">{aside}</span>}
+        </div>
       )}
     </div>
   );

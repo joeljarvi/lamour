@@ -17,13 +17,13 @@ export default async function Home({
   setRequestLocale(locale as Locale);
 
   return (
-    <div className="flex flex-col mt-0  px-0 bg-pergament">
+    <div className="flex flex-col mt-0  px-0 bg-background">
       {/* HERO: the logo card, folding away on scroll to reveal the about
           text and a subscribe button */}
       <IntroCard />
       <section className="flex flex-col  items-center justify-center w-full h-auto ">
         {/* LATEST ISSUE SECTION */}
-        <div className="flex flex-col items-center justify-center  w-full  h-dvh  min-w-0 bg-pergament px-6 gap-12 pb-6 pt-24">
+        <div className="flex flex-col items-center justify-center  w-full  h-dvh  min-w-0 bg-background px-6 gap-12 pb-6 pt-24">
           <h2 className="h2Style  ">Nytt nummer</h2>
 
           <LatestIssueCover />

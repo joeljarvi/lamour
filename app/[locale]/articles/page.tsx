@@ -11,7 +11,7 @@ export default async function ArticlesPage({
   setRequestLocale(locale as Locale);
 
   return (
-    <section className="flex flex-col w-full px-3 mt-24">
+    <section className="flex flex-col w-full mt-24 ">
       <ArticlesPageClient />
     </section>
   );

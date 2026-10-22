@@ -35,12 +35,12 @@ export default function IssueTile({
   const t = useTranslations("Issue");
   const soldOut = issue.inStock === false;
 
-  const tileClass = `block border  relative bg-pergament  transition-all aspect-square p-3 lg:p-6 w-full text-center lg:text-left`;
+  const tileClass = `block  relative bg-background  transition-all aspect-square p-3 lg:p-6 w-full text-center lg:text-left`;
   // The issue number
   const numberLabel = (
     <span
       aria-hidden
-      className="font-baskervilleNeoText text-xs uppercase tracking-[24%] group-hover:tracking-[48%] group-hover:italic transition-all"
+      className="font-baskervilleNeoText text-xs uppercase tracking-[24%] lg:group-hover:tracking-[48%] lg:group-hover:italic transition-all"
     >
       #{issue.issueNumber}
     </span>

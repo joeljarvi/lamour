@@ -29,7 +29,7 @@ export default function ShopClient() {
   const visibleIssues = issues.filter((issue) => matchesSearch(issue, query));
 
   return (
-    <div className="bg-pergament">
+    <div className="bg-background">
       {/* Heading: top centre on mobile, top left on desktop */}
       <h2 className="h2Style px-6 lg:px-12 py-6 text-center ">{t("shop")}</h2>
       {/* Tiles: two columns on mobile, three on desktop */}

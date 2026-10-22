@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 import { Link } from "@/i18n/navigation";
+import { urlFor } from "@/lib/sanity/image";
 import { useArticles, type Article } from "@/lib/contexts/ArticlesContext";
 import { articleTitle } from "@/lib/articleTitle";
 import { Button } from "./ui/button";
@@ -105,103 +107,33 @@ export default function ArticlesPageClient() {
 
   return (
     <>
-      {/* Page menu: the filters, and search (same places as the shop's) */}
-      <PageMenu
-        sections={[
-          {
-            key: "filter",
-            label: t("filter"),
-            openLabel: tFilter("close"),
-            column: "lg:col-start-1 lg:col-span-2",
-            content: (close: () => void) => (
-              // The groups stacked on mobile, three columns on desktop, then
-              // apply / clear across the bottom
-              <div className="grid lg:grid-cols-12 gap-0">
-                <div className="grid grid-cols-1 lg:grid-cols-3 lg:col-span-12 items-start">
-                  {groups
-                    .filter((g) => g.options.length > 0)
-                    .map((g) => (
-                      <FilterGroup
-                        key={g.key}
-                        label={g.label}
-                        options={g.options.map((o) => ({ value: o, label: o }))}
-                        selected={draft[g.key]}
-                        // Clicking the selected option clears it
-                        onSelect={(value) =>
-                          setDraft((f) => ({
-                            ...f,
-                            [g.key]: f[g.key] === value ? undefined : value,
-                          }))
-                        }
-                        open={openGroups.includes(g.key)}
-                        onOpenChange={(open) =>
-                          setOpenGroups((groups) =>
-                            open
-                              ? [...groups, g.key]
-                              : groups.filter((k) => k !== g.key),
-                          )
-                        }
-                        names={g.names}
-                        twoColumns={g.twoColumns}
-                      />
-                    ))}
-                </div>
-                <FilterActions
-                  onApply={() => {
-                    setFilters(draft);
-                    close();
-                  }}
-                  onClear={() => {
-                    setDraft({});
-                    setFilters({});
-                  }}
-                />
-              </div>
-            ),
-          },
-          {
-            key: "search",
-            label: tFilter("search"),
-            column:
-              "lg:col-start-11 lg:col-span-2 border-r border-r-neutral-600",
-            // A field in the bar itself; narrows the list as you type
-            inline: <SearchField value={query} onChange={setQuery} />,
-          },
-        ]}
-      />
-      <ul className="flex flex-col w-full min-h-[75vh] justify-end items-start     ">
+      <ul className="grid grid-cols-3 w-full     ">
         {visibleArticles.map((article) => (
-          <li key={article._id} className="w-full ">
+          <li key={article._id} className="relative">
             <Button
               variant="link"
               size="xs"
-              className="w-full justify-start flex flex-col items-center gap-1 h-auto lg:h-auto py-3 text-foreground  border after:content-none "
+              className="w-full justify-start flex flex-col items-start gap-0 aspect-square h-auto lg:h-min p-3 lg:p-6 text-foreground  border after:content-none "
               asChild
             >
               <Link href={`/articles/${article.slug.current}`}>
                 {/* Date above title, 4px apart, like the author line below
                   (min-w-0 lets a long title shrink, so the ticker can run).
                   Always a date: the placeholder where Sanity has none */}
-                <span className="flex min-w-0 flex-col items-center gap-1 w-full">
-                  <time
-                    className="text-neutral-400"
-                    dateTime={article.publishedAt ?? PLACEHOLDER_DATE}
-                  >
-                    {formatDate(article.publishedAt ?? PLACEHOLDER_DATE)}
-                  </time>
+                <span className="flex min-w-0 flex-col items-start justify-start gap-1 w-full">
                   {/* Title; runs as a ticker when it doesn't fit. The title,
                       author and series are clipped (the ticker's and
                       truncate's overflow: hidden), so they need a normal line
                       height: the button's leading-[1] would cut off the rings
                       and dots of Å, Ä and Ö above the capitals */}
-                  <span className="min-w-0 max-w-full w-full leading-normal overflow-hidden px-3  flex items-center   ">
+                  <span className="w-full text-left items-start justify-start leading-normal overflow-hidden px-0  flex i mb-3  ">
                     <Ticker text={articleTitle(article.title)} />
                   </span>
                 </span>
                 {/* Author, then "Del av <series>" for an article in a series,
                   12px apart and as wide as the row allows: the author in full,
                   the series cut off if it doesn't fit */}
-                <span className="flex max-w-full min-w-0 gap-3 text-neutral-600">
+                <span className="self-center flex max-w-full min-w-0 gap-3 text-neutral-600 mb-3">
                   {article.author && (
                     <span className="shrink-0 leading-normal">
                       {article.author.name}
@@ -213,8 +145,34 @@ export default function ArticlesPageClient() {
                     </span>
                   )}
                 </span>
+                {/* The article's cover image, at most a third of the item's
+                    width (nothing when it has none) */}
+                {article.coverImage?.asset && (
+                  <Image
+                    src={urlFor(article.coverImage).width(800).url()}
+                    alt={article.coverImage.alt ?? ""}
+                    width={0}
+                    height={0}
+                    sizes="(min-width: 1024px) 15vw, 33vw"
+                    className="self-center w-auto h-auto max-w-1/3 px-3"
+                  />
+                )}
+                {/* "( läs nu )" at the bottom of the item (the whole item
+                    links to the article) */}
+                <div className="flex justify-between w-full mt-3">
+                  <span className="mt-auto px-3 h2Style">
+                    ( {tArticle("readNow")} )
+                  </span>
+                  <span className="mt-auto px-3 h2Style">
+                    ( {tArticle("readLater")} )
+                  </span>
+                </div>
               </Link>
             </Button>
+            {/* "( läs senare )", bottom right on the "( läs nu )" line. Over
+                the item but outside its link, since a button can't sit
+                inside a link */}
+            {/* TODO: no read-later list yet — save the article here */}
           </li>
         ))}
       </ul>

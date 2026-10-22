@@ -1,7 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { motion, AnimatePresence, useInView } from "motion/react";
+import {
+  motion,
+  AnimatePresence,
+  animate,
+  useInView,
+  useMotionValue,
+  useTransform,
+} from "motion/react";
 import { urlFor } from "@/lib/sanity/image";
 import { useCart } from "@/lib/contexts/CartContext";
 import { type Issue, useIssues } from "@/lib/contexts/IssuesContext";
@@ -16,6 +23,9 @@ import { issueTitle } from "@/lib/issueTitle";
 import { splitNames } from "@/lib/splitNames";
 
 type ImageItem = { asset: any; alt?: string; _key?: string };
+
+// Mobile: how far (px) the panel must be pulled up past its end to close
+const PULL_TO_CLOSE = 120;
 
 // Number of other issues shown under Related items
 const RELATED_COUNT = 4;
@@ -76,11 +86,52 @@ export default function IssueCard({
         )
         .slice(0, RELATED_COUNT)
     : [];
-  // Another issue (e.g. a related one) starts back at the top of the panel
   const issueId = issue?._id;
+
+  // Mobile: swipe up past the end to close. Once the panel is scrolled to
+  // the bottom, pulling further up drags its content up after the finger (at
+  // half speed, rubber-band style); letting go more than PULL_TO_CLOSE px up
+  // slides it away and closes the panel (upwards), less springs it back
+  const pull = useMotionValue(0);
+  const pullOpacity = useTransform(pull, [-300, 0], [0.4, 1]);
+  const [exitUp, setExitUp] = useState(false);
+  const touchStartY = useRef<number | null>(null);
+  function atBottom() {
+    const el = scrollRef.current;
+    return !!el && el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
+  }
+  function onTouchStart(e: React.TouchEvent) {
+    // A close by any other means slides the panel down again
+    setExitUp(false);
+    touchStartY.current = atBottom() ? e.touches[0].clientY : null;
+  }
+  function onTouchMove(e: React.TouchEvent) {
+    if (touchStartY.current === null) {
+      // Reached the bottom mid-swipe: start counting from here
+      if (atBottom()) touchStartY.current = e.touches[0].clientY;
+      return;
+    }
+    const delta = e.touches[0].clientY - touchStartY.current;
+    pull.set(Math.min(0, delta) * 0.5);
+  }
+  function onTouchEnd() {
+    touchStartY.current = null;
+    if (pull.get() < -PULL_TO_CLOSE) {
+      setExitUp(true);
+      animate(pull, -window.innerHeight, {
+        duration: 0.3,
+        ease: "easeIn",
+      }).then(onClose);
+    } else {
+      animate(pull, 0, { type: "spring", stiffness: 400, damping: 35 });
+    }
+  }
+  // Another issue (e.g. a related one) starts back at the top of the panel,
+  // and a panel closed by swiping up starts back in place when reopened
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: 0 });
-  }, [issueId]);
+    pull.set(0);
+  }, [issueId, pull]);
   // Where the mouse pointer is over the carousel (for its "1 of 5" label),
   // or null while it's elsewhere
   const [cursorAt, setCursorAt] = useState<{ x: number; y: number } | null>(
@@ -111,6 +162,16 @@ export default function IssueCard({
   const contributors = splitNames(issue?.contributors);
   const editors = splitNames(issue?.editors);
   const credits = issue?.credits?.filter((c) => c.name) ?? [];
+  // Credits as Produktinfo rows: one row per role (e.g. "Omslag"), its names
+  // one per line, in the order they first appear; credits without a role
+  // under "Credits"
+  const creditRows: { label: string; names: string[] }[] = [];
+  for (const c of credits) {
+    const label = c.role?.trim() || t("credits");
+    const row = creditRows.find((r) => r.label === label);
+    if (row) row.names.push(c.name!);
+    else creditRows.push({ label, names: [c.name!] });
+  }
   // Product information rows (title + value). Year, format, language and
   // weight come from Sanity and are left out when not set; binding, pages
   // and ISBN fall back to PRODUCT_PLACEHOLDER
@@ -160,18 +221,33 @@ export default function IssueCard({
   ].filter((row): row is { label: string; value: string } => !!row.value);
   const soldOut = issue?.inStock === false;
 
-  // Number + title, and the price below
+  // Number + title and the price: stacked on mobile; on desktop one row as
+  // tall as the back button, the title on the left (cut off when long) and
+  // the price on the right
   const titlePrice = issue && (
-    <>
-      <h2 className="max-w-full truncate font-baskervilleNeoText text-lg uppercase tracking-[24%] mb-1">
+    <div className="flex w-full min-w-0 flex-col items-center gap-6 lg:flex-row lg:items-center lg:justify-between lg:gap-6 lg:h-9">
+      <h2 className="min-w-0 truncate font-baskervilleNeoText text-xs uppercase tracking-[48%]">
         #{issue.issueNumber} — {issueTitle(issue.title)}
       </h2>
       {issue.price != null && (
-        <span className="font-baskervilleNeoText text-lg uppercase italic tracking-[24%]">
+        <span className="shrink-0 font-baskervilleNeoText text-xs uppercase italic tracking-[24%]">
           {issue.price} kr
         </span>
       )}
-    </>
+    </div>
+  );
+  // "( lägg i korg )", on the "Läs mer" button's line below the description
+  // ("( slutsåld )", disabled, for a sold-out issue)
+  const addToCartButton = (
+    <Button
+      variant="link"
+      size="xs"
+      disabled={soldOut}
+      className="w-auto text-foreground after:content-none disabled:opacity-40"
+      onClick={handleAddToCart}
+    >
+      ( {soldOut ? t("soldOut") : t("addToCart")} )
+    </Button>
   );
 
   function handleAddToCart() {
@@ -208,45 +284,54 @@ export default function IssueCard({
               the panel */}
           <motion.aside
             aria-label={issueTitle(issue.title)}
-            className="fixed bottom-0 top-15 lg:top-0 right-0 z-80 w-full bg-background flex flex-col shadow-md [contain:layout]"
+            className="fixed bottom-0 top-0 lg:top-0 right-0 z-80 w-full bg-background flex flex-col shadow-md [contain:layout]"
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
-            exit={{ y: "100%" }}
+            // Closed by swiping up: leave upwards; otherwise slide down
+            exit={{ y: exitUp ? "-100%" : "100%" }}
             transition={{ duration: 0.35, ease: "easeInOut" }}
           >
             {/* Scrolls inside the panel (not the panel itself) so the pinned
                 add-to-cart stays put */}
-            <div
+            <motion.div
               ref={scrollRef}
+              style={{ y: pull, opacity: pullOpacity }}
+              onTouchStart={onTouchStart}
+              onTouchMove={onTouchMove}
+              onTouchEnd={onTouchEnd}
+              onTouchCancel={onTouchEnd}
               className="relative  flex-1 min-h-0 overflow-y-auto"
             >
               {/* Two columns on desktop: the carousel on the left, sticking
                   in place, and title, price, add to cart and the information
                   frame on the right, scrolling past it. Stacked on mobile */}
-              <div className="lg:grid lg:grid-cols-2 lg:items-start">
+              <div className="relative lg:grid lg:grid-cols-2 lg:items-start">
+                {/* Header: "☜ Tillbaka", top right on mobile, top left on
+                    desktop; dark text (the link variant's own text is
+                    white). Positioned on the scrolling content (not fixed,
+                    and outside the sticky left column), so it scrolls away
+                    with the panel */}
+                <div className="flex top-12 lg:top-18 left-3 right-3 z-90 absolute shrink-0 items-start justify-end lg:justify-start gap-3 lg:gap-6 h-auto lg:h-9  lg:px-0 lg:pt-0  ">
+                  {/* Left-pointing hand before the label (instead of the
+                      link variant's ☜ after it) */}
+                  <Button
+                    variant="link"
+                    size="xs"
+                    className="shrink-0 w-auto h-12 lg:h-9 gap-2 text-foreground after:content-none"
+                    onClick={onClose}
+                  >
+                    <span aria-hidden className="font-baskervilleNeoDisplay">
+                      ☜
+                    </span>
+                    {t("back")}
+                  </Button>
+                </div>
                 {/* First screen: header, carousel, title, price. On mobile
                   as tall as the panel (the screen minus the navbar), so the
                   information frame starts below the fold; on desktop the
                   left column, the full screen height, dark (bg-foreground,
                   light text for the arrows and counter) */}
-                <section className="relative flex h-[calc(100dvh-3.75rem)] lg:h-dvh lg:sticky lg:top-0 flex-col px-3 lg:bg-foreground lg:text-background">
-                  {/* Header: back, top left (the title and price are below
-                      the carousel on mobile, at the top of the right column
-                      on desktop) */}
-                  <div className="flex top-15 lg:top-18 left-3 right-3 z-90 fixed shrink-0 items-start justify-between gap-3 lg:gap-6 h-auto lg:h-9  lg:px-0 lg:pt-0  ">
-                    <Button
-                      variant="link"
-                      size="xs"
-                      className="shrink-0 w-auto h-12 gap-2  after:content-none"
-                      onClick={onClose}
-                    >
-                      <span aria-hidden className="font-baskervilleNeoDisplay">
-                        ☜
-                      </span>
-                      {t("back")}
-                    </Button>
-                  </div>
-
+                <section className="relative flex h-[calc(100dvh-3.75rem)] lg:h-dvh lg:sticky lg:top-0 flex-col px-3 ">
                   {/* Carousel (and, on mobile, title and price), centred in the
                 panel. On mobile the bottom padding clears the pinned
                 add-to-cart (5rem) and its 2rem fade; on desktop the column is
@@ -254,7 +339,7 @@ export default function IssueCard({
                 block after the carousel is empty there), so the image sits in
                 the vertical centre of the viewport */}
                   <div
-                    className="relative flex flex-1 min-h-0 flex-col items-center justify-center gap-12 lg:gap-0 px-6 lg:px-12 pb-28 lg:py-0"
+                    className="relative flex flex-1 min-h-0 flex-col items-center justify-center pt-24 gap-0 px-6 lg:px-12 pb-24 lg:py-0"
                     // With a mouse, a "1 of 5" label follows the pointer
                     onPointerMove={(e) => {
                       if (e.pointerType !== "mouse") return;
@@ -285,7 +370,7 @@ export default function IssueCard({
                   shows next to the mouse pointer (desktop) or at the bottom
                   of the panel (mobile) */}
                     {images.length > 0 && (
-                      <div className="flex w-1/2 lg:w-full shrink-0 flex-col items-center gap-6">
+                      <div className="relative flex w-full shrink-0 flex-col items-center gap-6">
                         {/* Clicking (or tapping) the image row shows the
                             next image */}
                         <div
@@ -308,7 +393,7 @@ export default function IssueCard({
                           <AnimatePresence mode="wait" initial={false}>
                             <motion.div
                               key={imageIndex}
-                              className="min-w-0 max-w-1/2 lg:max-w-full mx-auto"
+                              className="min-w-0 w-1/2 lg:w-auto lg:max-w-full mx-auto"
                               initial={{ opacity: 0 }}
                               animate={{ opacity: 1 }}
                               exit={{ opacity: 0 }}
@@ -320,7 +405,7 @@ export default function IssueCard({
                                 width={0}
                                 height={0}
                                 sizes="(min-width: 1024px) 40vw, 70vw"
-                                className=" w-auto h-[50dvh] max-w-full object-contain"
+                                className="w-full h-auto lg:w-auto lg:h-[50dvh] lg:max-w-full object-contain"
                               />
                             </motion.div>
                           </AnimatePresence>
@@ -336,17 +421,39 @@ export default function IssueCard({
                             ☞
                           </button>
                         </div>
+                        {/* Under the image, out of the centring (absolute), so
+                            the image itself sits in the middle: the position,
+                            then (mobile) number + title and price */}
+                        <div className="absolute inset-x-0 top-full mt-6 flex flex-col items-center gap-6">
+                          {/* Position, e.g. "1 av 5", just under the image: on
+                            mobile; on desktop only for screen readers (the label
+                            by the mouse pointer shows it). Announced as it
+                            changes */}
+                          {
+                            <span
+                              aria-live="polite"
+                              className="text-center font-baskervilleNeoDisplay text-xs uppercase tracking-[24%] lg:sr-only"
+                            >
+                              {t("imageOf", {
+                                current: imageIndex + 1,
+                                total: images.length,
+                              })}
+                            </span>
+                          }
+                          {/* Mobile: number + title, price below it, under the
+                            carousel (on desktop they're at the top of the right
+                            column) */}
+                          <div className="lg:hidden flex w-full min-w-0 flex-col items-start">
+                            {titlePrice}
+                          </div>
+                        </div>
                       </div>
                     )}
-
-                    {/* Below the indicators: number + title, price below it, add to cart */}
-                    <div className="flex shrink-0 flex-col items-center mt-18 lg:mt-0 gap-6 lg:gap-6">
-                      {/* Mobile: number + title and price below the carousel (on
-                          desktop they're at the top of the right column) */}
-                      <div className="flex w-full min-w-0 flex-col items-start lg:hidden">
-                        {titlePrice}
-                      </div>
-                      <div className="fixed inset-x-0 lg:left-1/2 bottom-0 z-10 bg-background lg:bg-transparent before:absolute before:inset-x-0 before:bottom-full before:h-8 before:bg-linear-to-b before:from-transparent before:to-background before:pointer-events-none px-6 lg:px-12 pt-0 pb-[max(1.5rem,env(safe-area-inset-bottom))] lg:pb-6">
+                    {/* Below the carousel: the pinned add-to-cart (mobile) */}
+                    <div className="flex shrink-0 flex-col items-center gap-6">
+                      {/* Mobile only: add to cart pinned to the bottom of the
+                          panel (on desktop it's under the product table) */}
+                      <div className="lg:hidden fixed inset-x-0 lg:left-1/2 bottom-0 z-10 bg-background lg:bg-transparent before:absolute before:inset-x-0 before:bottom-full before:h-8 before:bg-linear-to-b before:from-transparent before:to-background before:pointer-events-none px-6 lg:px-12 pt-0 pb-[max(1.5rem,env(safe-area-inset-bottom))] lg:pb-6">
                         {/* Back to shop instead once the related items are in
                           view */}
                         <Button
@@ -365,21 +472,6 @@ export default function IssueCard({
                       </div>
                     </div>
                   </div>
-                  {/* Position, e.g. "1 of 5": on mobile at the bottom of the
-                      carousel panel, just above the pinned add-to-cart and
-                      its fade; on desktop only for screen readers (the label
-                      by the pointer shows it). Announced as it changes */}
-                  {images.length > 0 && (
-                    <span
-                      aria-live="polite"
-                      className="absolute inset-x-0 bottom-28 text-center font-baskervilleNeoDisplay text-xs uppercase tracking-[24%] lg:sr-only"
-                    >
-                      {t("imageOf", {
-                        current: imageIndex + 1,
-                        total: images.length,
-                      })}
-                    </span>
-                  )}
                 </section>
 
                 {/* Information frame (the right column on desktop), one
@@ -388,24 +480,22 @@ export default function IssueCard({
                   At least a screen tall, longer if the text needs it */}
                 <section
                   ref={infoRef}
-                  className="flex flex-col min-h-dvh gap-12 px-6 lg:px-12 pt-12 pb-12 0"
+                  className="flex flex-col min-h-dvh gap-12 px-6 lg:p-24 0 border-l border-l-neutral-600"
                 >
-                  {/* Desktop: number + title and price, fixed at top-18 like
-                      the back button, at the start of the right column. The
-                      title sits in a 36px row with its text centred, like
-                      the button's label, so the two share a baseline. On
-                      mobile they're below the carousel */}
-                  <div className="hidden lg:flex lg:fixed lg:top-18 lg:left-1/2 lg:px-12 z-90 flex-col items-start gap-0 [&>h2]:h-9 [&>h2]:flex [&>h2]:items-center">
+                  {/* Desktop: number + title (price on the right) at the top
+                      of the right column, 24px below the back button (lg:mt-9,
+                      measured). Static, so it scrolls away */}
+                  <div className="hidden lg:flex lg:mt-9 w-full min-w-0">
                     {titlePrice}
                   </div>
                   {/* Description */}
-                  <div className="flex flex-col gap-6 mt-6 lg:mt-36 col-span-2">
+                  <div className="flex flex-col gap-6 mt-6 lg:mt-0 col-span-2">
                     {/* Justified, hyphenated (in the page's language) to keep
                       the word spacing even */}
                     {issue.description && (
                       // Cut short behind "Läs mer" (new per issue, so it
                       // starts folded each time)
-                      <ReadMore key={issue._id}>
+                      <ReadMore key={issue._id} aside={addToCartButton}>
                         <div className="flex  flex-col [&_p]:text-justify [&_p]:hyphens-auto">
                           <SanityPortableText value={issue.description} />
                         </div>
@@ -415,9 +505,11 @@ export default function IssueCard({
                   {/* Produktinfo: always shown, a two-column table — rows
                       stacked with no gaps, each drawing its sides and bottom
                       (the table draws the top line, so no line doubles), a
-                      line between the title (first half) and the value. Contributors and editors first (one name per
-                      line), then the product details */}
-                  <div className="flex w-full flex-col items-start gap-0 col-span-2">
+                      line between the title (first half) and the value.
+                      Contributors and editors first (one name per line),
+                      then the credits (a row per role), then the product
+                      details */}
+                  <div className="flex w-full flex-col items-start gap-0 col-span-2 mb-28">
                     <dl className="flex w-full flex-col border-t border-t-neutral-600 font-baskervilleNeoText text-neutral-700 leading-[1.5] tracking-[6%] text-xs">
                       {[
                         ...(contributors.length > 0
@@ -431,6 +523,7 @@ export default function IssueCard({
                         ...(editors.length > 0
                           ? [{ label: t("editors"), names: editors }]
                           : []),
+                        ...creditRows,
                       ].map((row) => (
                         <div
                           key={row.label}
@@ -470,20 +563,21 @@ export default function IssueCard({
                       ))}
                     </dl>
                   </div>
-                  {/* Credits list */}
-                  {credits.length > 0 && (
-                    <dl className="flex flex-col items-start gap-0 font-baskervilleNeoText text-xs tracking-[3%] text-neutral-700 leading-[1.5]">
-                      {credits.map((c) => (
-                        <div key={c._key} className="flex gap-2">
-                          {c.role && <dt>{c.role}:</dt>}
-                          <dd>{c.name}</dd>
-                        </div>
-                      ))}
-                    </dl>
-                  )}
+                  {/* Desktop: add to cart, full width under the product
+                      table, styled like the mobile pinned bar's button
+                      ("Slutsåld", disabled, for a sold-out issue) */}
+                  <Button
+                    variant="default"
+                    size="default"
+                    disabled={soldOut}
+                    className="hidden lg:flex w-full justify-center bg-foreground text-background disabled:opacity-30 disabled:cursor-not-allowed font-baskervilleNeoText text-xs tracking-[24%] uppercase hover:bg-foreground"
+                    onClick={handleAddToCart}
+                  >
+                    {soldOut ? t("soldOut") : t("addToCart")}
+                  </Button>
                 </section>
               </div>
-            </div>
+            </motion.div>
           </motion.aside>
         </>
       )}

@@ -74,7 +74,9 @@
     "close": "close",
     "interview": "interview",
     "fromIssue": "from: LL#{number} — {title}",
-    "partOf": "Part of {series}"
+    "partOf": "Part of {series}",
+    "readNow": "read now",
+    "readLater": "read later"
   },
   "Author": {
     "backToArticles": "← Articles",

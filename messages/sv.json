@@ -74,7 +74,9 @@
     "close": "stäng",
     "interview": "intervju",
     "fromIssue": "ur: LL#{number} — {title}",
-    "partOf": "Del av {series}"
+    "partOf": "Del av {series}",
+    "readNow": "läs nu",
+    "readLater": "läs senare"
   },
   "Author": {
     "backToArticles": "← Artiklar",
