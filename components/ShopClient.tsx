@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useIssues, type Issue } from "@/lib/contexts/IssuesContext";
 import { issueTitle } from "@/lib/issueTitle";
 import IssueTile from "./IssueTile";
@@ -22,12 +23,15 @@ function matchesSearch(issue: Issue, query: string) {
 // The shop: every issue as a grid of tiles, narrowed by a search field
 // centred at the bottom
 export default function ShopClient() {
+  const t = useTranslations("Nav");
   const issues = useIssues();
   const [query, setQuery] = useState("");
   const visibleIssues = issues.filter((issue) => matchesSearch(issue, query));
 
   return (
-    <div className="bg-background">
+    <div className="bg-pergament">
+      {/* Heading: top centre on mobile, top left on desktop */}
+      <h2 className="h2Style px-6 lg:px-12 py-6 text-center ">{t("shop")}</h2>
       {/* Tiles: two columns on mobile, three on desktop */}
       <div className="grid grid-cols-2 lg:grid-cols-3 border-r border-r-neutral-600">
         {visibleIssues.map((issue) => (
@@ -38,7 +42,7 @@ export default function ShopClient() {
           rides along at the bottom of the screen while the grid is in view
           (and doesn't show over the hero above it). Framed top, right and
           bottom; the field draws its own left line */}
-      <div className="sticky bottom-6 z-30 mx-auto mt-6 w-[min(20rem,calc(100%-1.5rem))] h-12 lg:h-9 border-y border-r border-neutral-600 bg-background">
+      <div className="sticky bottom-6 z-30 mx-auto mt-6 w-[min(20rem,calc(100%-1.5rem))] h-12 lg:h-9 border-b border-b-neutral-600 bg-transparent">
         <SearchField value={query} onChange={setQuery} />
       </div>
     </div>

@@ -214,14 +214,14 @@ export default function LLNav() {
           <Button
             variant="link"
             size="xs"
-            className="col-start-9 justify-self-start h-auto w-auto after:content-none"
+            className="col-start-9 italic justify-self-start h-auto w-auto after:content-none"
           >
-            {t("login")}
+            ( {t("subscribe")} )
           </Button>
           <Button
             variant="link"
             size="xs"
-            // Cart is just its item count, in the bar's top-right corner
+            // Cart: "Korg" and its item count, in the bar's top-right corner
             className="col-start-12 w-auto justify-self-end self-center h-auto after:content-none"
             onClick={() => setDrawerOpen(true)}
             aria-label={t("openCart")}
@@ -232,7 +232,7 @@ export default function LLNav() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
             >
-              {totalItems}
+              {t("cartWord")} {totalItems}
             </motion.span>
           </Button>
         </div>
@@ -282,10 +282,10 @@ export default function LLNav() {
           <Link href="/">L&apos;Amour — La Mort</Link>
         </Button>
 
-        {/* Cart — mobile only, last column */}
+        {/* Cart — mobile only, last column: "Korg" and its item count */}
         <Button
           variant="link"
-          className={`h-12 aspect-square w-auto justify-self-end after:content-none lg:hidden ${navOpen ? "text-foreground" : ""}`}
+          className={`h-12 w-auto px-3 justify-self-end after:content-none lg:hidden ${navOpen ? "text-foreground" : ""}`}
           onClick={() => setDrawerOpen(true)}
           aria-label={t("openCart")}
         >

@@ -28,7 +28,8 @@
     "menu": "Meny",
     "cartLabel": "Varukorgen",
     "cart": "Varukorg ({count})",
-    "filter": "Filtrera"
+    "filter": "Filtrera",
+    "cartWord": "Korg"
   },
   "Cart": {
     "title": "korg ({count})",
@@ -95,5 +96,8 @@
     "close": "Stäng",
     "series": "Serie",
     "authors": "Författare"
+  },
+  "Home": {
+    "scroll": "Skrolla ner"
   }
 }

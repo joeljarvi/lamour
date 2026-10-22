@@ -28,7 +28,8 @@
     "menu": "Menu",
     "cartLabel": "Cart",
     "cart": "Cart ({count})",
-    "filter": "Filter & sort"
+    "filter": "Filter & sort",
+    "cartWord": "Cart"
   },
   "Cart": {
     "title": "cart ({count})",
@@ -95,5 +96,8 @@
     "close": "Close",
     "series": "Series",
     "authors": "Authors"
+  },
+  "Home": {
+    "scroll": "Scroll down"
   }
 }

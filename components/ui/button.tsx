@@ -18,7 +18,7 @@ const buttonVariants = cva(
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: " tracking-[24%] bg-background ",
-        link: " text-background    ",
+        link: " text-white    ",
         navLink:
           "font-baskervilleSC lowercase tracking-widest text-foreground bg-transparent hover:bg-foreground hover:text-background transition-colors justify-start",
         navLinkDesktop:

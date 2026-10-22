@@ -35,7 +35,7 @@ export default function IssueTile({
   const t = useTranslations("Issue");
   const soldOut = issue.inStock === false;
 
-  const tileClass = `block  relative bg-background  transition-all aspect-square p-6 w-full text-center lg:text-left`;
+  const tileClass = `block border  relative bg-pergament  transition-all aspect-square p-3 lg:p-6 w-full text-center lg:text-left`;
   // The issue number
   const numberLabel = (
     <span
@@ -57,7 +57,7 @@ export default function IssueTile({
       {/* Image (cover or product image): half the card's height on mobile;
           half + 48px on desktop, shrinking to half on hover. Issue number
           below it */}
-      <div className="absolute inset-6 z-20 lg:z-auto flex flex-col gap-12 items-center justify-center">
+      <div className="absolute inset-6 z-20 lg:z-auto flex flex-col gap-6 lg:gap-12 items-center justify-center">
         {src && (
           <Image
             src={src}
@@ -65,7 +65,7 @@ export default function IssueTile({
             height={0}
             sizes="(min-width: 1024px) 33vw, 50vw"
             alt={image?.alt ?? issue.title}
-            className="w-auto h-auto max-w-full max-h-1/2 lg:max-h-[calc(50%+48px)] lg:group-hover:max-h-1/2 transition-[max-height] duration-300 ease-out shadow"
+            className="w-auto h-auto max-w-full max-h-3/4 lg:max-h-[calc(50%+48px)] lg:group-hover:max-h-1/2 transition-[max-height] duration-300 ease-out shadow"
           />
         )}
         {numberLabel}
@@ -80,8 +80,9 @@ export default function IssueTile({
     <div className={`${soldOut ? "" : "group"} relative`}>
       {soldOut ? (
         <>
-          {/* Sold out: blurred, faded and not a link */}
-          <div aria-disabled className={`${tileClass}   opacity-0 select-none`}>
+          {/* Sold out: the cover still shows, faded (opacity-30), with the
+              label on top; not a link */}
+          <div aria-disabled className={`${tileClass} opacity-20 select-none`}>
             {content}
           </div>
           {/* Label centred on top of the cover, outside the blurred tile so
@@ -91,7 +92,7 @@ export default function IssueTile({
               the label moves up by that much */}
           <span
             aria-hidden
-            className={`absolute inset-0 z-30 -translate-y-8 flex items-center justify-center font-baskervilleNeoText uppercase text-xs   lg:text-xs italic  tracking-[24%] lg:tracking-[48%]`}
+            className={`absolute inset-0 z-30 -translate-y-8 flex items-center justify-center font-baskervilleNeoText uppercase text-xs ml-24 lg:ml-60 rotate-90 lg:text-xs italic  tracking-[24%] lg:tracking-[48%]`}
           >
             {t("soldOut")}
           </span>

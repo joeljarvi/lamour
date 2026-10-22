@@ -27,12 +27,9 @@ export default function LatestIssueCover() {
       : PLACEHOLDER_CREDIT;
 
   return (
-    // Takes the space its column leaves (flex-1): the credits on top,
-    // against the left edge, and the cover centred in the rest
-    <div className="flex w-full flex-1 min-h-0 min-w-0 flex-col items-start justify-start pt-0 gap-1.5">
-      <h3 className="max-w-full break-words text-left  h2Style normal-case tracking-[12%] text-background px-3">
-        {creditLine}
-      </h3>
+    // Takes the height its column leaves (flex-1); a third of the width on
+    // desktop (two thirds on mobile), centred, the cover scaled to fit it
+    <div className="flex w-2/3 lg:w-1/3 mx-auto flex-1 min-h-0 min-w-0 flex-col items-center justify-center pt-0 gap-1.5">
       <Link
         href={`/shop/${latest.slug.current}`}
         scroll={false}
@@ -43,7 +40,7 @@ export default function LatestIssueCover() {
           src={urlFor(latest.cover).width(1600).url()}
           alt={latest.cover.alt ?? issueTitle(latest.title)}
           fill
-          sizes="(min-width: 1024px) 50vw, 100vw"
+          sizes="(min-width: 1024px) 33vw, 67vw"
           priority
           className="object-contain object-center"
         />
