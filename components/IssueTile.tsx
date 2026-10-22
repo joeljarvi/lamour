@@ -6,7 +6,6 @@ import { urlFor } from "@/lib/sanity/image";
 import { Link } from "@/i18n/navigation";
 import { issueTitle } from "@/lib/issueTitle";
 import { useTranslations } from "next-intl";
-import { useCart } from "@/lib/contexts/CartContext";
 import { Button } from "./ui/button";
 
 // Square grid card: title always visible, cover centred, contributors on hover
@@ -21,10 +20,12 @@ export default function IssueTile({
   // issue inside the modal, so closing it still goes back to the page)
   replace?: boolean;
 }) {
-  // The product image when the issue has one (filling the tile), otherwise
-  // the cover
-  const hasProductImage = !!issue.productImage?.asset;
-  const image = hasProductImage ? issue.productImage : issue.cover;
+  // The product image when the issue has one and "Use product image" is on
+  // in Sanity, otherwise the cover; shown the same way either way
+  const image =
+    issue.useProductImage && issue.productImage?.asset
+      ? issue.productImage
+      : issue.cover;
   const src = image?.asset ? urlFor(image).url() : null;
   // One name per line or comma in Sanity's Contributors field
   const contributors = (issue.contributors ?? "")
@@ -32,37 +33,16 @@ export default function IssueTile({
     .map((name) => name.trim())
     .filter(Boolean);
   const t = useTranslations("Issue");
-  const { addToCart, setDrawerOpen } = useCart();
   const soldOut = issue.inStock === false;
 
-  function handleAddToCart() {
-    addToCart({
-      id: issue._id,
-      title: issue.title,
-      price: issue.price != null ? `${issue.price} kr` : "0",
-    });
-    setDrawerOpen(true);
-  }
-
   const tileClass = `block  relative bg-background  transition-all aspect-square p-6 w-full text-center lg:text-left`;
-  // The issue number; while the tile is hovered, "Lägg i korg" instead (or
-  // "Slutsåld" for a sold-out issue). Clicking that label adds the issue to
-  // the cart and opens it, instead of following the tile's link
+  // The issue number
   const numberLabel = (
-    <span className="font-baskervilleNeoText text-xs uppercase tracking-[24%] group-hover:tracking-[48%] group-hover:italic transition-all">
-      <span aria-hidden className="group-hover:hidden">
-        #{issue.issueNumber}
-      </span>
-      <span
-        className="hidden group-hover:inline cursor-pointer"
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          if (!soldOut) handleAddToCart();
-        }}
-      >
-        {soldOut ? t("soldOut") : t("addToCart")}
-      </span>
+    <span
+      aria-hidden
+      className="font-baskervilleNeoText text-xs uppercase tracking-[24%] group-hover:tracking-[48%] group-hover:italic transition-all"
+    >
+      #{issue.issueNumber}
     </span>
   );
 
@@ -74,39 +54,22 @@ export default function IssueTile({
         {soldOut && ` (${t("soldOut")})`}
       </span>
 
-      {hasProductImage && src ? (
-        <>
-          {/* Product image: fills the whole tile, edge to edge (cropped to
-              the square around its hotspot), the number over it at the
-              bottom */}
+      {/* Image (cover or product image): half the card's height on mobile;
+          half + 48px on desktop, shrinking to half on hover. Issue number
+          below it */}
+      <div className="absolute inset-6 z-20 lg:z-auto flex flex-col gap-12 items-center justify-center">
+        {src && (
           <Image
             src={src}
-            fill
+            width={0}
+            height={0}
             sizes="(min-width: 1024px) 33vw, 50vw"
             alt={image?.alt ?? issue.title}
-            className="object-cover"
+            className="w-auto h-auto max-w-full max-h-1/2 lg:max-h-[calc(50%+48px)] lg:group-hover:max-h-1/2 transition-[max-height] duration-300 ease-out shadow"
           />
-          <div className="absolute inset-x-0 bottom-6 z-20 flex justify-center">
-            {numberLabel}
-          </div>
-        </>
-      ) : (
-        // Cover: half the card's height on mobile; half + 48px on desktop,
-        // shrinking to half on hover. Issue number below it
-        <div className="absolute inset-6 z-20 lg:z-auto flex flex-col gap-12 items-center justify-center">
-          {src && (
-            <Image
-              src={src}
-              width={0}
-              height={0}
-              sizes="(min-width: 1024px) 33vw, 50vw"
-              alt={image?.alt ?? issue.title}
-              className="w-auto h-auto max-w-full max-h-1/2 lg:max-h-[calc(50%+48px)] lg:group-hover:max-h-1/2 transition-[max-height] duration-300 ease-out shadow"
-            />
-          )}
-          {numberLabel}
-        </div>
-      )}
+        )}
+        {numberLabel}
+      </div>
     </>
   );
 
@@ -128,7 +91,7 @@ export default function IssueTile({
               the label moves up by that much */}
           <span
             aria-hidden
-            className={`absolute inset-0 z-30 ${hasProductImage ? "" : "-translate-y-8"} flex items-center justify-center font-baskervilleNeoText uppercase text-xs   lg:text-xs italic  tracking-[24%] lg:tracking-[48%]`}
+            className={`absolute inset-0 z-30 -translate-y-8 flex items-center justify-center font-baskervilleNeoText uppercase text-xs   lg:text-xs italic  tracking-[24%] lg:tracking-[48%]`}
           >
             {t("soldOut")}
           </span>

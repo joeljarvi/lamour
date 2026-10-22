@@ -9,8 +9,10 @@ export type Issue = {
   issueNumber: number;
   language?: "sv" | "en";
   cover?: { asset: { _ref: string }; alt?: string };
-  // Optional; the shop tile shows it instead of the cover
+  // Optional; the shop tile shows it instead of the cover when
+  // useProductImage is on
   productImage?: { asset: { _ref: string }; alt?: string };
+  useProductImage?: boolean;
   price?: number;
   weight?: number;
   inStock?: boolean;

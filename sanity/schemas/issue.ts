@@ -64,7 +64,7 @@ export default defineType({
       title: "Product Image",
       type: "image",
       description:
-        "Optional. Shown on the issue's tile in the shop instead of the cover",
+        "Optional. Shown on the issue's tile in the shop instead of the cover when \"Use product image\" is on",
       options: { hotspot: true },
       fields: [
         defineField({
@@ -73,6 +73,14 @@ export default defineType({
           type: "string",
         }),
       ],
+    }),
+    defineField({
+      name: "useProductImage",
+      title: "Use product image",
+      type: "boolean",
+      description:
+        "On: the shop tile shows the product image instead of the cover",
+      initialValue: false,
     }),
     defineField({
       name: "previewImages",
