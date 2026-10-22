@@ -10,7 +10,7 @@ import { issueTitle } from "@/lib/issueTitle";
 const PLACEHOLDER_CREDIT = "Omslag: Agnes Ivarsson";
 
 // The latest issue's credits above its cover (issues come newest first),
-// filling its parent — the cover scaled to fit, against the left edge, and
+// filling its parent — the cover scaled to fit, centred, and
 // linking to the issue, which opens as a modal over the page. Nothing if
 // there's no issue or cover
 export default function LatestIssueCover() {
@@ -27,8 +27,8 @@ export default function LatestIssueCover() {
       : PLACEHOLDER_CREDIT;
 
   return (
-    // Takes the space its column leaves (flex-1): the credits on top, the
-    // cover in the rest, both against the container's left edge
+    // Takes the space its column leaves (flex-1): the credits on top,
+    // against the left edge, and the cover centred in the rest
     <div className="flex w-full flex-1 min-h-0 min-w-0 flex-col items-start justify-start pt-0 gap-1.5">
       <h3 className="max-w-full break-words text-left  h2Style normal-case tracking-[12%] text-background px-3">
         {creditLine}
@@ -45,7 +45,7 @@ export default function LatestIssueCover() {
           fill
           sizes="(min-width: 1024px) 50vw, 100vw"
           priority
-          className="object-contain object-left"
+          className="object-contain object-center"
         />
       </Link>
     </div>

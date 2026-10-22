@@ -50,7 +50,8 @@ export default function IssueTile({
       </span>
 
       {/* Cover: half the card's height on mobile; half + 48px on desktop,
-          shrinking to half on hover. Issue number below it, always shown */}
+          shrinking to half on hover. Issue number below it (add to cart on
+          hover) */}
       <div className="absolute inset-6 z-20 lg:z-auto flex flex-col gap-12 items-center justify-center">
         {src && (
           <Image
@@ -62,11 +63,24 @@ export default function IssueTile({
             className="w-auto h-auto max-w-full max-h-1/2 lg:max-h-[calc(50%+48px)] lg:group-hover:max-h-1/2 transition-[max-height] duration-300 ease-out shadow"
           />
         )}
-        <span
-          aria-hidden
-          className="font-baskervilleNeoText text-xs uppercase tracking-[24%] group-hover:tracking-[48%] group-hover:italic transition-all"
-        >
-          #{issue.issueNumber}
+        {/* The issue number; while the tile is hovered, "Lägg i korg"
+            instead (or "Slutsåld" for a sold-out issue). Clicking that
+            label adds the issue to the cart and opens it, instead of
+            following the tile's link */}
+        <span className="font-baskervilleNeoText text-xs uppercase tracking-[24%] group-hover:tracking-[48%] group-hover:italic transition-all">
+          <span aria-hidden className="group-hover:hidden">
+            #{issue.issueNumber}
+          </span>
+          <span
+            className="hidden group-hover:inline cursor-pointer"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              if (!soldOut) handleAddToCart();
+            }}
+          >
+            {soldOut ? t("soldOut") : t("addToCart")}
+          </span>
         </span>
       </div>
     </>
