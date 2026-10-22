@@ -9,8 +9,8 @@ export type Issue = {
   issueNumber: number;
   language?: "sv" | "en";
   cover?: { asset: { _ref: string }; alt?: string };
-  spine?: { asset: { _ref: string }; alt?: string };
-  back?: { asset: { _ref: string }; alt?: string };
+  // Optional; the shop tile shows it instead of the cover
+  productImage?: { asset: { _ref: string }; alt?: string };
   price?: number;
   weight?: number;
   inStock?: boolean;

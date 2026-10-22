@@ -60,22 +60,11 @@ export default defineType({
       ],
     }),
     defineField({
-      name: "spine",
-      title: "Spine",
+      name: "productImage",
+      title: "Product Image",
       type: "image",
-      options: { hotspot: true },
-      fields: [
-        defineField({
-          name: "alt",
-          title: "Alt Text",
-          type: "string",
-        }),
-      ],
-    }),
-    defineField({
-      name: "back",
-      title: "Back",
-      type: "image",
+      description:
+        "Optional. Shown on the issue's tile in the shop instead of the cover",
       options: { hotspot: true },
       fields: [
         defineField({

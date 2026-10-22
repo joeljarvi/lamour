@@ -21,7 +21,9 @@ export default function IssueTile({
   // issue inside the modal, so closing it still goes back to the page)
   replace?: boolean;
 }) {
-  const src = issue.cover?.asset ? urlFor(issue.cover).url() : null;
+  // The product image when the issue has one, otherwise the cover
+  const image = issue.productImage?.asset ? issue.productImage : issue.cover;
+  const src = image?.asset ? urlFor(image).url() : null;
   // One name per line or comma in Sanity's Contributors field
   const contributors = (issue.contributors ?? "")
     .split(/[\n,]/)
@@ -59,7 +61,7 @@ export default function IssueTile({
             width={0}
             height={0}
             sizes="(min-width: 1024px) 25vw, 100vw"
-            alt={issue.cover?.alt ?? issue.title}
+            alt={image?.alt ?? issue.title}
             className="w-auto h-auto max-w-full max-h-1/2 lg:max-h-[calc(50%+48px)] lg:group-hover:max-h-1/2 transition-[max-height] duration-300 ease-out shadow"
           />
         )}
