@@ -483,39 +483,6 @@ export default function IssueCard({
                   )}
                 </section>
               </div>
-
-              <div ref={endRef}>
-                {/* Related items: the other issues nearest in number, as shop
-                  tiles (two columns on mobile, four on desktop); picking one opens it
-                  in this panel, replacing this one in the history */}
-                {related.length > 0 && (
-                  <section
-                    ref={relatedRef}
-                    className="flex flex-col items-center gap-6 pt-12 lg:px-6"
-                  >
-                    <Button
-                      variant="link"
-                      size="xs"
-                      className="self-center w-auto after:content-['☟'] after:opacity-100"
-                      onClick={() => scrollPanelTo(relatedRef.current)}
-                    >
-                      {t("related")}
-                    </Button>
-                    {/* Top and left line; the tiles draw the rest */}
-                    <div className="grid w-full grid-cols-2 lg:grid-cols-4 border-t border-l border-neutral-600">
-                      {related.map((other) => (
-                        <IssueTile key={other._id} issue={other} replace />
-                      ))}
-                    </div>
-                  </section>
-                )}
-
-                {/* Site footer (the page's own is behind the panel); extra
-                  bottom padding clears the pinned add-to-cart */}
-                <div className="pb-20 lg:pb-28">
-                  <Footer />
-                </div>
-              </div>
             </div>
           </motion.aside>
         </>

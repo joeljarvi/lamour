@@ -183,7 +183,7 @@
   }
 
   .pStyle {
-    @apply font-baskervilleNeoText text-lg lg:text-lg tracking-normal leading-normal;
+    @apply font-baskervilleNeoText text-lg lg:text-base tracking-normal leading-normal;
   }
 
   .h3Style .btnStyle {
@@ -252,4 +252,3 @@ textarea,
 .ticker:hover {
   animation-play-state: paused;
 }
-
