@@ -28,8 +28,8 @@ export default function ShopClient() {
 
   return (
     <div className="bg-background">
-      {/* Tiles: two columns on mobile, four on desktop */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 border-r border-r-neutral-600">
+      {/* Tiles: two columns on mobile, three on desktop */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 border-r border-r-neutral-600">
         {visibleIssues.map((issue) => (
           <IssueTile key={issue._id} issue={issue} />
         ))}
