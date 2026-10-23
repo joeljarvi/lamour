@@ -71,7 +71,7 @@ function NavOverlay({
     <AnimatePresence>
       {navOpen && (
         <motion.ul
-          className="flex flex-col w-full justify-center items-center font-baskerville bg-pergament   py-0 mt-24 px-6 list-none gap-y-0"
+          className="flex flex-col w-full justify-center items-center font-baskerville bg-pergament   py-0 mt-24 px-3 list-none gap-y-0"
           initial="hidden"
           animate="visible"
           exit="hidden"
@@ -184,7 +184,7 @@ export default function LLNav() {
               key={key}
               variant="link"
               size="xs"
-              className={`${col}  w-full justify-between justify-self-start  h-9 px-3`}
+              className={`${col}  w-full justify-start justify-self-start  h-9 px-3`}
               asChild
             >
               <Link
@@ -232,7 +232,7 @@ export default function LLNav() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
             >
-              {t("cartWord")} {totalItems}
+              {t("cartWord")} ({totalItems})
             </motion.span>
           </Button>
         </div>
@@ -295,7 +295,7 @@ export default function LLNav() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
           >
-            {totalItems}
+            ({totalItems})
           </motion.span>
         </Button>
       </div>

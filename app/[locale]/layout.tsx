@@ -180,8 +180,9 @@ export default async function RootLayout({
                 <Footer />
                 {modal}
               </ArticlesProvider>
+              {/* Inside IssuesProvider: looks up each item's image and weight */}
+              <CartDrawer />
             </IssuesProvider>
-            <CartDrawer />
           </CartProvider>
         </NextIntlClientProvider>
       </body>

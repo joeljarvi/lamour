@@ -57,7 +57,7 @@ export default function IssueCard({
 }) {
   const t = useTranslations("Issue");
   const tNav = useTranslations("Nav");
-  const { addToCart, setDrawerOpen, totalItems } = useCart();
+  const { addToCart, totalItems } = useCart();
   // The panel's scroll container, and the sections its buttons scroll to
   const scrollRef = useRef<HTMLDivElement>(null);
   const infoRef = useRef<HTMLElement>(null);
@@ -221,33 +221,20 @@ export default function IssueCard({
   ].filter((row): row is { label: string; value: string } => !!row.value);
   const soldOut = issue?.inStock === false;
 
-  // Number + title and the price: stacked on mobile; on desktop one row as
-  // tall as the back button, the title on the left (cut off when long) and
-  // the price on the right
-  const titlePrice = issue && (
+  // Number + title: centred on mobile; on desktop as tall as the back
+  // button, cut off when long
+  const titleRow = issue && (
     <div className="flex w-full min-w-0 flex-col items-center gap-6 lg:flex-row lg:items-center lg:justify-between lg:gap-6 lg:h-9">
       <h2 className="min-w-0 truncate font-baskervilleNeoText text-xs uppercase tracking-[48%]">
         #{issue.issueNumber} — {issueTitle(issue.title)}
       </h2>
-      {issue.price != null && (
-        <span className="shrink-0 font-baskervilleNeoText text-xs uppercase italic tracking-[24%]">
-          {issue.price} kr
-        </span>
-      )}
     </div>
   );
-  // "( lägg i korg )", on the "Läs mer" button's line below the description
-  // ("( slutsåld )", disabled, for a sold-out issue)
-  const addToCartButton = (
-    <Button
-      variant="link"
-      size="xs"
-      disabled={soldOut}
-      className="w-auto text-foreground after:content-none disabled:opacity-40"
-      onClick={handleAddToCart}
-    >
-      ( {soldOut ? t("soldOut") : t("addToCart")} )
-    </Button>
+  // The price, on the "Läs mer" button's line below the description
+  const price = issue?.price != null && (
+    <span className="font-baskervilleNeoText text-xs uppercase italic tracking-[24%]">
+      {issue.price} kr
+    </span>
   );
 
   function handleAddToCart() {
@@ -257,7 +244,6 @@ export default function IssueCard({
       title: issue.title,
       price: issue.price != null ? `${issue.price} kr` : "0",
     });
-    setDrawerOpen(true);
     onClose();
   }
 
@@ -306,12 +292,12 @@ export default function IssueCard({
                   in place, and title, price, add to cart and the information
                   frame on the right, scrolling past it. Stacked on mobile */}
               <div className="relative lg:grid lg:grid-cols-2 lg:items-start">
-                {/* Header: "☜ Tillbaka", top right on mobile, top left on
+                {/* Header: "☜ Tillbaka", top centre on mobile, top left on
                     desktop; dark text (the link variant's own text is
                     white). Positioned on the scrolling content (not fixed,
                     and outside the sticky left column), so it scrolls away
                     with the panel */}
-                <div className="flex top-12 lg:top-18 left-3 right-3 z-90 absolute shrink-0 items-start justify-end lg:justify-start gap-3 lg:gap-6 h-auto lg:h-9  lg:px-0 lg:pt-0  ">
+                <div className="flex top-12 lg:top-18 left-3 right-3 z-90 absolute shrink-0 items-start justify-center lg:justify-start gap-3 lg:gap-6 h-auto lg:h-9  lg:px-0 lg:pt-0  ">
                   {/* Left-pointing hand before the label (instead of the
                       link variant's ☜ after it) */}
                   <Button
@@ -356,7 +342,7 @@ export default function IssueCard({
                     {cursorAt && images.length > 0 && (
                       <span
                         aria-hidden
-                        className="pointer-events-none absolute z-10 whitespace-nowrap font-baskervilleNeoDisplay text-xs uppercase tracking-[24%]"
+                        className="hidden lg:block pointer-events-none absolute z-10 whitespace-nowrap font-baskervilleNeoDisplay text-xs uppercase tracking-[24%]"
                         style={{ left: cursorAt.x + 16, top: cursorAt.y + 16 }}
                       >
                         {t("imageOf", {
@@ -374,7 +360,7 @@ export default function IssueCard({
                         {/* Clicking (or tapping) the image row shows the
                             next image */}
                         <div
-                          className="flex w-full items-center justify-center gap-2 cursor-pointer"
+                          className={`flex w-full items-center justify-center gap-2 ${images.length > 1 ? "cursor-pointer" : ""}`}
                           onClick={() => showImage(imageIndex + 1)}
                         >
                           {/* Keyboard / screen reader: previous and next,
@@ -422,9 +408,8 @@ export default function IssueCard({
                           </button>
                         </div>
                         {/* Under the image, out of the centring (absolute), so
-                            the image itself sits in the middle: the position,
-                            then (mobile) number + title and price */}
-                        <div className="absolute inset-x-0 top-full mt-6 flex flex-col items-center gap-6">
+                            the image itself sits in the middle: the position */}
+                        <div className="absolute inset-x-0 top-full mt-12 flex flex-col items-center gap-6">
                           {/* Position, e.g. "1 av 5", just under the image: on
                             mobile; on desktop only for screen readers (the label
                             by the mouse pointer shows it). Announced as it
@@ -440,19 +425,20 @@ export default function IssueCard({
                               })}
                             </span>
                           }
-                          {/* Mobile: number + title, price below it, under the
-                            carousel (on desktop they're at the top of the right
-                            column) */}
-                          <div className="lg:hidden flex w-full min-w-0 flex-col items-start">
-                            {titlePrice}
-                          </div>
                         </div>
                       </div>
                     )}
+                    {/* Mobile: number + title, 24px above the pinned
+                        add-to-cart (the section ends 3.75rem above the panel's
+                        bottom, the bar is 5rem tall: 5 - 3.75 + 1.5 = 2.75rem).
+                        On desktop it's at the top of the right column */}
+                    <div className="lg:hidden absolute inset-x-6 bottom-11 flex min-w-0 flex-col items-center">
+                      {titleRow}
+                    </div>
                     {/* Below the carousel: the pinned add-to-cart (mobile) */}
                     <div className="flex shrink-0 flex-col items-center gap-6">
                       {/* Mobile only: add to cart pinned to the bottom of the
-                          panel (on desktop it's under the product table) */}
+                          panel (on desktop it's above the product table) */}
                       <div className="lg:hidden fixed inset-x-0 lg:left-1/2 bottom-0 z-10 bg-background lg:bg-transparent before:absolute before:inset-x-0 before:bottom-full before:h-8 before:bg-linear-to-b before:from-transparent before:to-background before:pointer-events-none px-6 lg:px-12 pt-0 pb-[max(1.5rem,env(safe-area-inset-bottom))] lg:pb-6">
                         {/* Back to shop instead once the related items are in
                           view */}
@@ -480,13 +466,13 @@ export default function IssueCard({
                   At least a screen tall, longer if the text needs it */}
                 <section
                   ref={infoRef}
-                  className="flex flex-col min-h-dvh gap-12 px-6 lg:p-24 0 border-l border-l-neutral-600"
+                  className="flex flex-col min-h-dvh gap-12 px-6 lg:pl-0 lg:pr-48 lg:pt-24   lg:pb-24 0 "
                 >
                   {/* Desktop: number + title (price on the right) at the top
                       of the right column, 24px below the back button (lg:mt-9,
                       measured). Static, so it scrolls away */}
                   <div className="hidden lg:flex lg:mt-9 w-full min-w-0">
-                    {titlePrice}
+                    {titleRow}
                   </div>
                   {/* Description */}
                   <div className="flex flex-col gap-6 mt-6 lg:mt-0 col-span-2">
@@ -495,13 +481,25 @@ export default function IssueCard({
                     {issue.description && (
                       // Cut short behind "Läs mer" (new per issue, so it
                       // starts folded each time)
-                      <ReadMore key={issue._id} aside={addToCartButton}>
+                      <ReadMore key={issue._id} aside={price}>
                         <div className="flex  flex-col [&_p]:text-justify [&_p]:hyphens-auto">
                           <SanityPortableText value={issue.description} />
                         </div>
                       </ReadMore>
                     )}
                   </div>
+                  {/* Desktop: add to cart, full width above the product
+                      table, styled like the mobile pinned bar's button
+                      ("Slutsåld", disabled, for a sold-out issue) */}
+                  <Button
+                    variant="default"
+                    size="default"
+                    disabled={soldOut}
+                    className="hidden lg:flex w-full justify-center bg-foreground text-background disabled:opacity-30 disabled:cursor-not-allowed font-baskervilleNeoText text-xs tracking-[24%] uppercase hover:bg-foreground"
+                    onClick={handleAddToCart}
+                  >
+                    {soldOut ? t("soldOut") : t("addToCart")}
+                  </Button>
                   {/* Produktinfo: always shown, a two-column table — rows
                       stacked with no gaps, each drawing its sides and bottom
                       (the table draws the top line, so no line doubles), a
@@ -563,18 +561,6 @@ export default function IssueCard({
                       ))}
                     </dl>
                   </div>
-                  {/* Desktop: add to cart, full width under the product
-                      table, styled like the mobile pinned bar's button
-                      ("Slutsåld", disabled, for a sold-out issue) */}
-                  <Button
-                    variant="default"
-                    size="default"
-                    disabled={soldOut}
-                    className="hidden lg:flex w-full justify-center bg-foreground text-background disabled:opacity-30 disabled:cursor-not-allowed font-baskervilleNeoText text-xs tracking-[24%] uppercase hover:bg-foreground"
-                    onClick={handleAddToCart}
-                  >
-                    {soldOut ? t("soldOut") : t("addToCart")}
-                  </Button>
                 </section>
               </div>
             </motion.div>

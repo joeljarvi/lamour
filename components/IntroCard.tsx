@@ -59,7 +59,7 @@ export default function IntroCard() {
   return (
     <section
       ref={ref}
-      className="flex w-full flex-col items-center px-6 bg-foreground"
+      className="flex w-full flex-col items-center px-6 bg-background"
     >
       {/* First screen: the logo card, centred. 16:9, the screen minus 24px
           each side on mobile, 40% of the screen tall on desktop */}
@@ -81,7 +81,7 @@ export default function IntroCard() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-          className="pointer-events-none fixed bottom-6 inset-x-0 z-40 text-center h2Style text-background"
+          className="pointer-events-none fixed bottom-6 inset-x-0 z-40 text-center h2Style text-foreground"
         >
           <motion.span style={{ opacity: hintOpacity }}>
             ( {tHome("scroll")} )
@@ -90,7 +90,7 @@ export default function IntroCard() {
       </div>
 
       {/* Below it, each revealed as you scroll to it: about, then subscribe */}
-      <div className="flex w-full lg:w-1/2 flex-col items-center gap-12 pb-[30vh] text-center text-background">
+      <div className="flex w-full lg:w-1/2 flex-col items-center gap-12 pb-[30vh] text-center text-foreground">
         <motion.h2 {...reveal} className="h2Style">
           om oss
         </motion.h2>
@@ -112,7 +112,7 @@ export default function IntroCard() {
           <Button
             variant="link"
             size="sm"
-            className="w-auto h-auto text-background italic font-baskervilleNeoText after:content-none tracking-[48%] h2Style"
+            className="w-auto h-auto text-foregrounditalic font-baskervilleNeoText after:content-none tracking-[48%] h2Style"
             asChild
           >
             <Link href="/subscribe">( {t("becomeSubscriber")} )</Link>

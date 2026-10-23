@@ -13,6 +13,8 @@ type CartContextValue = {
   items: CartItem[];
   addToCart: (item: Omit<CartItem, "quantity">) => void;
   removeFromCart: (id: string) => void;
+  // One fewer; removes the item at zero
+  decreaseQuantity: (id: string) => void;
   clearCart: () => void;
   totalItems: number;
   drawerOpen: boolean;
@@ -23,6 +25,7 @@ const CartContext = createContext<CartContextValue>({
   items: [],
   addToCart: () => {},
   removeFromCart: () => {},
+  decreaseQuantity: () => {},
   clearCart: () => {},
   totalItems: 0,
   drawerOpen: false,
@@ -49,6 +52,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setItems((prev) => prev.filter((i) => i.id !== id));
   }
 
+  function decreaseQuantity(id: string) {
+    setItems((prev) =>
+      prev
+        .map((i) => (i.id === id ? { ...i, quantity: i.quantity - 1 } : i))
+        .filter((i) => i.quantity > 0),
+    );
+  }
+
   function clearCart() {
     setItems([]);
   }
@@ -61,6 +72,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         items,
         addToCart,
         removeFromCart,
+        decreaseQuantity,
         clearCart,
         totalItems,
         drawerOpen,

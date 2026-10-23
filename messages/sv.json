@@ -39,7 +39,9 @@
     "remove": "Ta bort {title}",
     "subtotal": "Summa",
     "checkout": "Till kassan",
-    "clear": "(Töm korg)"
+    "clear": "(Töm korg)",
+    "decrease": "Ta bort en {title}",
+    "increase": "Lägg till en {title}"
   },
   "Issue": {
     "close": "stäng",

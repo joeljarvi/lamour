@@ -39,7 +39,9 @@
     "remove": "Remove {title}",
     "subtotal": "Subtotal",
     "checkout": "Checkout",
-    "clear": "(Empty cart)"
+    "clear": "(Empty cart)",
+    "decrease": "Remove one {title}",
+    "increase": "Add one {title}"
   },
   "Issue": {
     "close": "close",
