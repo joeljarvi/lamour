@@ -12,6 +12,7 @@ import Footer from "@/components/Footer";
 import { client } from "@/lib/sanity/client";
 import { issuesQuery, articlesQuery, seriesQuery } from "@/lib/sanity/queries";
 import { IssuesProvider } from "@/lib/contexts/IssuesContext";
+import { QueueProvider } from "@/lib/contexts/QueueContext";
 import { ArticlesProvider } from "@/lib/contexts/ArticlesContext";
 import { CartProvider } from "@/lib/contexts/CartContext";
 import type { Issue } from "@/lib/contexts/IssuesContext";
@@ -175,10 +176,12 @@ export default async function RootLayout({
           <CartProvider>
             <IssuesProvider issues={issues}>
               <ArticlesProvider articles={articles} series={series}>
-                <LLNav />
-                {children}
-                <Footer />
-                {modal}
+                <QueueProvider>
+                  <LLNav />
+                  {children}
+                  <Footer />
+                  {modal}
+                </QueueProvider>
               </ArticlesProvider>
               {/* Inside IssuesProvider: looks up each item's image and weight */}
               <CartDrawer />

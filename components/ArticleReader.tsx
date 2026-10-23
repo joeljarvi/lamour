@@ -4,14 +4,16 @@ import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ScrollContainerContext } from "@/lib/ScrollContainerContext";
 import SanityPortableText from "@/components/SanityPortableText";
-import ArticleNav from "@/components/ArticleNav";
+import ArticleNavbar from "@/components/ArticleNavbar";
+import ArticleFooter from "@/components/ArticleFooter";
 import { urlFor } from "@/lib/sanity/image";
 import { Link } from "@/i18n/navigation";
 import Image from "next/image";
-import { useTranslations } from "next-intl";
-import { issueTitle } from "@/lib/issueTitle";
+import { useArticleColor } from "@/components/ArticleTile";
+import { cn } from "@/lib/utils";
 
 type ArticleReaderProps = {
+  slug: string;
   title: string;
   subtitle?: string;
   body?: any[];
@@ -31,6 +33,7 @@ type ArticleReaderProps = {
 };
 
 export default function ArticleReader({
+  slug,
   title,
   subtitle,
   body,
@@ -40,7 +43,8 @@ export default function ArticleReader({
   coverImage,
   category,
 }: ArticleReaderProps) {
-  const t = useTranslations("Article");
+  // The article's tile colour, for the hero (as the top bar and footer)
+  const color = useArticleColor(slug);
   const scrollRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -52,30 +56,17 @@ export default function ArticleReader({
 
   return (
     <>
-      <ArticleNav bodyRef={bodyRef} />
-      {/* "ur: LL#n — title" top centre, linking to the issue */}
-      {issue && (
-        <Link
-          href={`/shop/${issue.slug?.current}`}
-          className="fixed top-6 left-1/2 -translate-x-1/2 z-20 font-baskervilleNeoText tracking-[12%] text-sm uppercase whitespace-nowrap hover:opacity-60 transition-opacity"
-        >
-          {t("fromIssue", {
-            number: issue.issueNumber,
-            title: issueTitle(issue.title),
-          })}
-        </Link>
-      )}
-      {/* Close: Baskerville Neo's swash X (OpenType "swsh"), back to the list */}
-      <Link
-        href="/articles"
-        aria-label={t("close")}
-        className="fixed top-6 right-6 z-20 font-baskervilleNeoDisplay text-2xl leading-none [font-feature-settings:'swsh'_1] hover:opacity-60 transition-opacity"
-      >
-        X
-      </Link>
+      {/* Series and title (mobile) and close at the top; settings, the
+          reading progress and the queue at the bottom */}
+      <ArticleNavbar
+        slug={slug}
+        title={title}
+        series={series}
+        bodyRef={bodyRef}
+      />
       <motion.div
         ref={scrollRef}
-        className="w-full"
+        className="w-full bg-background"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.4 }}
@@ -83,7 +74,15 @@ export default function ArticleReader({
         <ScrollContainerContext.Provider value={scrollRef}>
           <article className="flex flex-col pb-32">
             {/* Hero */}
-            <div ref={heroRef} className="relative h-dvh overflow-hidden">
+            {/* Hero, in the article's tile colour (light text on the dark
+                one) */}
+            <div
+              ref={heroRef}
+              className={cn(
+                "relative h-dvh overflow-hidden bg-background text-foreground",
+                color,
+              )}
+            >
               {coverImage?.asset && (
                 // Centred, at most a third of the page wide
                 <motion.div
@@ -103,34 +102,53 @@ export default function ArticleReader({
 
               {/* Text content */}
               <div className="relative z-10 flex flex-col h-full justify-center items-center px-8 pt-12 pb-4 text-center">
-                <div className="flex flex-col items-center justify-center gap-0">
-                  <h1 className="font-baskervilleNeoDisplay text-4xl uppercase tracking-widest leading-[1.5]  lg:max-w-3xl mb-6">
+                <div className="flex flex-col items-center justify-center gap-0 w-full text-center leading-loose whitespace-normal break-words  text-base lg:text-2xl truncate font-baskervilleNeoText uppercase lg:font-baskervilleNeoDisplay tracking-[24%] px-12 lg:px-0 gap-12 lg:max-w-2xl">
+                  {author && (
+                    <Link
+                      href={`/authors/${author.slug.current}`}
+                      className="text-xs tracking-[48%]   leading-loose font-baskervilleNeoText uppercase"
+                    >
+                      {author.name}
+                    </Link>
+                  )}
+                  <h1 className="  ">
                     {/* "{series}: {title}", with the title in italics */}
                     {series && <>{series.title}: </>}
-                    <span className="italic">{title}</span>
+                    <span className="">{title}</span>
                   </h1>
                   {subtitle && (
-                    <h2 className="font-baskervilleNeoDisplay text-2xl leading-[1.2] tracking-[6%] ">
+                    <h2 className="italic text-xs tracking-[48%] leading-loose font-baskervilleNeoText">
                       {subtitle}
                     </h2>
                   )}
                 </div>
                 {/* Author pinned to the bottom centre of the hero */}
-                {author && (
-                  <Link
-                    href={`/authors/${author.slug.current}`}
-                    className="absolute bottom-8 left-1/2 -translate-x-1/2 font-baskervilleNeoDisplay text-lg tracking-wider hover:opacity-60 transition-opacity"
-                  >
-                    {author.name}
-                  </Link>
-                )}
               </div>
             </div>
 
-            <div ref={bodyRef} className="pt-2 px-2">
-              {body && <SanityPortableText value={body} category={category} />}
+            {/* Body text justified and hyphenated (in the page's language)
+                to keep the word spacing even. Set on the normal paragraphs
+                themselves ([&_.readStyle]:), since SanityPortableText gives
+                each one its own alignment (text-left, or text-center in
+                interviews); interviews are justified too. Other styles
+                (names, preamble…) keep their own alignment */}
+            <div
+              ref={bodyRef}
+              // Full width (minus padding): the article layout sets the
+              // text's width (half on desktop) and places the images
+              className="px-6 pt-6 lg:px-12 [&_.readStyle]:text-justify [&_.readStyle]:hyphens-auto"
+            >
+              {body && (
+                <SanityPortableText
+                  value={body}
+                  category={category}
+                  articleLayout
+                />
+              )}
             </div>
           </article>
+          {/* Colophon and the series' other articles */}
+          <ArticleFooter slug={slug} />
         </ScrollContainerContext.Provider>
       </motion.div>
     </>

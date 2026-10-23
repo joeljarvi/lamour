@@ -78,6 +78,7 @@ export const articlesQuery = groq`*[_type == "article"] | order(coalesce(publish
   "series": series->{title, slug},
   coverImage,
   publishedAt,
+  color,
   "bodyLength": length(pt::text(body))
 }`;
 

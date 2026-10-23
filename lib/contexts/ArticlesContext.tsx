@@ -12,6 +12,8 @@ export type Article = {
   coverImage?: { asset: { _ref: string }; alt?: string };
   publishedAt?: string;
   bodyLength?: number;
+  // The tile colour chosen in Sanity (red, purple, green, yellow, pink)
+  color?: string;
 };
 
 export type Series = {

@@ -70,7 +70,7 @@ export default function IntroCard() {
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="aspect-video w-full lg:w-auto lg:h-[40vh] bg-pergament flex flex-col items-center justify-center rounded-xs gap-6"
         >
-          <h1 className="h1Style font-baskervilleNeoDisplay text-base uppercase tracking-[48%] text-center">
+          <h1 className="leading-loose  text-base lg:text-2xl  font-baskervilleNeoText  uppercase lg:font-baskervilleNeoDisplay tracking-[24%] ">
             L&apos;Amour — La Mort
           </h1>
           <h2 className="h2Style">en tids skrift</h2>

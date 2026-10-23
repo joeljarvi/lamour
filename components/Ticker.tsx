@@ -5,6 +5,10 @@ import { useEffect, useRef, useState } from "react";
 // Ticker speed in pixels per second, so long and short titles move alike
 const SPEED = 40;
 
+// Fades the moving text out over 12px at the left and right edges
+const EDGE_FADE =
+  "linear-gradient(to right, transparent, black 12px, black calc(100% - 12px), transparent)";
+
 // Text that, when it doesn't fit its box, runs right to left in an endless
 // loop like a newsroom ticker (two copies with a gap, moved left by one
 // copy's width, then repeated); when it fits it stays still. Pauses on
@@ -43,9 +47,16 @@ export default function Ticker({ text }: { text: string }) {
   const moving = duration !== null;
 
   return (
+    // While moving, the text fades out over 12px at each edge, so it
+    // slides in and out softly (a mask, so it works on any background)
     <span
       ref={boxRef}
       className={`relative block w-full overflow-hidden whitespace-nowrap ${moving ? "" : "text-center text-ellipsis"}`}
+      style={
+        moving
+          ? { maskImage: EDGE_FADE, WebkitMaskImage: EDGE_FADE }
+          : undefined
+      }
     >
       <span
         className={moving ? "ticker inline-flex" : ""}
@@ -65,20 +76,6 @@ export default function Ticker({ text }: { text: string }) {
           </span>
         )}
       </span>
-      {/* While moving, a 12px fade from the background on each edge, so
-          the text slides in and out softly */}
-      {moving && (
-        <>
-          <span
-            aria-hidden
-            className="pointer-events-none absolute inset-y-0 left-0 w-3 bg-linear-to-r from-background to-transparent"
-          />
-          <span
-            aria-hidden
-            className="pointer-events-none absolute inset-y-0 right-0 w-3 bg-linear-to-l from-background to-transparent"
-          />
-        </>
-      )}
     </span>
   );
 }

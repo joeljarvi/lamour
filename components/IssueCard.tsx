@@ -221,7 +221,7 @@ export default function IssueCard({
   ].filter((row): row is { label: string; value: string } => !!row.value);
   const soldOut = issue?.inStock === false;
 
-  // Number + title: centred on mobile; on desktop as tall as the back
+  // Number + title: centred on mobile; on desktop as tall as the close
   // button, cut off when long
   const titleRow = issue && (
     <div className="flex w-full min-w-0 flex-col items-center gap-6 lg:flex-row lg:items-center lg:justify-between lg:gap-6 lg:h-9">
@@ -292,24 +292,18 @@ export default function IssueCard({
                   in place, and title, price, add to cart and the information
                   frame on the right, scrolling past it. Stacked on mobile */}
               <div className="relative lg:grid lg:grid-cols-2 lg:items-start">
-                {/* Header: "☜ Tillbaka", top centre on mobile, top left on
-                    desktop; dark text (the link variant's own text is
+                {/* Header: "Stäng", top right; dark text (the link variant's own text is
                     white). Positioned on the scrolling content (not fixed,
                     and outside the sticky left column), so it scrolls away
                     with the panel */}
-                <div className="flex top-12 lg:top-18 left-3 right-3 z-90 absolute shrink-0 items-start justify-center lg:justify-start gap-3 lg:gap-6 h-auto lg:h-9  lg:px-0 lg:pt-0  ">
-                  {/* Left-pointing hand before the label (instead of the
-                      link variant's ☜ after it) */}
+                <div className="flex top-12 lg:top-18 left-3 right-3 z-90 absolute shrink-0 items-start justify-end gap-3 lg:gap-6 h-auto lg:h-9  lg:px-0 lg:pt-0  ">
                   <Button
                     variant="link"
                     size="xs"
-                    className="shrink-0 w-auto h-12 lg:h-9 gap-2 text-foreground after:content-none"
+                    className="shrink-0 w-auto h-12 lg:h-9 text-foreground after:content-none"
                     onClick={onClose}
                   >
-                    <span aria-hidden className="font-baskervilleNeoDisplay">
-                      ☜
-                    </span>
-                    {t("back")}
+                    {t("close")}
                   </Button>
                 </div>
                 {/* First screen: header, carousel, title, price. On mobile
@@ -469,7 +463,7 @@ export default function IssueCard({
                   className="flex flex-col min-h-dvh gap-12 px-6 lg:pl-0 lg:pr-48 lg:pt-24   lg:pb-24 0 "
                 >
                   {/* Desktop: number + title (price on the right) at the top
-                      of the right column, 24px below the back button (lg:mt-9,
+                      of the right column, 24px below the close button (lg:mt-9,
                       measured). Static, so it scrolls away */}
                   <div className="hidden lg:flex lg:mt-9 w-full min-w-0">
                     {titleRow}

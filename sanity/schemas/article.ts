@@ -58,6 +58,8 @@ export default defineType({
     defineField({
       name: "body",
       title: "Body",
+      description:
+        "Drag images straight into the text (or paste them) where they should appear — they show in that spot on the site.",
       type: "array",
       of: [
         {
@@ -88,36 +90,64 @@ export default defineType({
             ],
           },
         },
+        // Images in the text: dropped or pasted into the editor, they're
+        // uploaded and placed at that point
         {
           type: "image",
+          title: "Image",
           options: { hotspot: true },
           fields: [
             defineField({
               name: "alt",
               title: "Alt / Caption",
               type: "string",
+            }),
+            // How the reader lays the image out
+            defineField({
+              name: "placement",
+              title: "Placement",
+              type: "string",
+              options: {
+                list: [
+                  {
+                    title: "Inline — small, in the text where it's placed",
+                    value: "inline",
+                  },
+                  {
+                    title:
+                      "Sticky — beside the text that follows it, staying in view while it's read",
+                    value: "sticky",
+                  },
+                  {
+                    title: "Wide — full width, between the text",
+                    value: "wide",
+                  },
+                ],
+                layout: "radio",
+              },
+              initialValue: "inline",
             }),
           ],
         },
       ],
     }),
+    // The colour of the article's tile, its reader's top bar, hero and
+    // footer; with none chosen, the site picks one in turn
     defineField({
-      name: "articleIllustrations",
-      title: "Article Illustrations",
-      type: "array",
-      of: [
-        {
-          type: "image",
-          options: { hotspot: true },
-          fields: [
-            defineField({
-              name: "alt",
-              title: "Alt / Caption",
-              type: "string",
-            }),
-          ],
-        },
-      ],
+      name: "color",
+      title: "Color",
+      type: "string",
+      options: {
+        list: [
+          { title: "Red", value: "red" },
+          { title: "Purple", value: "purple" },
+          { title: "Green", value: "green" },
+          { title: "Yellow", value: "yellow" },
+          { title: "Pink", value: "pink" },
+        ],
+        layout: "radio",
+        direction: "horizontal",
+      },
     }),
     defineField({
       name: "category",

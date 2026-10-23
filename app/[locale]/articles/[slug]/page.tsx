@@ -48,6 +48,7 @@ export default async function ArticlePage({
   return (
     <div className="">
       <ArticleReader
+        slug={article.slug.current}
         title={articleTitle(article.title)}
         subtitle={article.subtitle}
         body={article.body}

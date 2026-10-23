@@ -182,6 +182,12 @@
     @apply bg-background text-foreground overflow-x-clip;
   }
 
+  .h1Style {
+    @apply leading-loose  text-base lg:text-2xl  font-baskervilleNeoText lg:font-baskervilleNeoDisplay;
+  }
+  .readStyle {
+    @apply font-baskervilleNeoText text-base lg:text-lg tracking-normal leading-normal;
+  }
   .pStyle {
     @apply font-baskervilleNeoText text-base lg:text-base tracking-[3%] leading-normal;
   }
