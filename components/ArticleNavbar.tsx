@@ -60,7 +60,8 @@ export default function ArticleNavbar({
     setPercent(Math.round(Math.min(Math.max(p, 0), 1) * 100)),
   );
 
-  // "Artiklar — ", before the title: Artiklar links to the articles list
+  // "Artiklar — ", before the title (desktop): Artiklar links to the
+  // articles list
   const breadcrumb = (
     <span className="shrink-0 whitespace-pre">
       <Link href="/articles" className="hover:opacity-60 transition-opacity">
@@ -80,11 +81,9 @@ export default function ArticleNavbar({
           color,
         )}
       >
-        {/* "Artiklar — <series>: <title>": Artiklar links back to the
-            list; the rest, like the hero heading, runs as a ticker when it
-            doesn't fit */}
+        {/* Mobile: "<series>: <title>", like the hero heading; runs as a
+            ticker when it doesn't fit */}
         <span className="lg:hidden col-start-1 col-span-2 min-w-0 flex items-baseline font-baskervilleNeoText text-xs uppercase tracking-[24%]">
-          {breadcrumb}
           <span className="min-w-0">
             <Ticker text={series ? `${series.title}: ${title}` : title} />
           </span>
@@ -110,7 +109,7 @@ export default function ArticleNavbar({
           className="justify-self-end w-auto text-inherit after:content-none col-start-3 lg:col-start-12"
           asChild
         >
-          <Link href="/articles">{t("close")} (x)</Link>
+          <Link href="/articles"> (x)</Link>
         </Button>
       </header>
 

@@ -52,13 +52,9 @@ const OVERLAY_BUTTON_CLASS =
 function NavOverlay({
   navOpen,
   setNavOpen,
-  inverted,
 }: {
   navOpen: boolean;
   setNavOpen: (v: boolean) => void;
-  // Articles page: on the nav's dark background (bg-foreground) instead
-  // of pergament, its text taking the nav's light colour
-  inverted: boolean;
 }) {
   const t = useTranslations("Nav");
   const pathname = usePathname();
@@ -75,7 +71,7 @@ function NavOverlay({
     <AnimatePresence>
       {navOpen && (
         <motion.ul
-          className={`flex flex-col w-full justify-center items-center font-baskerville ${inverted ? "bg-transparent" : "bg-pergament"}   py-0 mt-24 px-3 list-none gap-y-0`}
+          className={`flex flex-col w-full justify-center items-center font-baskerville bg-pergament   py-0 mt-24 px-3 list-none gap-y-0`}
           initial="hidden"
           animate="visible"
           exit="hidden"
@@ -152,9 +148,6 @@ export default function LLNav() {
   if (pathname.startsWith("/studio") || pathname.startsWith("/articles/"))
     return null;
 
-  // The articles page has its own colours (no blend; see below)
-  const onArticles = pathname === "/articles";
-
   return (
     <>
       <motion.div
@@ -163,23 +156,8 @@ export default function LLNav() {
         // solid pergament overlay without the blend (white on pergament would
         // vanish), its items dark instead
         // z-90: above the issue modal (z-70 / z-80), which opens beneath it
-        //
-        // Articles page instead: its items in the nav's own text colour
-        // ([&_a]/[&_button]:text-inherit, over the link variant's white) —
-        // no blend; dark with light text, from the top of the page and while
-        // open (the overlay shares it)
         className={`fixed top-0 left-0 right-0 lg:pt-3 lg:px-3  z-90 flex flex-col transition-colors duration-500
-        ${
-          onArticles
-            ? `[&_a]:text-inherit [&_button]:text-inherit ${
-                navOpen
-                  ? "h-dvh bg-foreground text-background"
-                  : "h-16 lg:h-14 bg-foreground text-background"
-              }`
-            : navOpen
-              ? "h-dvh bg-pergament"
-              : "mix-blend-difference bg-transparent h-16 lg:h-14"
-        }`}
+        ${navOpen ? "h-dvh bg-pergament" : "mix-blend-difference bg-transparent h-16 lg:h-14"}`}
       >
         {/* ── DESKTOP: affären (col 1) · artiklar (col 3) · logo (centre) ·
           log in (col 9) · cart ── */}
@@ -263,7 +241,7 @@ export default function LLNav() {
 
         {/* ── HEADER ── */}
         <div
-          className={`relative flex lg:hidden justify-between   items-start w-full shrink-0   h-16 px-0 lg:px-3.5 pt-0 transition-colors duration-300 ${navOpen && !onArticles ? "bg-pergament" : "bg-transparent"}`}
+          className={`relative flex lg:hidden justify-between   items-start w-full shrink-0   h-16 px-0 lg:px-3.5 pt-0 transition-colors duration-300 ${navOpen ? "bg-pergament" : "bg-transparent"}`}
         >
           {/* Menu toggle — mobile only, square, top left: three thin
             horizontal lines that animate into an X while the menu is open
@@ -287,8 +265,7 @@ export default function LLNav() {
               ].map((open, i) => (
                 <span
                   key={i}
-                  // In the nav's text colour on the articles page
-                  className={`block h-[0.5px] transition-all duration-300 ease-out ${onArticles ? "bg-current" : navOpen ? "bg-foreground" : "bg-background"} ${navOpen ? open : "w-6"}`}
+                  className={`block h-[0.5px] transition-all duration-300 ease-out ${navOpen ? `bg-foreground ${open}` : "w-6 bg-background"}`}
                 />
               ))}
             </span>
@@ -330,11 +307,7 @@ export default function LLNav() {
         <div
           className={`flex flex-col flex-1 min-h-0 overflow-y-auto overscroll-contain lg:hidden ${navOpen ? "" : "hidden"}`}
         >
-          <NavOverlay
-            navOpen={navOpen}
-            setNavOpen={setNavOpen}
-            inverted={onArticles}
-          />
+          <NavOverlay navOpen={navOpen} setNavOpen={setNavOpen} />
         </div>
       </motion.div>
     </>

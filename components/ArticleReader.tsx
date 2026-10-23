@@ -103,14 +103,6 @@ export default function ArticleReader({
               {/* Text content */}
               <div className="relative z-10 flex flex-col h-full justify-center items-center px-8 pt-12 pb-4 text-center">
                 <div className="flex flex-col items-center justify-center gap-0 w-full text-center leading-loose whitespace-normal break-words  text-base lg:text-2xl truncate font-baskervilleNeoText uppercase lg:font-baskervilleNeoDisplay tracking-[24%] px-12 lg:px-0 gap-12 lg:max-w-2xl">
-                  {author && (
-                    <Link
-                      href={`/authors/${author.slug.current}`}
-                      className="text-xs tracking-[48%]   leading-loose font-baskervilleNeoText uppercase"
-                    >
-                      {author.name}
-                    </Link>
-                  )}
                   <h1 className="  ">
                     {/* "{series}: {title}", with the title in italics */}
                     {series && <>{series.title}: </>}
@@ -122,7 +114,16 @@ export default function ArticleReader({
                     </h2>
                   )}
                 </div>
-                {/* Author pinned to the bottom centre of the hero */}
+                {/* Desktop: the author, bottom centre of the hero, just above
+                    the reader's bottom bar (h-12) */}
+                {author && (
+                  <Link
+                    href={`/authors/${author.slug.current}`}
+                    className="hidden lg:block absolute inset-x-0 bottom-16 lg:bottom-12 mx-auto w-fit py-3 text-xs tracking-[48%] leading-loose font-baskervilleNeoText uppercase hover:opacity-60 transition-opacity"
+                  >
+                    {author.name}
+                  </Link>
+                )}
               </div>
             </div>
 

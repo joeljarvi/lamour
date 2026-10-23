@@ -100,7 +100,7 @@ function buildComponents(
         </blockquote>
       ),
       preamble: ({ children }) => (
-        <p className="font-baskervilleNeoText italic text-base lg:text-lg tracking-[6%] text-center">
+        <p className="font-baskervilleNeoText italic text-base lg:text-lg tracking-[6%] text-center mb-6">
           {children}
         </p>
       ),

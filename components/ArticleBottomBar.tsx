@@ -1,12 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  AnimatePresence,
-  motion,
-  useMotionValueEvent,
-  useScroll,
-} from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Button } from "./ui/button";
@@ -16,11 +11,10 @@ import { useNextArticle, useQueue } from "@/lib/contexts/QueueContext";
 import { articleTitle } from "@/lib/articleTitle";
 
 // The fixed bottom bar of the article reader and the articles page (there
-// only once something is queued): "Inst." (settings, in the reader) bottom
-// left; bottom centre, in the reader, "Skrolla ner" at the top and "Nästa
-// artikel" (or "Till toppen") at the end, or, while the queue is open, "Töm
-// kö"; and "Visa kö" bottom right, opening the reading queue
-// above the bar
+// only once something is queued): the left column empty; bottom centre, in
+// the reader at the end of the article, "Nästa artikel" (or "Till toppen"),
+// or, while the queue is open, "Töm kö"; and "Visa kö" bottom right,
+// opening the reading queue above the bar
 export default function ArticleBottomBar({
   slug,
   percent,
@@ -46,12 +40,9 @@ export default function ArticleBottomBar({
   // article's series
   const next = useNextArticle(slug ?? "");
 
-  // At the end of the article (its text read to the bottom), and at the
-  // top of the page (not yet scrolled): they pick the middle button
+  // At the end of the article (its text read to the bottom): "Nästa
+  // artikel" (or "Till toppen") in the middle
   const atEnd = percent !== undefined && percent >= 100;
-  const [atTop, setAtTop] = useState(true);
-  const { scrollY } = useScroll();
-  useMotionValueEvent(scrollY, "change", (y) => setAtTop(y < 50));
 
   // On the articles page (no article) the bar only shows once something is
   // queued (or while the queue is open)
@@ -59,10 +50,10 @@ export default function ArticleBottomBar({
 
   return (
     <>
-      {/* Bottom: settings on the left, next article / clear queue in the
-          centre, the queue on the right, on a solid background. With an
-          empty queue (only settings showing) it's transparent and lets
-          clicks through to the page; its buttons still catch them */}
+      {/* Bottom: next article / clear queue in the centre, the queue on
+          the right, on a solid background. With an empty queue it's
+          transparent and lets clicks through to the page; its buttons
+          still catch them */}
       <footer
         className={cn(
           "fixed bottom-0 inset-x-0 z-20 grid grid-cols-3 items-center gap-6 h-16 lg:h-12 px-3",
@@ -71,26 +62,13 @@ export default function ArticleBottomBar({
             : "bg-transparent pointer-events-none",
         )}
       >
-        {/* Reader settings, in the reader only (an empty cell on the
-            articles page). TODO: no reader settings yet — open them here */}
-        {slug ? (
-          <Button
-            variant="link"
-            size="xs"
-            aria-label={t("settingsLabel")}
-            className="justify-self-start pointer-events-auto w-auto text-foreground after:content-none"
-          >
-            ( {t("settings")} )
-          </Button>
-        ) : (
-          <span aria-hidden />
-        )}
+        {/* Left column: empty for now (reader settings may go here) */}
+        <span aria-hidden />
         {/* Middle column: while the queue is open, "Töm kö" (greyed out
-            while it's empty). In the reader: at the top, "Skrolla ner"; at
-            the end, "Nästa artikel" (the next in the queue, or else in the
-            series), or "Till toppen" when there's none; nothing in between
-            (an empty cell, so "Visa kö" stays on the right). Nothing on the
-            articles page */}
+            while it's empty). In the reader at the end of the article,
+            "Nästa artikel" (the next in the queue, or else in the series),
+            or "Till toppen" when there's none. Otherwise nothing (an empty
+            cell, so "Visa kö" stays on the right) */}
         {queueOpen ? (
           <Button
             variant="link"
@@ -120,18 +98,6 @@ export default function ArticleBottomBar({
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           >
             ( {t("backToTop")} )
-          </Button>
-        ) : slug && atTop ? (
-          // Past the screen-tall hero, to the text
-          <Button
-            variant="link"
-            size="xs"
-            className="justify-self-center pointer-events-auto w-auto text-foreground after:content-none"
-            onClick={() =>
-              window.scrollTo({ top: window.innerHeight, behavior: "smooth" })
-            }
-          >
-            ( {t("scrollDown")} )
           </Button>
         ) : (
           <span aria-hidden />
