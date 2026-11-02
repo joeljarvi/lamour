@@ -64,7 +64,7 @@ export default async function AuthorPage({
           {t("backToArticles")}
         </Link>
 
-        <div className="flex flex-col md:flex-row gap-10 mb-16">
+        <div className="flex flex-col md:flex-row gap-10 lg:gap-6 mb-16">
           {author.image?.asset && (
             <div className="relative w-32 h-32 shrink-0">
               <Image

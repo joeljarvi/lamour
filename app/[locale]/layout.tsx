@@ -8,6 +8,7 @@ import localFont from "next/font/local";
 import "../globals.css";
 import LLNav from "@/components/LLNav";
 import CartDrawer from "@/components/CartDrawer";
+import CookieAccept from "@/components/CookieAccept";
 import Footer from "@/components/Footer";
 import { client } from "@/lib/sanity/client";
 import { issuesQuery, articlesQuery, seriesQuery } from "@/lib/sanity/queries";
@@ -185,6 +186,8 @@ export default async function RootLayout({
               </ArticlesProvider>
               {/* Inside IssuesProvider: looks up each item's image and weight */}
               <CartDrawer />
+              {/* Asks once, on load, until answered */}
+              <CookieAccept />
             </IssuesProvider>
           </CartProvider>
         </NextIntlClientProvider>

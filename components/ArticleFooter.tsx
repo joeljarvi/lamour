@@ -4,8 +4,7 @@ import { useEffect, useRef } from "react";
 import { useInView } from "motion/react";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
-import { useArticles } from "@/lib/contexts/ArticlesContext";
-import { useNextArticle } from "@/lib/contexts/QueueContext";
+import { useArticles, useNextInSeries } from "@/lib/contexts/ArticlesContext";
 import { articleTitle } from "@/lib/articleTitle";
 import { cn } from "@/lib/utils";
 import { tileColor, useArticleColor } from "./ArticleTile";
@@ -23,7 +22,7 @@ function formatDate(dateStr: string) {
 
 // The end of the article reader, in the same colour as the top bar (the
 // article's tile colour): a colophon — author, date, series — then, if
-// there's a next article (in the queue, or else in the series), a
+// there's a next article in the series, a
 // screen-tall "Nästa artikel" panel for it (in its own tile colour);
 // scrolling it fully into view opens it.
 // Everything comes from the articles list, found by the slug; nothing if
@@ -37,7 +36,7 @@ export default function ArticleFooter({ slug }: { slug: string }) {
 
   // The next article, and whether its panel has been scrolled (almost)
   // fully into view: then it opens, once
-  const next = useNextArticle(slug);
+  const next = useNextInSeries(slug);
   const nextRef = useRef<HTMLAnchorElement>(null);
   const nextInView = useInView(nextRef, { amount: 0.9 });
   const opened = useRef(false);
@@ -75,7 +74,7 @@ export default function ArticleFooter({ slug }: { slug: string }) {
     // Bottom padding clears the reader's fixed bottom bar (h-12)
     <footer
       className={cn(
-        "flex flex-col gap-24 w-full px-6 lg:px-12 pt-24 pb-36  bg-background text-foreground",
+        "flex flex-col gap-24 lg:gap-6 w-full px-6 lg:px-12 pt-24 pb-36  bg-background text-foreground",
         color,
       )}
     >

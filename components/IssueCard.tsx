@@ -461,7 +461,7 @@ export default function IssueCard({
                   At least a screen tall, longer if the text needs it */}
                 <section
                   ref={infoRef}
-                  className="flex flex-col min-h-dvh gap-12 px-6 lg:pl-0 lg:pr-48 lg:pt-24   lg:pb-24 0 "
+                  className="flex flex-col min-h-dvh gap-12 lg:gap-6 px-6 lg:pl-0 lg:pr-48 lg:pt-24   lg:pb-24 0 "
                 >
                   {/* Desktop: number + title at the top of the right column,
                       and "Stäng" on the same line, on the right. Static, so

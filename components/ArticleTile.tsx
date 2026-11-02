@@ -6,7 +6,6 @@ import { useArticles, type Article } from "@/lib/contexts/ArticlesContext";
 import { articleTitle } from "@/lib/articleTitle";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
-import { useQueue } from "@/lib/contexts/QueueContext";
 
 // Tile background colours by name, with light text on the dark one (full
 // class names, so Tailwind generates them). The names are the choices of
@@ -40,12 +39,12 @@ export function useArticleColor(slug: string) {
   return index >= 0 ? tileColor(index, articles[index].color) : null;
 }
 
-// Square grid card for an article, linking to it: the author at the top
-// centre (desktop only), the title (wrapping onto more lines when long),
-// then "( läs nu )" and "( lägg i kön )" at the bottom. With a label, the
-// author moves below the title. `className` overrides the
-// tile's own (e.g. full width instead of square, for the latest article);
-// `label` shows above the title
+// Square grid card for an article, linking to it: the series at the top
+// centre, the title (wrapping onto more lines when long), and at the bottom
+// centre the author (desktop), swapping to "( läs nu )" on hover — on
+// mobile "( läs nu )" always. With a label, the author and then the series
+// sit below the title instead. `className` overrides the tile's own (e.g. full width instead
+// of square, for the latest article); `label` shows above the title
 export default function ArticleTile({
   article,
   index,
@@ -63,19 +62,15 @@ export default function ArticleTile({
   noHover?: boolean;
 }) {
   const tArticle = useTranslations("Article");
-  const { isQueued, toggleQueued } = useQueue();
-  const queued = isQueued(article._id);
-
   return (
     // A box (not a link): "( läs nu )" is the link, stretched over the
     // whole tile (before:absolute inset-0), so a click anywhere opens the
-    // article, and "( lägg i kön )" can be a button above it (a button
-    // can't sit inside a link)
+    // article
     <Button
       variant="link"
       size="xs"
       className={cn(
-        "relative w-full justify-center flex flex-col items-center gap-0  h-auto aspect-square lg:aspect-auto lg:h-dvh p-6 lg:p-12 text-foreground transition-all  after:content-none ",
+        "group relative w-full justify-center flex flex-col items-center gap-0  h-auto aspect-square lg:aspect-auto lg:h-dvh p-6 lg:p-12 text-foreground transition-all  after:content-none ",
         !noHover && "hover:bg-foreground hover:text-background",
         tileColor(index, article.color),
         className,
@@ -83,17 +78,10 @@ export default function ArticleTile({
       asChild
     >
       <div>
-        {/* Author, top centre, desktop only (with a label, below the title
-            instead, on every screen) */}
-        {!label && article.author && (
-          <span className="hidden lg:block leading-normal opacity-60 text-center">
-            {article.author.name}
-          </span>
-        )}
-        {/* Mobile: the series, top centre (nothing for an article outside
-            a series) */}
-        {article.series && (
-          <span className="lg:hidden max-w-full truncate leading-normal opacity-60 text-center">
+        {/* The series, top centre (nothing for an article outside a
+            series; with a label it's in the centre instead) */}
+        {!label && article.series && (
+          <span className="max-w-full truncate leading-normal opacity-60 text-center">
             {article.series.title}
           </span>
         )}
@@ -105,12 +93,18 @@ export default function ArticleTile({
           {/* Title, wrapping (the button doesn't); a normal line height,
               as the button's leading-[1] would crowd the rings and dots of
               Å, Ä and Ö above the capitals */}
-          <span className="w-full text-center leading-loose whitespace-normal break-words mb-12 text-base lg:text-2xl truncate font-baskervilleNeoText lg:font-baskervilleNeoDisplay max-w-2xl ">
+          <span className="w-full text-center leading-loose whitespace-normal break-words mb-12 text-base lg:text-2xl truncate font-baskervilleNeoText lg:font-baskervilleNeoDisplay max-w-2xl">
             {articleTitle(article.title)}
           </span>
           {/* With a label (the latest article): on mobile too */}
           {label && article.author && (
             <span className="block leading-normal ">{article.author.name}</span>
+          )}
+          {/* …and its series below the author */}
+          {label && article.series && (
+            <span className="block max-w-full truncate leading-normal opacity-60">
+              {article.series.title}
+            </span>
           )}
         </span>
         {/* Author, then "Del av <series>" for an article in a series,
@@ -128,25 +122,34 @@ export default function ArticleTile({
             </span>
           )}
         </span>
-        {/* "( läs nu )" and "( lägg i kön )" along the bottom. Lägg i kön
-            adds the article to the reading queue ("( i kö )" once it's
-            there; clicking again takes it out), above the stretched link
-            (relative z-10) */}
-        <div className="mt-auto flex items-baseline w-full justify-between">
+        {/* Bottom centre, in one spot (a one-cell grid): on desktop the
+            author, swapping to "( läs nu )" on hover (or keyboard focus);
+            on mobile, and on a tile without hover (the latest article,
+            whose author is below its title), "( läs nu )" always. Läs nu
+            is the link, stretched over the whole tile (so the tile stays
+            clickable while its text is hidden) */}
+        <div className="mt-auto grid w-full place-items-center">
+          {!label && article.author && (
+            <span
+              className={cn(
+                "col-start-1 row-start-1 hidden lg:block leading-normal opacity-60 text-center transition-opacity duration-300",
+                !noHover &&
+                  "lg:group-hover:opacity-0 lg:group-has-[:focus-visible]:opacity-0",
+              )}
+            >
+              {article.author.name}
+            </span>
+          )}
           <Link
             href={`/articles/${article.slug.current}`}
-            className="px-3 h2Style before:absolute before:inset-0"
+            className={cn(
+              "col-start-1 row-start-1 px-3 h2Style before:absolute before:inset-0 transition-opacity duration-300",
+              !noHover &&
+                "lg:opacity-0 lg:group-hover:opacity-100 lg:focus-visible:opacity-100",
+            )}
           >
             ( {tArticle("readNow")} )
           </Link>
-          <button
-            type="button"
-            aria-pressed={queued}
-            className="relative z-10 px-3 h2Style cursor-pointer hover:opacity-60 transition-opacity"
-            onClick={() => toggleQueued(article._id)}
-          >
-            ( {queued ? tArticle("inQueue") : tArticle("readLater")} )
-          </button>
         </div>
       </div>
     </Button>

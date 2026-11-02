@@ -121,5 +121,11 @@
   },
   "Home": {
     "scroll": "Skrolla ner"
+  },
+  "Cookies": {
+    "label": "Cookies",
+    "text": "Vi använder cookies för att sidan ska fungera och för att förstå hur den används.",
+    "accept": "acceptera",
+    "decline": "avböj"
   }
 }

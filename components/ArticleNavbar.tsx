@@ -9,7 +9,6 @@ import Ticker from "./Ticker";
 import { useArticleColor } from "./ArticleTile";
 import { cn } from "@/lib/utils";
 import { useArticles } from "@/lib/contexts/ArticlesContext";
-import { useQueue } from "@/lib/contexts/QueueContext";
 import ArticleBottomBar from "./ArticleBottomBar";
 
 // The article reader's navbar: a fixed top section, in the same colour as
@@ -32,19 +31,6 @@ export default function ArticleNavbar({
 }) {
   const t = useTranslations("Article");
   const tNav = useTranslations("Nav");
-
-  const { loaded, removeFromQueue } = useQueue();
-  const { articles } = useArticles();
-
-  // Opening an article takes it out of the queue (it's being read), after
-  // the stored queue is read, so it doesn't overwrite this
-  const current = articles.find((a) => a.slug.current === slug);
-  useEffect(() => {
-    if (!loaded || !current) return;
-    removeFromQueue(current._id);
-    // Once per article opened
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaded, current?._id]);
 
   // The colour of the article's tile (none if it isn't in the list)
   const color = useArticleColor(slug);

@@ -307,7 +307,7 @@ export default function SanityPortableText({
     // Sticky images alternate sides: right, left, right…
     let stickyCount = 0;
     return (
-      <div className="flex flex-col gap-24">
+      <div className="flex flex-col gap-24 lg:gap-6">
         {sections(normalized).map((section, i) => {
           if (section.kind === "wide") {
             return (
@@ -343,7 +343,7 @@ export default function SanityPortableText({
             // other one, the left)
             <section
               key={section.image._key ?? i}
-              className="flex flex-col gap-12 lg:grid lg:grid-cols-2 lg:gap-12"
+              className="flex flex-col gap-12 lg:grid lg:grid-cols-2 lg:gap-6"
             >
               {/* Mobile: pinned below the top bar (h-16), over the text
                   as it scrolls up beneath it, at most half the screen

@@ -78,7 +78,7 @@ export default function CartDrawer() {
                 bottom edge (from the background up to transparent, like
                 ReadMore) */}
             <div className="relative flex-1 min-h-0 flex flex-col">
-              <div className="flex-1 overflow-y-auto scrollbar-none p-0  gap-0  flex flex-col border-t border-t-neutral-400 ">
+              <div className="flex-1 overflow-y-auto scrollbar-none p-0  gap-0  flex flex-col">
                 {items.length === 0 ? (
                   <p className="pStyle text-neutral-700 leading-[1.5] p-3">
                     {t("empty")}
@@ -91,7 +91,12 @@ export default function CartDrawer() {
                       // title, the amount (− / +) and, bottom right, the price
                       <div
                         key={item.id}
-                        className="relative grid grid-cols-2 w-full border-x border-x-neutral-500 border-b border-b-neutral-400"
+                        // One box for the list, as the Produktinfo table in IssueCard:
+                        // each item draws its sides and bottom line (the first
+                        // also the top), the first with rounded top corners,
+                        // the last with rounded bottom ones (overflow-hidden
+                        // clips the cover to them)
+                        className="relative grid grid-cols-2 w-full overflow-hidden border-x border-b border-neutral-600 first:border-t first:rounded-t-md last:rounded-b-md"
                       >
                         {/* Remove, top right: the same square as − / + */}
                         <Button
@@ -118,7 +123,7 @@ export default function CartDrawer() {
                           )}
                         </div>
 
-                        <div className="flex flex-col gap-3 p-0 min-w-0 h-full w-full border-l border-l-neutral-500">
+                        <div className="flex flex-col gap-3 p-0 min-w-0 h-full w-full border-l border-l-neutral-600">
                           <div className="flex flex-col justify-between h-full">
                             {/* Clear of the remove button (pr-14) */}
                             <span className="h2Style whitespace-normal leading-loose p-6 pr-14">
@@ -131,7 +136,7 @@ export default function CartDrawer() {
                             </span>
                           </div>
                           {/* Amount, with − and + (− at one removes it), at the bottom */}
-                          <div className="mt-auto flex items-center gap-0 w-full justify-between border-t border-t-neutral-400">
+                          <div className="mt-auto flex items-center gap-0 w-full justify-between border-t border-t-neutral-600">
                             <Button
                               variant="secondary"
                               size="xs"
@@ -144,7 +149,7 @@ export default function CartDrawer() {
                             >
                               −
                             </Button>
-                            <span className="font-baskervilleNeoDisplay text-xs tabular-nums text-center h-full flex items-center justify-center border-x border-x-neutral-400 w-full">
+                            <span className="font-baskervilleNeoDisplay text-xs tabular-nums text-center h-full flex items-center justify-center border-x border-x-neutral-600 w-full">
                               {item.quantity}
                             </span>
                             <Button
@@ -178,7 +183,7 @@ export default function CartDrawer() {
 
             {/* Footer */}
             {items.length > 0 && (
-              <div className="pb-6 pt-12 flex flex-col gap-6 border-t border-t-neutral-400 ">
+              <div className="pb-6 pt-12 flex flex-col gap-6 border-t border-t-neutral-600 ">
                 <div className="flex justify-center gap-6 items-baseline ">
                   <span className="h2Style">{t("subtotal")}</span>
                   <span className="h2Style">

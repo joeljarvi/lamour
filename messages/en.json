@@ -121,5 +121,11 @@
   },
   "Home": {
     "scroll": "Scroll down"
+  },
+  "Cookies": {
+    "label": "Cookies",
+    "text": "We use cookies to make the site work and to understand how it's used.",
+    "accept": "accept",
+    "decline": "decline"
   }
 }
