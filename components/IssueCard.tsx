@@ -292,11 +292,12 @@ export default function IssueCard({
                   in place, and title, price, add to cart and the information
                   frame on the right, scrolling past it. Stacked on mobile */}
               <div className="relative lg:grid lg:grid-cols-2 lg:items-start">
-                {/* Header: "Stäng", top right; dark text (the link variant's own text is
-                    white). Positioned on the scrolling content (not fixed,
-                    and outside the sticky left column), so it scrolls away
-                    with the panel */}
-                <div className="flex top-12 lg:top-18 left-3 right-3 z-90 absolute shrink-0 items-start justify-end gap-3 lg:gap-6 h-auto lg:h-9  lg:px-0 lg:pt-0  ">
+                {/* Header (mobile): "Stäng", top right; dark text (the link
+                    variant's own text is white). Positioned on the scrolling
+                    content (not fixed, and outside the sticky left column),
+                    so it scrolls away with the panel. On desktop it's on the
+                    title's line instead */}
+                <div className="flex lg:hidden top-12 lg:top-18 left-3 right-3 z-90 absolute shrink-0 items-start justify-end gap-3 lg:gap-6 h-auto lg:h-9  lg:px-0 lg:pt-0  ">
                   <Button
                     variant="link"
                     size="xs"
@@ -462,11 +463,19 @@ export default function IssueCard({
                   ref={infoRef}
                   className="flex flex-col min-h-dvh gap-12 px-6 lg:pl-0 lg:pr-48 lg:pt-24   lg:pb-24 0 "
                 >
-                  {/* Desktop: number + title (price on the right) at the top
-                      of the right column, 24px below the close button (lg:mt-9,
-                      measured). Static, so it scrolls away */}
-                  <div className="hidden lg:flex lg:mt-9 w-full min-w-0">
-                    {titleRow}
+                  {/* Desktop: number + title at the top of the right column,
+                      and "Stäng" on the same line, on the right. Static, so
+                      they scroll away */}
+                  <div className="hidden lg:flex lg:mt-9 w-full min-w-0 items-baseline justify-between gap-6">
+                    <div className="min-w-0">{titleRow}</div>
+                    <Button
+                      variant="link"
+                      size="xs"
+                      className="shrink-0 w-auto h-9 text-foreground after:content-none"
+                      onClick={onClose}
+                    >
+                      {t("close")}
+                    </Button>
                   </div>
                   {/* Description */}
                   <div className="flex flex-col gap-6 mt-6 lg:mt-0 col-span-2">
@@ -494,15 +503,17 @@ export default function IssueCard({
                   >
                     {soldOut ? t("soldOut") : t("addToCart")}
                   </Button>
-                  {/* Produktinfo: always shown, a two-column table — rows
-                      stacked with no gaps, each drawing its sides and bottom
-                      (the table draws the top line, so no line doubles), a
-                      line between the title (first half) and the value.
+                  {/* Produktinfo: always shown, a two-column table — the
+                      table draws the whole frame, with rounded corners
+                      (overflow-hidden clips the rows to them); rows stacked
+                      with no gaps, each drawing its bottom line but the last
+                      (the frame closes it), a line between the title (first
+                      half) and the value.
                       Contributors and editors first (one name per line),
                       then the credits (a row per role), then the product
                       details */}
                   <div className="flex w-full flex-col items-start gap-0 col-span-2 mb-28">
-                    <dl className="flex w-full flex-col border-t border-t-neutral-600 font-baskervilleNeoText text-neutral-700 leading-[1.5] tracking-[6%] text-xs">
+                    <dl className="flex w-full flex-col overflow-hidden rounded-md border border-neutral-600  font-baskervilleNeoText text-neutral-800 leading-[1.5]  text-xs">
                       {[
                         ...(contributors.length > 0
                           ? [
@@ -519,9 +530,9 @@ export default function IssueCard({
                       ].map((row) => (
                         <div
                           key={row.label}
-                          className="grid grid-cols-2 tracking-[24%] border-x border-b border-neutral-600"
+                          className="grid grid-cols-2 tracking-[0%] border-b border-neutral-600 last:border-b-0"
                         >
-                          <dt className="not-italic uppercase text-xs text-neutral-400 px-3 py-2 border-r border-r-neutral-600">
+                          <dt className="h2Style px-3 py-2 border-r border-r-neutral-600">
                             {row.label}
                           </dt>
                           {/* One name per line, each with a line under it
@@ -533,7 +544,7 @@ export default function IssueCard({
                               {row.names.map((name, i) => (
                                 <li
                                   key={i}
-                                  className="px-3 py-2 border-b border-b-neutral-600 last:border-b-0"
+                                  className="px-3 py-2 border-b text-xs leading-[1.8] tracking-[6%] border-b-neutral-600 last:border-b-0"
                                 >
                                   {name}
                                 </li>
@@ -545,12 +556,14 @@ export default function IssueCard({
                       {productInfo.map((row) => (
                         <div
                           key={row.label}
-                          className="grid grid-cols-2 tracking-[24%] border-x border-b border-neutral-600"
+                          className="grid grid-cols-2 tracking-[24%] items-baseline border-b border-neutral-600 last:border-b-0"
                         >
-                          <dt className="not-italic uppercase text-xs text-neutral-400 px-3 py-2 border-r border-r-neutral-600">
+                          <dt className="h2Style px-3 py-2 border-r leading-[1.8] border-r-neutral-600">
                             {row.label}
                           </dt>
-                          <dd className="px-3 py-2">{row.value}</dd>
+                          <dd className="px-3 py-2 text-xs tracking-[6%] leading-[1.8]">
+                            {row.value}
+                          </dd>
                         </div>
                       ))}
                     </dl>

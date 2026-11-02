@@ -8,6 +8,7 @@ import { useCart } from "@/lib/contexts/CartContext";
 
 import { Link, usePathname } from "@/i18n/navigation";
 import { Button } from "./ui/button";
+import { NAV_AT, WORD_FADE, WORD_STAGGER } from "@/lib/introTiming";
 
 function useTypingAnimation(fullText: string, collapsed: boolean, speed = 70) {
   const [text, setText] = useState("");
@@ -38,6 +39,50 @@ const ITEM_VARIANTS = {
   hidden: { opacity: 0, y: -6 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } },
 } as const;
+
+// On the home page's first load the navbar appears word by word, left to
+// right, once the intro card's tagline has finished (lib/introTiming):
+// `order` is the word's place in that sequence. Elsewhere, or when it's
+// off, the text shows at once
+function Reveal({
+  on,
+  order,
+  children,
+}: {
+  on: boolean;
+  order: number;
+  children: React.ReactNode;
+}) {
+  if (!on) return <>{children}</>;
+  return (
+    <motion.span
+      className="inline-block whitespace-pre"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: WORD_FADE, delay: NAV_AT + order * WORD_STAGGER }}
+    >
+      {children}
+    </motion.span>
+  );
+}
+
+// The logo's words, each revealed in turn from `from` (see Reveal), with
+// the spaces between them
+function RevealWords({
+  on,
+  from,
+  text,
+}: {
+  on: boolean;
+  from: number;
+  text: string;
+}) {
+  return text.split(" ").map((word, i, words) => (
+    <Reveal key={i} on={on} order={from + i}>
+      {i < words.length - 1 ? `${word} ` : word}
+    </Reveal>
+  ));
+}
 
 /* ─── NAV OVERLAY (mobile) ─── */
 
@@ -142,6 +187,10 @@ export default function LLNav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Word-by-word reveal: only when the site opens on the home page (the
+  // nav stays mounted while navigating, so it plays once)
+  const [intro] = useState(() => pathname === "/");
+
   const lamourText = useTypingAnimation("L'Amour", scrolled);
   const lamortText = useTypingAnimation("La Mort", scrolled);
 
@@ -150,14 +199,23 @@ export default function LLNav() {
 
   return (
     <>
+      {/* A fade from the background down to transparent behind the closed
+          nav, as tall as it, so its dark items stay readable over the page.
+          Not while the menu is open (it has its own background), nor on the
+          articles page */}
+      {!navOpen && pathname !== "/articles" && (
+        <div
+          aria-hidden
+          className="pointer-events-none fixed top-0 inset-x-0 z-90 h-16 lg:h-14 bg-linear-to-b from-background to-transparent"
+        />
+      )}
       <motion.div
-        // Closed: transparent, its white items blended with
-        // mix-blend-difference so they show inverted over the page. Open: a
-        // solid pergament overlay without the blend (white on pergament would
-        // vanish), its items dark instead
+        // Closed: transparent over the fade behind it, its items dark (the
+        // link variant's text is white: [&_a]/[&_button]:text-foreground).
+        // Open: a solid pergament overlay, its items dark too
         // z-90: above the issue modal (z-70 / z-80), which opens beneath it
         className={`fixed top-0 left-0 right-0 lg:pt-3 lg:px-3  z-90 flex flex-col transition-colors duration-500
-        ${navOpen ? "h-dvh bg-pergament" : "mix-blend-difference bg-transparent h-16 lg:h-14"}`}
+        ${navOpen ? "h-dvh bg-pergament" : "bg-transparent text-foreground [&_a]:text-foreground [&_button]:text-foreground h-16 lg:h-14"}`}
       >
         {/* ── DESKTOP: affären (col 1) · artiklar (col 3) · logo (centre) ·
           log in (col 9) · cart ── */}
@@ -180,7 +238,7 @@ export default function LLNav() {
                   col: "col-start-3 col-span-2",
                 },
               ] as const
-            ).map(({ key, label, href, col }) => (
+            ).map(({ key, label, href, col }, order) => (
               <Button
                 key={key}
                 variant="link"
@@ -192,7 +250,9 @@ export default function LLNav() {
                   href={href}
                   aria-current={isActive(pathname, href) ? "page" : undefined}
                 >
-                  {label}
+                  <Reveal on={intro} order={order}>
+                    {label}
+                  </Reveal>
                 </Link>
               </Button>
             ))}
@@ -206,7 +266,7 @@ export default function LLNav() {
               asChild
             >
               <Link href="/" aria-label="L'Amour — La Mort">
-                L&apos;Amour — La Mort
+                <RevealWords on={intro} from={2} text="L'Amour — La Mort" />
               </Link>
             </Button>
 
@@ -217,7 +277,9 @@ export default function LLNav() {
               size="xs"
               className="col-start-9 italic justify-self-start h-auto w-auto after:content-none"
             >
-              ( {t("subscribe")} )
+              <Reveal on={intro} order={6}>
+                ( {t("subscribe")} )
+              </Reveal>
             </Button>
             <Button
               variant="link"
@@ -227,14 +289,16 @@ export default function LLNav() {
               onClick={() => setDrawerOpen(true)}
               aria-label={t("openCart")}
             >
-              <motion.span
-                key={totalItems}
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.25, ease: "easeOut" }}
-              >
-                {t("cartWord")} ({totalItems})
-              </motion.span>
+              <Reveal on={intro} order={7}>
+                <motion.span
+                  key={totalItems}
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
+                >
+                  {t("cartWord")} ({totalItems})
+                </motion.span>
+              </Reveal>
             </Button>
           </div>
         </div>
@@ -254,21 +318,23 @@ export default function LLNav() {
             aria-label={t("menu")}
             aria-expanded={navOpen}
           >
-            <span
-              aria-hidden
-              className="flex flex-col items-center gap-[4px] pb-0"
-            >
-              {[
-                "w-3 translate-y-[4.5px] rotate-45",
-                "opacity-0",
-                "w-3 -translate-y-[4.5px] -rotate-45",
-              ].map((open, i) => (
-                <span
-                  key={i}
-                  className={`block h-[0.5px] transition-all duration-300 ease-out ${navOpen ? `bg-foreground ${open}` : "w-6 bg-background"}`}
-                />
-              ))}
-            </span>
+            <Reveal on={intro} order={0}>
+              <span
+                aria-hidden
+                className="flex flex-col items-center gap-[4px] pb-0"
+              >
+                {[
+                  "w-3 translate-y-[4.5px] rotate-45",
+                  "opacity-0",
+                  "w-3 -translate-y-[4.5px] -rotate-45",
+                ].map((open, i) => (
+                  <span
+                    key={i}
+                    className={`block h-[0.5px] transition-all duration-300 ease-out ${navOpen ? `bg-foreground ${open}` : "w-6 bg-foreground"}`}
+                  />
+                ))}
+              </span>
+            </Reveal>
           </Button>
 
           {/* Logo — middle two columns (mobile header). Italic while the menu
@@ -280,7 +346,9 @@ export default function LLNav() {
             className={`flex items-center justify-center px-3 border-none h-16 lg:h-12 w-auto after:content-none ${navOpen ? "italic text-foreground" : ""}`}
             asChild
           >
-            <Link href="/">L&apos;Amour — La Mort</Link>
+            <Link href="/">
+              <RevealWords on={intro} from={1} text="L'Amour — La Mort" />
+            </Link>
           </Button>
 
           {/* Cart — mobile only, last column: the item count, centred in
@@ -292,14 +360,16 @@ export default function LLNav() {
             onClick={() => setDrawerOpen(true)}
             aria-label={t("openCart")}
           >
-            <motion.span
-              key={totalItems}
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
-            >
-              ( {totalItems} )
-            </motion.span>
+            <Reveal on={intro} order={5}>
+              <motion.span
+                key={totalItems}
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+              >
+                ( {totalItems} )
+              </motion.span>
+            </Reveal>
           </Button>
         </div>
 

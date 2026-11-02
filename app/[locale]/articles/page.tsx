@@ -13,7 +13,7 @@ export default async function ArticlesPage({
   setRequestLocale(locale as Locale);
 
   return (
-    <section className="flex flex-col w-full mt-14 ">
+    <section className="flex flex-col w-full  ">
       {/* The latest article, a full-width tile above the grid */}
       <LatestArticle />
       <ArticlesPageClient />

@@ -75,7 +75,7 @@ export default function ArticleTile({
       variant="link"
       size="xs"
       className={cn(
-        "relative w-full justify-center flex flex-col items-center gap-0  h-auto lg:h-auto aspect-square p-6 lg:p-12 text-foreground transition-all  after:content-none ",
+        "relative w-full justify-center flex flex-col items-center gap-0  h-auto aspect-square lg:aspect-auto lg:h-dvh p-6 lg:p-12 text-foreground transition-all  after:content-none ",
         !noHover && "hover:bg-foreground hover:text-background",
         tileColor(index, article.color),
         className,
