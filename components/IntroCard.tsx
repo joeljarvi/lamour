@@ -104,7 +104,7 @@ export default function IntroCard() {
             fading in just after it: the heading, read as "Senaste numret …"
             (the sr-only prefix) */}
         <motion.h2
-          className="h2Style not-italic [font-feature-settings:normal] flex shrink-0 justify-center whitespace-nowrap text-xl lg:text-4xl  font-baskervilleNeoDisplay"
+          className="h2Style not-italic [font-feature-settings:normal] flex shrink-0 justify-center whitespace-nowrap   font-baskervilleNeoText"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: NEW_ISSUE_FADE, delay: NEW_ISSUE_AT + 0.2 }}
@@ -126,7 +126,21 @@ export default function IntroCard() {
           <LatestIssueCover className="w-1/3 lg:w-1/6" />
         </motion.div>
 
-        {/* "Lägg i korg", large (text-4xl), right below the cover, fading
+        {/* The issue's description, right below the cover, fading in with
+            it: plain text, at most three lines (cut off with an ellipsis),
+            two thirds of the screen wide on mobile, a third on desktop */}
+        {latest?.description && (
+          <motion.p
+            className="w-2/3 lg:w-1/3 shrink-0 line-clamp-3 text-center font-baskervilleNeoText text-sm leading-[1.6]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: COVER_FADE, delay: COVER_AT }}
+          >
+            {toPlainText(latest.description)}
+          </motion.p>
+        )}
+
+        {/* "Lägg i korg", below the description, fading
             in with it: puts the latest issue in the cart (the cart button's
             count goes up; as in the issue panel, the drawer stays shut).
             "Slutsåld", disabled, when it's sold out */}
@@ -144,7 +158,7 @@ export default function IntroCard() {
               // No swashes ([font-feature-settings:normal]): h2Style's swash
               // capitals have no Ä, so "LÄGG" would lose its dots; a normal
               // line height leaves room for them above the capitals
-              className="w-auto h-auto lg:h-auto px-0 text-foreground after:content-none h2Style lg:text-2xl leading-normal lg:font-baskervilleNeoDisplay [font-feature-settings:normal] disabled:opacity-40"
+              className="w-auto h-auto lg:h-auto px-0 text-foreground after:content-none h2Style  leading-normal  [font-feature-settings:normal] disabled:opacity-40"
               onClick={() =>
                 addToCart({
                   id: latest._id,
@@ -159,17 +173,8 @@ export default function IntroCard() {
                 : tIssue("addToCart")}{" "}
               )
             </Button>
-            {/* Below it, the alternative: to the subscribe page */}
           </motion.div>
         )}
-
-        {/* The issue's description, below the cover, fading in with it: as
-            plain text, at most three lines (cut off with an ellipsis; "Läs
-            mer" opens the whole issue), two thirds of the screen wide on mobile,
-            a third on desktop */}
-
-        {/* "Läs mer" left and "Bli prenumerant" right, the row two thirds
-            of the screen wide on mobile, a third on desktop */}
       </div>
     </section>
   );
