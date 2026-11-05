@@ -47,18 +47,17 @@ export function useArticleColor(slug: string) {
 // of square, for the latest article); `label` shows above the title
 export default function ArticleTile({
   article,
-  index,
   className,
   label,
   noHover = false,
 }: {
   article: Article;
-  // Position in the articles list, picking the tile's colour when the
-  // article has none chosen in Sanity
+  // Position in the articles list (unused by the tile now that it has no
+  // colour of its own)
   index: number;
   className?: string;
   label?: string;
-  // No hover effect (otherwise the tile turns dark with light text)
+  // No hover effect (otherwise the tile turns light grey)
   noHover?: boolean;
 }) {
   const tArticle = useTranslations("Article");
@@ -69,10 +68,14 @@ export default function ArticleTile({
     <Button
       variant="link"
       size="xs"
+      // h-auto lg:h-auto: the xs size's fixed heights (h-6 lg:h-9) would
+      // cut the tile short of its content; whitespace-normal so its text
+      // wraps
       className={cn(
-        "group relative w-full justify-center flex flex-col items-center gap-0  h-auto aspect-square lg:aspect-auto lg:h-dvh p-6 lg:p-12 text-foreground transition-all  after:content-none ",
-        !noHover && "hover:bg-foreground hover:text-background",
-        tileColor(index, article.color),
+        "group relative w-full justify-center flex flex-col items-center gap-0 h-auto lg:h-auto whitespace-normal p-6 lg:p-12 text-foreground transition-all  after:content-none ",
+        // The page's background, light grey on hover
+        "bg-background",
+        !noHover && "hover:bg-neutral-100",
         className,
       )}
       asChild
@@ -93,7 +96,7 @@ export default function ArticleTile({
           {/* Title, wrapping (the button doesn't); a normal line height,
               as the button's leading-[1] would crowd the rings and dots of
               Å, Ä and Ö above the capitals */}
-          <span className="w-full text-center leading-loose whitespace-normal break-words mb-12 text-base lg:text-2xl truncate font-baskervilleNeoText lg:font-baskervilleNeoDisplay max-w-2xl">
+          <span className="w-full text-center leading-loose whitespace-normal break-words mb-12 text-base lg:text-2xl font-baskervilleNeoText lg:font-baskervilleNeoDisplay max-w-2xl">
             {articleTitle(article.title)}
           </span>
           {/* With a label (the latest article): on mobile too */}

@@ -179,7 +179,12 @@
      container, and sticky elements (the page menu) would then never stick */
   html,
   body {
-    @apply bg-background text-foreground overflow-x-clip;
+    @apply text-foreground overflow-x-clip;
+  }
+  /* The background on html only: a background on body would cover the
+     fixed BackgroundStripes (-z-10) */
+  html {
+    @apply bg-background;
   }
 
   .h1Style {

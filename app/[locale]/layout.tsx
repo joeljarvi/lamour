@@ -22,6 +22,7 @@ import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
+import BackgroundStripes from "@/components/BackgroundStripes";
 
 export const revalidate = 3600;
 
@@ -171,8 +172,10 @@ export default async function RootLayout({
   return (
     <html lang={locale}>
       <body
-        className={`${baskerville.variable} ${baskervilleOldFace.variable} ${baskervilleClassic.variable} ${baskervilleSC.variable} ${universTypewriter.variable} ${johnSans.variable} ${baskervilleNeoDisplay.variable} ${baskervilleNeoText.variable} ${unifraktur.variable} antialiased bg-background`}
+        className={`${baskerville.variable} ${baskervilleOldFace.variable} ${baskervilleClassic.variable} ${baskervilleSC.variable} ${universTypewriter.variable} ${johnSans.variable} ${baskervilleNeoDisplay.variable} ${baskervilleNeoText.variable} ${unifraktur.variable} antialiased`}
       >
+        {/* Striped background, fixed behind the page */}
+        <BackgroundStripes />
         <NextIntlClientProvider>
           <CartProvider>
             <IssuesProvider issues={issues}>

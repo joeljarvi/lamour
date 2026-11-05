@@ -142,7 +142,7 @@ function buildComponents(
         ),
     },
     marks: {
-      em: ({ children }) => <em className="italic">{children}</em>,
+      em: ({ children }) => <em className="italic ">{children}</em>,
       // Added by markDropcap, not by editors in Sanity
       firstWord: ({ children }) => (
         <span className="dropcap-word font-normal">{children}</span>

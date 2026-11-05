@@ -2,12 +2,11 @@
 
 import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
-import { Minus, Plus } from "lucide-react";
+
 import { useCart } from "@/lib/contexts/CartContext";
 import { useIssues } from "@/lib/contexts/IssuesContext";
 import { urlFor } from "@/lib/sanity/image";
-import LLButton from "./LLButton";
-import Stretch from "./Stretch";
+
 import { Button } from "./ui/button";
 import { useTranslations } from "next-intl";
 
@@ -24,6 +23,10 @@ export default function CartDrawer() {
     drawerOpen,
     setDrawerOpen,
   } = useCart();
+
+  // More than one title in the cart: a compact list, one column without
+  // the covers
+  const compact = items.length > 1;
 
   const subtotal = items.reduce((sum, item) => {
     const numeric = parseFloat(
@@ -46,9 +49,10 @@ export default function CartDrawer() {
             onClick={() => setDrawerOpen(false)}
           />
 
-          {/* Drawer panel */}
+          {/* Drawer panel: all its text and buttons in John Sans (the
+              buttons' sizes set their own font, so [&_button] overrides it) */}
           <motion.div
-            className="fixed top-0 right-0 z-100 h-full max-w-[calc(100vw-2rem)] lg:max-w-1/3 bg-background flex px-6 flex-col shadow-md"
+            className="fixed top-0 right-0 z-100 h-full w-[calc(100vw-2rem)] lg:w-1/3 bg-background flex px-6 flex-col shadow-md font-johnSans [&_button]:font-johnSans"
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
@@ -59,14 +63,14 @@ export default function CartDrawer() {
               <Button
                 variant="link"
                 size="xs"
-                className="w-min text-foreground"
+                className="w-min font-johnSans text-foreground"
               >
                 {t("title", { count: totalItems })}
               </Button>
               <Button
                 variant="link"
                 size="xs"
-                className="w-min justify-end text-foreground  after:content-none"
+                className="w-min justify-end font-johnSans text-foreground text-xs tracking-[48%] after:content-none"
                 onClick={() => setDrawerOpen(false)}
                 aria-label={t("closeLabel")}
               >
@@ -80,7 +84,7 @@ export default function CartDrawer() {
             <div className="relative flex-1 min-h-0 flex flex-col">
               <div className="flex-1 overflow-y-auto scrollbar-none p-0  gap-0  flex flex-col">
                 {items.length === 0 ? (
-                  <p className="pStyle text-neutral-700 leading-[1.5] p-3">
+                  <p className="font-johnSans text-xs text-neutral-700 leading-[1.5] p-3">
                     {t("empty")}
                   </p>
                 ) : (
@@ -88,7 +92,8 @@ export default function CartDrawer() {
                     const issue = issues.find((i) => i._id === item.id);
                     return (
                       // Two columns: the cover on the left; on the right the
-                      // title, the amount (− / +) and, bottom right, the price
+                      // title, the amount (− / +) and, bottom right, the price.
+                      // With more than one title: one column, no cover
                       <div
                         key={item.id}
                         // One box for the list, as the Produktinfo table in IssueCard:
@@ -96,47 +101,56 @@ export default function CartDrawer() {
                         // also the top), the first with rounded top corners,
                         // the last with rounded bottom ones (overflow-hidden
                         // clips the cover to them)
-                        className="relative grid grid-cols-2 w-full overflow-hidden border-x border-b border-neutral-600 first:border-t first:rounded-t-md last:rounded-b-md"
+                        className={`relative grid ${compact ? "grid-cols-1" : "grid-cols-2"} w-full overflow-hidden border-x border-b border-neutral-600 first:border-t`}
                       >
-                        {/* Remove, top right: the same square as − / + */}
-                        <Button
-                          variant="secondary"
-                          size="xs"
-                          className="absolute top-0 right-0 size-12 lg:size-12 aspect-square p-0 tracking-normal leading-none justify-center items-center  text-neutral-700 bg-background"
-                          onClick={() => removeFromCart(item.id)}
-                          aria-label={t("remove", { title: item.title })}
+                        {!compact && (
+                          <div>
+                            {issue?.cover?.asset && (
+                              <Image
+                                src={urlFor(issue.cover).url()}
+                                alt={issue.cover.alt ?? ""}
+                                width={0}
+                                height={0}
+                                // Half its column, a quarter of the drawer (full
+                                // width on mobile, a third of the screen on desktop)
+                                sizes="(min-width: 1024px) 9vw, 25vw"
+                                className="p-12 w-full  h-auto "
+                              />
+                            )}
+                          </div>
+                        )}
+
+                        <div
+                          className={`flex flex-col gap-3 p-0 min-w-0 h-full w-full ${compact ? "" : "border-l border-l-neutral-600"}`}
                         >
-                          <span className="lowercase">( x )</span>
-                        </Button>
-                        <div>
-                          {issue?.cover?.asset && (
-                            <Image
-                              src={urlFor(issue.cover).url()}
-                              alt={issue.cover.alt ?? ""}
-                              width={0}
-                              height={0}
-                              // Half its column, a quarter of the drawer (full
-                              // width on mobile, a third of the screen on desktop)
-                              sizes="(min-width: 1024px) 9vw, 25vw"
-                              className="p-12 w-full  h-auto bg-neutral-100"
-                            />
-                          )}
-                        </div>
-
-                        <div className="flex flex-col gap-3 p-0 min-w-0 h-full w-full border-l border-l-neutral-600">
-                          <div className="flex flex-col justify-between h-full">
-                            {/* Clear of the remove button (pr-14) */}
-                            <span className="h2Style whitespace-normal leading-loose p-6 pr-14">
-                              LL{item.title}
+                          {/* Title (John Sans) and price. One column (more
+                              than one title): on one row, the title on the
+                              left, wrapping, the price on the right. Two
+                              columns (with the cover): stacked, the title at
+                              the top and the price at the bottom */}
+                          <div
+                            className={`flex justify-between gap-6 h-full p-6 ${compact ? "items-baseline" : "flex-col"}`}
+                          >
+                            <span className="min-w-0 font-johnSans text-xs uppercase tracking-[48%] whitespace-normal leading-loose">
+                              {item.title}
                             </span>
-
-                            {/* Price, right below the title */}
-                            <span className="font-baskervilleNeoDisplay text-xs uppercase tracking-[24%] whitespace-nowrap px-6 py-3">
+                            <span className="shrink-0 font-johnSans text-xs uppercase tracking-[24%] whitespace-nowrap">
                               {item.price}
                             </span>
                           </div>
-                          {/* Amount, with − and + (− at one removes it), at the bottom */}
+                          {/* Remove (X), then the amount with − and + (− at one removes it), at the bottom */}
                           <div className="mt-auto flex items-center gap-0 w-full justify-between border-t border-t-neutral-600">
+                            {/* Remove: the same square as − / +, left of −,
+                                a line between them */}
+                            <Button
+                              variant="secondary"
+                              size="xs"
+                              className="size-12 lg:size-12 aspect-square p-0 font-johnSans tracking-normal leading-none justify-center items-center text-neutral-700 bg-background hover:bg-secondary border-r border-r-neutral-600"
+                              onClick={() => removeFromCart(item.id)}
+                              aria-label={t("remove", { title: item.title })}
+                            >
+                              X
+                            </Button>
                             <Button
                               variant="secondary"
                               size="xs"
@@ -149,7 +163,7 @@ export default function CartDrawer() {
                             >
                               −
                             </Button>
-                            <span className="font-baskervilleNeoDisplay text-xs tabular-nums text-center h-full flex items-center justify-center border-x border-x-neutral-600 w-full">
+                            <span className="font-johnSans text-xs tabular-nums text-center h-full flex items-center justify-center border-x border-x-neutral-600 w-full">
                               {item.quantity}
                             </span>
                             <Button
@@ -185,8 +199,10 @@ export default function CartDrawer() {
             {items.length > 0 && (
               <div className="pb-6 pt-12 flex flex-col gap-6 border-t border-t-neutral-600 ">
                 <div className="flex justify-center gap-6 items-baseline ">
-                  <span className="h2Style">{t("subtotal")}</span>
-                  <span className="h2Style">
+                  <span className="font-johnSans text-xs uppercase tracking-[48%]">
+                    {t("subtotal")}
+                  </span>
+                  <span className="font-johnSans text-xs uppercase tracking-[48%]">
                     {subtotal % 1 === 0 ? subtotal : subtotal.toFixed(2)} kr
                   </span>
                 </div>
@@ -194,7 +210,7 @@ export default function CartDrawer() {
                 <Button
                   variant="default"
                   size="default"
-                  className="bg-foreground text-background font-baskervilleNeoText"
+                  className="bg-foreground text-background font-johnSans"
                 >
                   {t("checkout")}
                 </Button>

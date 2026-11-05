@@ -103,7 +103,7 @@ export default function ArticlesPageClient() {
 
   return (
     <>
-      <ul className="grid grid-cols-1 lg:grid-cols-3 w-full     ">
+      <ul className="grid grid-cols-1 lg:grid-cols-3 w-full">
         {visibleArticles.map((article, i) => (
           <li key={article._id} className="relative">
             {/* + 1: the latest article above the grid takes the first

@@ -26,14 +26,16 @@
     "explore": "Explore",
     "series": "Series",
     "menu": "Menu",
+    "closeMenu": "Close",
     "cartLabel": "Cart",
     "cart": "Cart ({count})",
     "filter": "Filter & sort",
+    "filterSearch": "Filter",
     "cartWord": "Cart"
   },
   "Cart": {
-    "title": "cart ({count})",
-    "close": "close (x)",
+    "title": "cart {count}",
+    "close": "close",
     "closeLabel": "Close cart",
     "empty": "Your cart is empty.",
     "remove": "Remove {title}",
@@ -103,6 +105,10 @@
     "articles": "Articles"
   },
   "Filter": {
+    "title": "Filter & search",
+    "sortBy": "Sort by",
+    "latest": "Latest",
+    "az": "A–Z",
     "year": "Year",
     "language": "Language",
     "languageName": "{language, select, sv {Swedish} en {English} other {{language}}}",
@@ -111,6 +117,7 @@
     "contributors": "Contributors",
     "editors": "Editors",
     "clear": "Clear",
+    "clearFilters": "Clear filters",
     "search": "Search",
     "apply": "Apply filters",
     "clearSearch": "Clear search",

@@ -35,40 +35,55 @@ export default function IssueTile({
   const t = useTranslations("Issue");
   const soldOut = issue.inStock === false;
 
-  const tileClass = `block  relative bg-background  transition-all aspect-square p-3 lg:p-6 w-full text-center lg:text-left`;
-  // The issue number
-  const numberLabel = (
-    <span
-      aria-hidden
-      className="font-baskervilleNeoText text-xs uppercase tracking-[24%] lg:group-hover:tracking-[48%] lg:group-hover:italic transition-all"
-    >
-      #{issue.issueNumber}
-    </span>
-  );
+  const tileClass = `block  relative transition-all aspect-square p-3 lg:p-6 bg-background hover:bg-neutral-100 w-full text-center lg:text-left`;
 
   const content = (
     <>
-      {/* Title for screen readers only; the tile shows the issue number */}
+      {/* Title for screen readers (the visible one only shows on hover) */}
       <span className="sr-only">
         {issueTitle(issue.title)}
         {soldOut && ` (${t("soldOut")})`}
       </span>
 
-      {/* Image (cover or product image): half the card's height on mobile;
-          half + 48px on desktop, shrinking to half on hover. Issue number
-          below it */}
-      <div className="absolute inset-6 z-20 lg:z-auto flex flex-col gap-6 lg:gap-12 items-center justify-center">
-        {src && (
-          <Image
-            src={src}
-            width={0}
-            height={0}
-            sizes="(min-width: 1024px) 33vw, 50vw"
-            alt={image?.alt ?? issue.title}
-            className="w-auto h-auto max-w-full max-h-3/4 lg:max-h-[calc(50%+48px)] lg:group-hover:max-h-1/2 transition-[max-height] duration-300 ease-out shadow"
-          />
-        )}
-        {numberLabel}
+      {/* Image (cover or product image): half the card's height, the same
+          in every tile (its width following its shape), always exactly
+          centred in the tile. The title (desktop, on hover) floats 24px
+          above it and the issue number 24px below, neither taking space */}
+      <div className="@container absolute inset-0 z-20 lg:z-auto flex flex-col gap-6 items-center justify-center">
+        {/* The cover, with the title absolute above it: a box half the
+            tile's height, as wide as the cover */}
+        <span className="relative flex h-1/2 shrink-0">
+          {/* Desktop: the title, 24px above the cover and centred on it,
+              two thirds of the tile's width (66cqw: this box's @container),
+              fading in on hover. Absolute, so it takes no space and the
+              cover and number don't move. White with mix-blend-difference,
+              so it shows inverted over the tile */}
+          <span
+            aria-hidden
+            className="hidden  absolute bottom-full left-1/2 -translate-x-1/2 mb-6 z-40 w-[66cqw] text-white mix-blend-difference font-baskervilleNeoDisplay whitespace-break-spaces leading-[1.8] text-sm uppercase tracking-[48%] text-center opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300"
+          >
+            {issueTitle(issue.title)}
+          </span>
+          {src && (
+            <Image
+              src={src}
+              width={0}
+              height={0}
+              sizes="(min-width: 1024px) 33vw, 50vw"
+              alt={image?.alt ?? issue.title}
+              className="h-full w-auto object-contain shadow"
+            />
+          )}
+          {/* The issue number, always shown, 24px below the cover and
+              centred on it. Absolute, like the title, so the cover alone is
+              centred in the tile */}
+          <span
+            aria-hidden
+            className="absolute top-full left-1/2 -translate-x-1/2 mt-6 lg:mt-6 whitespace-nowrap font-baskervilleNeoDisplay text-xs  lg:text-sm uppercase tracking-[48%]"
+          >
+            #{issue.issueNumber}
+          </span>
+        </span>
       </div>
     </>
   );
@@ -77,7 +92,7 @@ export default function IssueTile({
     // No "group" when sold out, so the hover effects don't run
     // 1px grid lines without doubling: each tile draws its right and bottom
     // line, the grid around the tiles its top and left
-    <div className={`${soldOut ? "" : "group"} relative`}>
+    <div className={`${soldOut ? "" : "group"} relative bg-background`}>
       {soldOut ? (
         <>
           {/* Sold out: the cover still shows, faded (opacity-30), with the
@@ -108,11 +123,6 @@ export default function IssueTile({
           {content}
         </Link>
       )}
-      {/* Mobile only (desktop adds to cart from the panel). Outside the link,
-        since a button can't sit inside one */}
-
-      {/* Desktop: square add-to-cart in the top-right corner, shown while the
-          tile is hovered (or the button has keyboard focus) */}
     </div>
   );
 }

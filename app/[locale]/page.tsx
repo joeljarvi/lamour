@@ -2,6 +2,7 @@ import type { Locale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import ShopClient from "@/components/ShopClient";
 import IntroCard from "@/components/IntroCard";
+import JustifyLetters from "@/components/JustifyLetters";
 
 export const revalidate = 3600;
 
@@ -15,10 +16,14 @@ export default async function Home({
   setRequestLocale(locale as Locale);
 
   return (
-    <div className="flex flex-col mt-0  px-0 bg-background">
+    <div className="flex flex-col mt-0  px-0 ">
       {/* HERO: the title and tagline, the about text and a subscribe
           button, then the latest issue */}
-      <IntroCard />
+
+      {/* "L'AMOUR" fixed to the top and "LA MORT" to the bottom, each
+          spread across the full width */}
+
+      <div className="h-dvh w-full "></div>
       <ShopClient />
     </div>
   );

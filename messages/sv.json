@@ -26,14 +26,16 @@
     "explore": "Utforska",
     "series": "Serier",
     "menu": "Meny",
+    "closeMenu": "Stäng",
     "cartLabel": "Varukorgen",
     "cart": "Varukorg ({count})",
     "filter": "Filtrera",
+    "filterSearch": "Filtrera",
     "cartWord": "Korg"
   },
   "Cart": {
-    "title": "korg ({count})",
-    "close": "stäng (x)",
+    "title": "korg {count}",
+    "close": "stäng",
     "closeLabel": "Stäng korg",
     "empty": "Korgen är tom.",
     "remove": "Ta bort {title}",
@@ -103,6 +105,10 @@
     "articles": "Artiklar"
   },
   "Filter": {
+    "title": "Filtrera & sök",
+    "sortBy": "Sortera",
+    "latest": "Senaste",
+    "az": "A–Ö",
     "year": "År",
     "language": "Språk",
     "languageName": "{language, select, sv {Svenska} en {Engelska} other {{language}}}",
@@ -111,6 +117,7 @@
     "contributors": "Medverkande",
     "editors": "Redaktion",
     "clear": "Rensa",
+    "clearFilters": "Rensa filter",
     "search": "Sök",
     "apply": "Visa resultat",
     "clearSearch": "Rensa sökning",

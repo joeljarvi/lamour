@@ -232,7 +232,7 @@ export default function IssueCard({
   );
   // The price, on the "Läs mer" button's line below the description
   const price = issue?.price != null && (
-    <span className="font-baskervilleNeoText text-xs uppercase italic tracking-[24%]">
+    <span className="font-johnSans text-xs uppercase tracking-[24%]">
       {issue.price} kr
     </span>
   );
@@ -292,16 +292,17 @@ export default function IssueCard({
                   in place, and title, price, add to cart and the information
                   frame on the right, scrolling past it. Stacked on mobile */}
               <div className="relative lg:grid lg:grid-cols-2 lg:items-start">
-                {/* Header (mobile): "Stäng", top right; dark text (the link
-                    variant's own text is white). Positioned on the scrolling
-                    content (not fixed, and outside the sticky left column),
-                    so it scrolls away with the panel. On desktop it's on the
-                    title's line instead */}
-                <div className="flex lg:hidden top-12 lg:top-18 left-3 right-3 z-90 absolute shrink-0 items-start justify-end gap-3 lg:gap-6 h-auto lg:h-9  lg:px-0 lg:pt-0  ">
+                {/* "Stäng", top left, just below the navbar's menu button
+                    and lined up with it (John Sans, text-sm on desktop like
+                    the menu button); dark text (the link variant's own text
+                    is white). Positioned on the scrolling content (not
+                    fixed, and outside the sticky left column), so it scrolls
+                    away with the panel */}
+                <div className="fixed top-20 lg:top-20 left-6  lg:left-auto lg:right-6 z-90  shrink-0 items-start justify-start h-auto">
                   <Button
                     variant="link"
                     size="xs"
-                    className="shrink-0 w-auto h-12 lg:h-9 text-foreground after:content-none"
+                    className="shrink-0 w-auto h-12 lg:h-9 px-3 font-johnSans  gap-6 lg:text-xs text-foreground after:content-none"
                     onClick={onClose}
                   >
                     {t("close")}
@@ -441,7 +442,7 @@ export default function IssueCard({
                           variant="default"
                           size="default"
                           disabled={!atEnd && soldOut}
-                          className="w-full lg:mx-auto lg:flex justify-center bg-foreground disabled:opacity-30 disabled:cursor-not-allowed font-baskervilleNeoText text-xs tracking-[24%] uppercase hover:bg-foreground text-background"
+                          className="w-full lg:mx-auto lg:flex justify-center bg-foreground disabled:opacity-30 disabled:cursor-not-allowed font-johnSans text-xs tracking-[60%] uppercase hover:bg-foreground text-background"
                           onClick={atEnd ? onClose : handleAddToCart}
                         >
                           {atEnd
@@ -463,19 +464,10 @@ export default function IssueCard({
                   ref={infoRef}
                   className="flex flex-col min-h-dvh gap-12 lg:gap-6 px-6 lg:pl-0 lg:pr-48 lg:pt-24   lg:pb-24 0 "
                 >
-                  {/* Desktop: number + title at the top of the right column,
-                      and "Stäng" on the same line, on the right. Static, so
-                      they scroll away */}
+                  {/* Desktop: number + title at the top of the right column.
+                      Static, so it scrolls away */}
                   <div className="hidden lg:flex lg:mt-9 w-full min-w-0 items-baseline justify-between gap-6">
                     <div className="min-w-0">{titleRow}</div>
-                    <Button
-                      variant="link"
-                      size="xs"
-                      className="shrink-0 w-auto h-9 text-foreground after:content-none"
-                      onClick={onClose}
-                    >
-                      {t("close")}
-                    </Button>
                   </div>
                   {/* Description */}
                   <div className="flex flex-col gap-6 mt-6 lg:mt-0 col-span-2">
@@ -498,14 +490,14 @@ export default function IssueCard({
                     variant="default"
                     size="default"
                     disabled={soldOut}
-                    className="hidden lg:flex w-full justify-center bg-foreground text-background disabled:opacity-30 disabled:cursor-not-allowed font-baskervilleNeoText text-xs tracking-[24%] uppercase hover:bg-foreground"
+                    className="hidden lg:flex w-full justify-center bg-foreground text-background disabled:opacity-30 disabled:cursor-not-allowed font-johnSans text-xs tracking-[60%] uppercase hover:bg-foreground"
                     onClick={handleAddToCart}
                   >
                     {soldOut ? t("soldOut") : t("addToCart")}
                   </Button>
                   {/* Produktinfo: always shown, a two-column table — the
-                      table draws the whole frame, with rounded corners
-                      (overflow-hidden clips the rows to them); rows stacked
+                      table draws the whole frame (square corners), all in
+                      John Sans; rows stacked
                       with no gaps, each drawing its bottom line but the last
                       (the frame closes it), a line between the title (first
                       half) and the value.
@@ -513,7 +505,7 @@ export default function IssueCard({
                       then the credits (a row per role), then the product
                       details */}
                   <div className="flex w-full flex-col items-start gap-0 col-span-2 mb-28">
-                    <dl className="flex w-full flex-col overflow-hidden rounded-md border border-neutral-600  font-baskervilleNeoText text-neutral-800 leading-[1.5]  text-xs">
+                    <dl className="flex w-full flex-col border border-neutral-600 font-johnSans text-neutral-800 leading-[1.5]  text-xs">
                       {[
                         ...(contributors.length > 0
                           ? [
@@ -532,7 +524,7 @@ export default function IssueCard({
                           key={row.label}
                           className="grid grid-cols-2 tracking-[0%] border-b border-neutral-600 last:border-b-0"
                         >
-                          <dt className="h2Style px-3 py-2 border-r border-r-neutral-600">
+                          <dt className="font-johnSans uppercase tracking-[48%] text-xs text-neutral-700 py-3 px-4 border-r border-r-neutral-600">
                             {row.label}
                           </dt>
                           {/* One name per line, each with a line under it
@@ -544,7 +536,7 @@ export default function IssueCard({
                               {row.names.map((name, i) => (
                                 <li
                                   key={i}
-                                  className="px-3 py-2 border-b text-xs leading-[1.8] tracking-[6%] border-b-neutral-600 last:border-b-0"
+                                  className="px-3 py-2 border-b text-xs font-johnSans  leading-[1.8] tracking-[12%] border-b-neutral-600 last:border-b-0"
                                 >
                                   {name}
                                 </li>
@@ -558,10 +550,10 @@ export default function IssueCard({
                           key={row.label}
                           className="grid grid-cols-2 tracking-[24%] items-baseline border-b border-neutral-600 last:border-b-0"
                         >
-                          <dt className="h2Style px-3 py-2 border-r leading-[1.8] border-r-neutral-600">
+                          <dt className="font-johnSans uppercase tracking-[48%] text-xs text-neutral-700 py-3 px-4 border-r border-r-neutral-600">
                             {row.label}
                           </dt>
-                          <dd className="px-3 py-2 text-xs tracking-[6%] leading-[1.8]">
+                          <dd className="px-3 py-2 font-johnSans text-xs tracking-[12%] leading-[1.8]">
                             {row.value}
                           </dd>
                         </div>
