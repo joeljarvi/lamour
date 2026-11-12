@@ -47,9 +47,9 @@ export default function ShopCover({
         )}
       </Link>
 
-      {/* Number + title on the left; the price on the right, revealed
-          on hover (always shown on touch screens) */}
-      <div className="flex items-baseline justify-between gap-3">
+      {/* Number + title, the price below it on mobile (always shown);
+          on desktop the price on the right, revealed on hover */}
+      <div className="flex flex-col gap-1 lg:flex-row lg:items-baseline lg:justify-between lg:gap-3">
         <h3 className="min-w-0 font-baskervilleNeoText uppercase tracking-wide leading-tight text-xs">
           #{issue.issueNumber} — {issueTitle(issue.title)}
         </h3>
@@ -58,8 +58,8 @@ export default function ShopCover({
         )}
       </div>
 
-      {/* Below: "Lägg i korg", also revealed on hover (adds the issue and
-          opens the cart), or "Slutsåld" when sold out */}
+      {/* Below: "Lägg i korg", desktop only, also revealed on hover (adds
+          the issue and opens the cart), or "Slutsåld" when sold out */}
       {soldOut ? (
         <span className="self-start font-baskervilleNeoText text-xs italic normal-case tracking-wide leading-tight">
           {t("soldOut")}
@@ -75,7 +75,7 @@ export default function ShopCover({
             });
             setDrawerOpen(true);
           }}
-          className={`self-start cursor-pointer underline underline-offset-4 focus-visible:opacity-100 ${REVEAL}`}
+          className={`hidden lg:block self-start cursor-pointer underline underline-offset-4 focus-visible:opacity-100 ${REVEAL}`}
         >
           {t("addToCart")}
         </button>

@@ -26,7 +26,7 @@ export default function LLTextCard() {
         <motion.div
           role="dialog"
           aria-label="Om oss"
-          className="fixed inset-0 z-60 m-auto flex h-screen  w-full flex-col items-center justify-center overflow-y-auto  p-4 bg-background/80"
+          className="hidden fixed inset-0 z-60 m-auto flex h-screen  w-full flex-col items-center justify-center overflow-y-auto  p-4 bg-background/80"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}

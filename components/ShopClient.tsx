@@ -122,7 +122,9 @@ export default function ShopClient() {
           <div className="flex items-baseline justify-between gap-6 px-3 lg:px-6 pt-6 pb-3 lg:pb-6 font-baskervilleNeoText text-sm normal-case tracking-wide">
             {/* "Alla nummer", then "Filtrera efter medverkande", which
                 shows and hides every contributor below the header */}
-            <div className="flex items-baseline gap-6">
+            {/* Wraps onto more lines on narrow screens, so the sort on the
+                right always stays in view */}
+            <div className="flex min-w-0 flex-wrap items-baseline gap-x-6 gap-y-2">
               <h2 className="whitespace-nowrap">{t("allIssues")}</h2>
               <Button
                 variant="link"
@@ -131,7 +133,17 @@ export default function ShopClient() {
                 onClick={() => setContributorsOpen((v) => !v)}
                 aria-expanded={contributorsOpen}
               >
-                {contributorsOpen ? t("closeMenu") : tFilter("byContributor")}
+                {contributorsOpen ? (
+                  t("closeMenu")
+                ) : (
+                  <>
+                    {/* Just "Filtrera" on mobile */}
+                    <span className="lg:hidden">{t("filterSearch")}</span>
+                    <span className="hidden lg:inline">
+                      {tFilter("byContributor")}
+                    </span>
+                  </>
+                )}
               </Button>
               {/* "Rensa filter": back to every issue, newest first; only
                   while something is chosen, searched or sorted */}
@@ -155,10 +167,10 @@ export default function ShopClient() {
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={tFilter("searchPlaceholder")}
                 aria-label={tFilter("search")}
-                className="w-32 lg:w-48 bg-transparent outline-none placeholder:text-neutral-400 font-baskervilleNeoText text-sm normal-case tracking-wide"
+                className="w-24 lg:w-48 bg-transparent outline-none placeholder:text-neutral-400 font-baskervilleNeoText text-sm normal-case tracking-wide"
               />
             </div>
-            <div className="flex items-baseline gap-3">
+            <div className="flex shrink-0 items-baseline gap-3">
               <Button
                 variant="link"
                 size="xs"
