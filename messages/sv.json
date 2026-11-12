@@ -136,7 +136,13 @@
     "removeFilter": "Ta bort filtret {filter}",
     "close": "Stäng",
     "series": "Serie",
-    "authors": "Författare"
+    "authors": "Författare",
+    "sortByLabel": "Sortera efter",
+    "byContributor": "Filtrera efter medverkande",
+    "allContributors": "Alla medverkande",
+    "byAuthor": "Filtrera efter författare",
+    "allAuthors": "Alla författare",
+    "allSeries": "Alla serier"
   },
   "Home": {
     "scroll": "Skrolla ner"

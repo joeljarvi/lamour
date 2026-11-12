@@ -32,6 +32,11 @@ function contributorsOf(issue: Issue) {
 // Desktop column where each cover in a row starts (24-column grid)
 const COL_START = ["lg:col-start-1", "lg:col-start-10", "lg:col-start-19"];
 
+// The header's sort button: plain text, dark, no fixed height,
+// underlined on hover (no pointing hand)
+const SORT_BUTTON =
+  "w-auto h-auto lg:h-auto px-0 font-baskervilleNeoText text-sm normal-case tracking-wide text-foreground underline-offset-4 hover:underline after:content-none";
+
 // The shop: every issue as a grid of tiles, searched, sorted and filtered
 // by contributor in the filter drawer (opened by "Filtrera & sök")
 export default function ShopClient() {
@@ -42,6 +47,8 @@ export default function ShopClient() {
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<ShopSort>("latest");
   const [chosen, setChosen] = useState<string[]>([]);
+  // The contributor list below the header, shown or not
+  const [contributorsOpen, setContributorsOpen] = useState(false);
 
   // Every contributor across the issues, once each, in Swedish order
   const contributors = useMemo(
@@ -121,19 +128,92 @@ export default function ShopClient() {
           clear={clearAll}
           resultCount={visibleIssues.length}
         />
-        {/* The covers: two per row on mobile; on desktop a 24-column grid,
-            three per row, each 6 columns wide with 3 empty columns between
-            them (starting at columns 1, 10 and 19) */}
         <div
-          className={`grid flex-1 min-w-0 min-h-dvh content-start grid-cols-2 gap-x-6 gap-y-12 px-6 py-24 lg:grid-cols-24 lg:gap-y-24 ${filterOpen ? "lg:ml-[33.3333%]" : ""}`}
+          className={`flex-1 min-w-0 min-h-dvh ${filterOpen ? "lg:ml-[33.3333%]" : ""}`}
         >
-          {visibleIssues.map((issue, i) => (
-            <ShopCover
-              key={issue._id}
-              issue={issue}
-              className={`lg:col-span-6 ${COL_START[i % 3]}`}
-            />
-          ))}
+          {/* Header: "Alla nummer" on the left; on the right the active
+              sort, a button switching between Senaste and A–Ö */}
+          <div className="flex items-baseline justify-between gap-6 px-3 lg:px-6 pt-6 pb-3 lg:pb-6 font-baskervilleNeoText text-sm normal-case tracking-wide">
+            {/* "Alla nummer", then "Filtrera efter medverkande", which
+                shows and hides every contributor below the header */}
+            <div className="flex items-baseline gap-6">
+              <h2 className="whitespace-nowrap">{t("allIssues")}</h2>
+              <Button
+                variant="link"
+                size="xs"
+                className={SORT_BUTTON}
+                onClick={() => setContributorsOpen((v) => !v)}
+                aria-expanded={contributorsOpen}
+              >
+                {contributorsOpen ? t("closeMenu") : tFilter("byContributor")}
+              </Button>
+              {/* Searches the issues (title, contributors…), as the
+                  filter panel's search does */}
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder={tFilter("searchPlaceholder")}
+                aria-label={tFilter("search")}
+                className="w-32 lg:w-48 bg-transparent outline-none placeholder:text-neutral-400 font-baskervilleNeoText text-sm normal-case tracking-wide"
+              />
+            </div>
+            <div className="flex items-baseline gap-3">
+              <Button
+                variant="link"
+                size="xs"
+                className={SORT_BUTTON}
+                onClick={() => setSort(sort === "latest" ? "az" : "latest")}
+              >
+                {sort === "latest" ? tFilter("latest") : tFilter("az")}
+              </Button>
+            </div>
+          </div>
+
+          {/* Every contributor, wrapping onto as many lines as needed: a
+              click filters by them (several at once: issues with any of
+              them); chosen ones dark, the rest faded */}
+          {contributorsOpen && (
+            <div className="flex flex-wrap gap-x-6 gap-y-2 px-3 lg:px-6 pb-12 font-baskervilleNeoText text-sm normal-case tracking-wide">
+              {/* First: every contributor (clears the choice); dark while
+                  none is chosen */}
+              <button
+                type="button"
+                aria-pressed={chosen.length === 0}
+                onClick={() => setChosen([])}
+                className={`cursor-pointer transition-opacity hover:opacity-100 ${chosen.length === 0 ? "" : "opacity-50"}`}
+              >
+                {tFilter("allContributors")}
+              </button>
+              {contributors.map((name) => {
+                const on = chosen.includes(name);
+                return (
+                  <button
+                    key={name}
+                    type="button"
+                    aria-pressed={on}
+                    onClick={() => toggleContributor(name)}
+                    className={`cursor-pointer transition-opacity hover:opacity-100 ${on ? "" : "opacity-50"}`}
+                  >
+                    {name}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {/* The covers: two per row on mobile; on desktop a 24-column grid,
+              three per row, each 6 columns wide with 3 empty columns between
+              them (starting at columns 1, 10 and 19) */}
+          <div className="grid content-start grid-cols-2 gap-x-3 lg:gap-x-6 gap-y-12 px-3 lg:px-6 pb-24 lg:grid-cols-24 lg:gap-y-24">
+            {visibleIssues.map((issue, i) => (
+              <ShopCover
+                key={issue._id}
+                issue={issue}
+                className={`lg:col-span-6 ${COL_START[i % 3]}`}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
@@ -151,29 +231,6 @@ export default function ShopClient() {
         clear={clearAll}
         resultCount={visibleIssues.length}
       />
-
-      {/* "Filtrera", bottom right: opens and closes the filter panel (it
-          has no close button of its own). Sticky at the bottom of the
-          screen, but only within the shop (this strip, with no height, is
-          the shop's last child): over the hero it waits below the screen,
-          coming up as the shop scrolls in. Light text with
-          mix-blend-difference (on the strip, since a sticky element with a
-          z-index blends its contents only within itself), so it inverts
-          against whatever is behind it. z-60: above the filter panel and
-          mobile overlay, below the issue page (z-95) */}
-      {/* The strip sticks the button's height (h-14, lg:h-20) plus 24px
-          above the bottom, and the button hangs below it (top-0): so it
-          never reaches above the shop's top edge into the hero */}
-      <div className="sticky bottom-20 lg:bottom-26 z-60 h-0 mix-blend-difference">
-        <Button
-          variant="link"
-          onClick={() => setFilterOpen((v) => !v)}
-          aria-expanded={filterOpen}
-          className="absolute top-0 right-6 w-auto h-14 lg:h-20 text-sm font-baskervilleNeoDisplay normal-case tracking-wide text-background"
-        >
-          {filterOpen ? t("closeMenu") : t("filterSearch")}
-        </Button>
-      </div>
     </div>
   );
 }

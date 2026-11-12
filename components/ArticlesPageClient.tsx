@@ -5,25 +5,10 @@ import { useTranslations } from "next-intl";
 import { useArticles, type Article } from "@/lib/contexts/ArticlesContext";
 import { articleTitle } from "@/lib/articleTitle";
 import ArticleCover from "./ArticleCover";
-import PageMenu from "./PageMenu";
-import { FilterActions, FilterGroup, SearchField } from "./FilterParts";
+import { Button } from "./ui/button";
 
 // Desktop column where each article in a row starts (24-column grid)
 const COL_START = ["lg:col-start-1", "lg:col-start-10", "lg:col-start-19"];
-
-// Shown for articles without a publication date in Sanity
-const PLACEHOLDER_DATE = "2026-01-01";
-
-// Short date, day.month.year with two digits each (e.g. 28.09.26), in
-// Swedish time so a late-evening timestamp doesn't land on the next day
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("de-DE", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "2-digit",
-    timeZone: "Europe/Stockholm",
-  });
-}
 
 // The selected value in each filter group (none = no filtering by it)
 type Filters = { series?: string; author?: string; year?: string };
@@ -55,65 +40,141 @@ const unique = (values: (string | undefined)[]) =>
     a.localeCompare(b, "sv"),
   );
 
-// Every article, newest first (as the layout loads them),
-// in a grid like the shop's: each its cover, title and author. A page
-// menu filters them (series, author, year) and searches them
+// The header's buttons: plain text, dark, no fixed height, underlined on
+// hover (no pointing hand)
+const HEADER_BUTTON =
+  "w-auto h-auto lg:h-auto px-0 font-baskervilleNeoText text-sm normal-case tracking-wide text-foreground underline-offset-4 hover:underline after:content-none";
+
+// Every article in a grid like the shop's (each its cover, title and
+// author), with a header like the shop's: "Alla artiklar", "Serier" and
+// "Filtrera efter författare" (each showing its options below the header,
+// one list open at a time), a search field, and the sort (Senaste / A–Ö)
 export default function ArticlesPageClient() {
   const { articles } = useArticles();
   const t = useTranslations("Nav");
   const tFilter = useTranslations("Filter");
 
-  // Applied filters (what the list shows), and the draft being edited in
-  // the filter panel until it's applied
+  // The chosen series and author (one each; none = all), the search text,
+  // the sort, and which option list is open
   const [filters, setFilters] = useState<Filters>({});
-  const [draft, setDraft] = useState<Filters>({});
   const [query, setQuery] = useState("");
-  // Which filter groups are open (all closed by default)
-  const [openGroups, setOpenGroups] = useState<(keyof Filters)[]>([]);
-  const visibleArticles = articles.filter(
+  const [sort, setSort] = useState<"latest" | "az">("latest");
+  const [openList, setOpenList] = useState<"series" | "author" | null>(null);
+
+  const filtered = articles.filter(
     (a) => matchesFilters(a, filters) && matchesSearch(a, query),
   );
+  const visibleArticles =
+    sort === "az"
+      ? [...filtered].sort((a, b) =>
+          articleTitle(a.title).localeCompare(articleTitle(b.title), "sv"),
+        )
+      : filtered;
 
-  // Filter groups, each with its options taken from the articles
-  const groups: {
-    key: keyof Filters;
-    label: string;
-    options: string[];
-    names?: boolean;
-    twoColumns?: boolean;
-  }[] = [
-    {
-      key: "series",
-      label: tFilter("series"),
+  // The open list's options, its "all" option, and its key in the filters
+  const lists = {
+    series: {
+      key: "series" as const,
+      all: tFilter("allSeries"),
       options: unique(articles.map((a) => a.series?.title)),
-      names: true,
     },
-    {
-      key: "author",
-      label: tFilter("authors"),
+    author: {
+      key: "author" as const,
+      all: tFilter("allAuthors"),
       options: unique(articles.map((a) => a.author?.name)),
-      names: true,
     },
-    {
-      key: "year",
-      label: tFilter("year"),
-      options: unique(articles.map(articleYear)).reverse(),
-      twoColumns: true,
-    },
-  ];
+  };
+  const open = openList ? lists[openList] : null;
+  // Choosing the chosen one again clears it
+  const choose = (key: "series" | "author", value?: string) =>
+    setFilters((f) => ({ ...f, [key]: f[key] === value ? undefined : value }));
+
+  const toggleList = (list: "series" | "author") =>
+    setOpenList((v) => (v === list ? null : list));
 
   return (
-    <>
+    <div className="min-h-dvh">
+      {/* Header: "Alla artiklar", Serier, Filtrera efter författare and the
+          search on the left; the sort on the right */}
+      <div className="flex items-baseline justify-between gap-6 px-3 lg:px-6 pt-6 pb-3 lg:pb-6 font-baskervilleNeoText text-sm normal-case tracking-wide">
+        <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2">
+          <h2>{t("allArticles")}</h2>
+          <Button
+            variant="link"
+            size="xs"
+            className={HEADER_BUTTON}
+            onClick={() => toggleList("series")}
+            aria-expanded={openList === "series"}
+          >
+            {openList === "series" ? t("closeMenu") : t("series")}
+          </Button>
+          <Button
+            variant="link"
+            size="xs"
+            className={HEADER_BUTTON}
+            onClick={() => toggleList("author")}
+            aria-expanded={openList === "author"}
+          >
+            {openList === "author" ? t("closeMenu") : tFilter("byAuthor")}
+          </Button>
+          {/* Searches the titles, authors and series */}
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={tFilter("searchPlaceholder")}
+            aria-label={tFilter("search")}
+            className="w-32 lg:w-48 bg-transparent outline-none placeholder:text-neutral-400 font-baskervilleNeoText text-sm normal-case tracking-wide"
+          />
+        </div>
+        <Button
+          variant="link"
+          size="xs"
+          className={HEADER_BUTTON}
+          onClick={() => setSort(sort === "latest" ? "az" : "latest")}
+        >
+          {sort === "latest" ? tFilter("latest") : tFilter("az")}
+        </Button>
+      </div>
+
+      {/* The open list (series or authors), wrapping: first "Alla …"
+          (clears the choice), then each option; the chosen one dark, the
+          rest faded */}
+      {open && (
+        <div className="flex flex-wrap gap-x-6 gap-y-2 px-3 lg:px-6 pb-12 font-baskervilleNeoText text-sm normal-case tracking-wide">
+          {[undefined, ...open.options].map((value) => {
+            const on = filters[open.key] === value;
+            return (
+              <button
+                key={value ?? "all"}
+                type="button"
+                aria-pressed={on}
+                onClick={() =>
+                  value === undefined
+                    ? setFilters((f) => ({ ...f, [open.key]: undefined }))
+                    : choose(open.key, value)
+                }
+                className={`cursor-pointer transition-opacity hover:opacity-100 ${on ? "" : "opacity-50"}`}
+              >
+                {value ?? open.all}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* Like the shop: two per row on mobile; on desktop a 24-column
           grid, three per row, each 6 columns wide with 3 empty columns
           between them (starting at columns 1, 10 and 19) */}
-      <ul className="grid w-full grid-cols-2 gap-x-6 gap-y-12 px-6 py-24 lg:grid-cols-24 lg:gap-y-24">
+      <ul className="grid w-full grid-cols-2 gap-x-3 lg:gap-x-6 gap-y-12 px-3 lg:px-6 pb-24 lg:grid-cols-24 lg:gap-y-24">
         {visibleArticles.map((article, i) => (
           <li key={article._id} className={`lg:col-span-6 ${COL_START[i % 3]}`}>
-            <ArticleCover article={article} index={i} />
+            {/* Its place in the full list picks its colour, so it keeps
+                it when filtered or sorted */}
+            <ArticleCover article={article} index={articles.indexOf(article)} />
           </li>
         ))}
       </ul>
-    </>
+    </div>
   );
 }

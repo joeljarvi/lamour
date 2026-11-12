@@ -85,6 +85,30 @@ function Reveal({
   );
 }
 
+// The italic logo ("Lamour kursiv"), as tall as the text it replaced
+// (h-4, about text-sm's capitals and descenders). Its letters are a mask
+// over a box in the text colour (bg-current), so it takes the navbar's
+// colour like text does (light over the hero, dark elsewhere). The file's
+// viewBox is cropped to the letters (108.5 × 13.5)
+function KursivLogo() {
+  return (
+    <span
+      aria-hidden
+      className="block h-4 aspect-[108.5/13.5] bg-current"
+      style={{
+        maskImage: "url(/logo/lamour-kursiv-letters.svg)",
+        maskSize: "contain",
+        maskRepeat: "no-repeat",
+        maskPosition: "center",
+        WebkitMaskImage: "url(/logo/lamour-kursiv-letters.svg)",
+        WebkitMaskSize: "contain",
+        WebkitMaskRepeat: "no-repeat",
+        WebkitMaskPosition: "center",
+      }}
+    />
+  );
+}
+
 // The navbar's title, word by word, first of all (LOGO_AT), with the
 // spaces between the words
 function RevealWords({ on, text }: { on: boolean; text: string }) {
@@ -392,7 +416,9 @@ export default function LLNav() {
               asChild
             >
               <Link href="/" aria-label="L´Amour — La Mort">
-                <RevealWords on={intro} text="L'Amour — La Mort" />
+                <Reveal on={intro} order={0} at={LOGO_AT}>
+                  <KursivLogo />
+                </Reveal>
               </Link>
             </Button>
 
@@ -484,8 +510,10 @@ export default function LLNav() {
             className={`absolute left-1/2 top-0 -translate-x-1/2 flex items-center justify-center px-3 border-none h-12 w-auto after:content-none`}
             asChild
           >
-            <Link href="/">
-              <RevealWords on={intro} text="L'Amour — La Mort" />
+            <Link href="/" aria-label="L´Amour — La Mort">
+              <Reveal on={intro} order={0} at={LOGO_AT}>
+                <KursivLogo />
+              </Reveal>
             </Link>
           </Button>
         </div>

@@ -136,7 +136,13 @@
     "removeFilter": "Remove filter {filter}",
     "close": "Close",
     "series": "Series",
-    "authors": "Authors"
+    "authors": "Authors",
+    "sortByLabel": "Sort by",
+    "byContributor": "Filter by contributor",
+    "allContributors": "All contributors",
+    "byAuthor": "Filter by author",
+    "allAuthors": "All authors",
+    "allSeries": "All series"
   },
   "Home": {
     "scroll": "Scroll down"
