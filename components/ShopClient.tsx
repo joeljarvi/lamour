@@ -119,7 +119,7 @@ export default function ShopClient() {
         >
           {/* Header: "Alla nummer" on the left; on the right the active
               sort, a button switching between Senaste and A–Ö */}
-          <div className="flex items-baseline justify-between gap-6 px-3 lg:px-6 pt-6 pb-3 lg:pb-6 font-baskervilleNeoText text-sm normal-case tracking-wide">
+          <div className="flex items-baseline justify-between gap-6 px-3 lg:px-6 pt-6 pb-3 lg:pb-3 font-baskervilleNeoText text-sm normal-case tracking-wide">
             {/* "Alla nummer", then "Filtrera efter medverkande", which
                 shows and hides every contributor below the header */}
             {/* Wraps onto more lines on narrow screens, so the sort on the
@@ -186,7 +186,7 @@ export default function ShopClient() {
               click filters by them (several at once: issues with any of
               them); chosen ones dark, the rest faded */}
           {contributorsOpen && (
-            <div className="flex flex-wrap gap-x-6 gap-y-2 px-3 lg:px-6 pb-12 font-baskervilleNeoText text-sm normal-case tracking-wide">
+            <div className="flex flex-wrap gap-x-3 gap-y-1 px-3 lg:px-6 pb-6 font-baskervilleNeoText text-sm normal-case tracking-wide justify-between">
               {/* First: every contributor (clears the choice); dark while
                   none is chosen */}
               <button

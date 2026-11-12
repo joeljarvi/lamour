@@ -198,7 +198,7 @@ export default function ArticlesPageClient() {
     <div ref={rootRef} className="min-h-dvh mt-[33.3vh]">
       {/* Header: "Alla artiklar", Serier, Filtrera efter författare and the
           search on the left; the sort on the right */}
-      <div className="flex items-baseline justify-between gap-6 px-3 lg:px-6  pb-3 lg:pb-6 font-baskervilleNeoText text-sm normal-case tracking-wide">
+      <div className="flex items-baseline justify-between gap-6 px-3 lg:px-6  pb-3 lg:pb-3 font-baskervilleNeoText text-sm normal-case tracking-wide">
         <div className="flex min-w-0 flex-wrap items-baseline gap-x-6 gap-y-2">
           {/* "Alla serier och kategorier": a filter button like the
               lists' options, active (neutral-800) while nothing is chosen,
@@ -274,7 +274,7 @@ export default function ArticlesPageClient() {
           "Alla …" (clears the choice), then each option by name; the chosen
           one neutral-800, the rest neutral-500 (800 on hover) */}
       {open && (
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-3 px-3 lg:px-6 pb-12 font-baskervilleNeoText text-sm normal-case tracking-wide">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-3 px-3 lg:px-6 pb-12 font-baskervilleNeoText text-sm normal-case tracking-wide justify-between">
           {[undefined, ...open.options].map((option) => {
             const on = filters[open.key] === option?.value;
             return (
