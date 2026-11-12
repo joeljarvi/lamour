@@ -1,5 +1,7 @@
 "use client";
 
+import type { BackgroundMediaData } from "@/components/BackgroundMedia";
+
 import { createContext, useContext } from "react";
 
 export type Issue = {
@@ -26,6 +28,8 @@ export type Issue = {
   isbn?: string;
   binding?: "softcover" | "hardcover";
   description?: any[];
+  // The issue page's hero background (Media Library item or Hero Image)
+  heroMedia?: BackgroundMediaData;
   contributors?: string;
   editors?: string;
   quotes?: Array<{ _key: string; text?: string; author?: string }>;

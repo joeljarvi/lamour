@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { motion, AnimatePresence } from "motion/react";
@@ -35,11 +35,21 @@ function isActive(pathname: string, href: string) {
     : pathname === href || pathname.startsWith(`${href}/`);
 }
 
-// All the navbar's text (and the menu button's lines): light
-// (text-background), blended with mix-blend-difference, so it shows
-// inverted against whatever is behind it
-const NAV_TEXT =
-  "[&_a]:text-background [&_button]:text-background [&_a]:mix-blend-difference [&_button]:mix-blend-difference";
+// The navbar's text colour: light (text-background) while it's over the
+// home page's hero (its image or video), dark (text-foreground) once past
+// it and on every other page. Light too on mobile while the menu is open
+// (the full-screen menu is dark)
+function navText(overHero: boolean, navOpen: boolean) {
+  return [
+    "[&_a]:transition-colors [&_button]:transition-colors [&_a]:duration-300 [&_button]:duration-300",
+    overHero
+      ? "[&_a]:text-background [&_button]:text-background"
+      : "[&_a]:text-foreground [&_button]:text-foreground",
+    navOpen
+      ? "max-lg:[&_a]:text-background max-lg:[&_button]:text-background"
+      : "",
+  ].join(" ");
+}
 
 const ITEM_VARIANTS = {
   hidden: { opacity: 0, y: -6 },
@@ -93,7 +103,7 @@ function RevealWords({ on, text }: { on: boolean; text: string }) {
 // blended with mix-blend-difference, on the dark overlay. Dotted lines between the rows; Baskerville Neo Display,
 // text-sm, on desktop
 const OVERLAY_BUTTON_CLASS =
-  "relative justify-start text-left px-6 text-background mix-blend-difference after:absolute after:right-4 after:ml-0 lg:after:static lg:after:ml-3  font-baskervilleNeoText lg:text-sm";
+  "relative justify-start text-left px-6 text-background after:absolute after:right-4 after:ml-0 lg:after:static lg:after:ml-3 lg:ml-6 font-baskervilleNeoText lg:text-sm";
 
 // Affären and Artiklar go straight to their pages, then Om oss (no page
 // yet), Prenumerera and the cart
@@ -227,6 +237,51 @@ export default function LLNav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // The navbar's height, as --nav-h on the page (desktop), so sticky
+  // parts below it (the latest issue's cover and title, the issue page's
+  // cover…) move down while the menu's links make it taller
+  const barRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const bar = barRef.current;
+    if (!bar) return;
+    const root = document.documentElement;
+    const observer = new ResizeObserver(() => {
+      const desktop = window.matchMedia("(min-width: 1024px)").matches;
+      root.style.setProperty(
+        "--nav-h",
+        desktop ? `${bar.getBoundingClientRect().height}px` : "0px",
+      );
+    });
+    observer.observe(bar);
+    return () => {
+      observer.disconnect();
+      root.style.removeProperty("--nav-h");
+    };
+  }, []);
+
+  // Whether the navbar is over the home page's hero (the section with
+  // id="hero"): until the hero's bottom edge scrolls up past the bar
+  const [overHero, setOverHero] = useState(false);
+  useEffect(() => {
+    // Looked up each time: the hero is only on the home page
+    const update = () => {
+      const hero = document.getElementById("hero");
+      const barHeight = barRef.current?.getBoundingClientRect().height ?? 0;
+      setOverHero(
+        !!hero && hero.getBoundingClientRect().bottom > barHeight / 2,
+      );
+    };
+    // After the new page has rendered
+    const frame = requestAnimationFrame(update);
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, [pathname]);
+
   // Word-by-word reveal: only when the site opens on the home page (the
   // nav stays mounted while navigating, so it plays once)
   const [intro] = useState(() => pathname === "/");
@@ -240,35 +295,91 @@ export default function LLNav() {
   return (
     <>
       <motion.div
+        ref={barRef}
         // Closed: a solid bar (bg-background).
         // Open: dark (bg-foreground), filling the screen on mobile; on
         // desktop just the bar (the menu slides in as its own panel). Its
-        // text light and blended (NAV_TEXT), so it inverts against either.
+        // text light over the hero, dark past it (navText).
         // The same on every page.
-        // z-90: above the issue modal (z-70 / z-80), which opens beneath it
+        // z-90: below the issue page (z-95), which covers it, and the cart (z-100)
         className={`fixed top-0 lg:top-0 left-0 right-0 lg:pt-3 lg:px-3  z-90 flex flex-col transition-colors duration-500
-        ${NAV_TEXT} ${navOpen ? "h-dvh bg-foreground lg:h-14" : "bg-background h-16 lg:h-14"}`}
+        ${navText(overHero, navOpen)} ${navOpen ? "h-dvh bg-foreground lg:h-auto lg:bg-transparent" : "bg-transparent h-16 lg:h-auto"}`}
       >
-        {/* ── DESKTOP: menu (col 1) · logo (centre) · cart ── */}
+        {/* ── DESKTOP: nav links (col 1) · logo (centre) · cart ── */}
         <div className="hidden lg:block">
-          {/* Menu, logo and cart all 36px tall (h-9) and on one baseline
-              (items-baseline), whatever their font */}
+          {/* The links' column, logo and cart along the top (items-start) */}
           <div
-            className={`grid grid-cols-12 gap-0 items-baseline h-auto bg-transparent`}
+            className={`grid grid-cols-12 gap-0 items-start h-auto bg-transparent`}
           >
-            {/* Menu: opens and closes the overlay with the nav links, in
-              John Sans; no pointing hand */}
-            <Button
-              variant="link"
-              size="xs"
-              className="col-start-1 col-span-2 w-auto justify-self-start font-johnSans tracking-[48%] text-xs h-9 px-3 after:content-none"
-              onClick={() => setNavOpen((v) => !v)}
-              aria-expanded={navOpen}
-            >
-              <Reveal on={intro} order={0}>
-                {navOpen ? t("closeMenu") : t("menu")}
-              </Reveal>
-            </Button>
+            {/* "Meny" (Baskerville Neo Text, text-sm, normal case; no
+              pointing hand), opening and closing the nav links just below
+              it in a column, in the bar itself (no overlay). The links get
+              the pointing hand (☜) on hover and for the current page; one
+              click closes the menu */}
+            <nav className="col-start-1 col-span-2 justify-self-start flex flex-col items-start">
+              <Button
+                variant="link"
+                size="xs"
+                className="w-auto h-6 lg:h-6 px-3 font-baskervilleNeoText text-sm normal-case tracking-wide whitespace-nowrap after:content-none"
+                onClick={() => setNavOpen((v) => !v)}
+                aria-expanded={navOpen}
+              >
+                <Reveal on={intro} order={0}>
+                  {navOpen ? `${t("closeMenu")} (x)` : t("menu")}
+                </Reveal>
+              </Button>
+              <AnimatePresence>
+                {navOpen && (
+                  <motion.ul
+                    key="desktop-links"
+                    className="flex flex-col items-start list-none pt-3 pb-3"
+                    initial="hidden"
+                    animate="visible"
+                    exit="hidden"
+                    variants={{
+                      hidden: {
+                        transition: {
+                          staggerChildren: 0.04,
+                          staggerDirection: -1,
+                        },
+                      },
+                      visible: { transition: { staggerChildren: 0.06 } },
+                    }}
+                  >
+                    {[
+                      { label: t("shop"), href: "/" },
+                      { label: t("articles"), href: "/articles" },
+                      // TODO: no about page yet — link it once it exists
+                      { label: t("about"), href: null },
+                      { label: t("subscribe"), href: "/subscribe" },
+                    ].map(({ label, href }) => (
+                      <motion.li key={label} variants={ITEM_VARIANTS}>
+                        <Button
+                          variant="link"
+                          size="xs"
+                          className="w-auto h-6 lg:h-6 px-3 font-baskervilleNeoText text-sm normal-case tracking-wide whitespace-nowrap after:ml-3"
+                          asChild={href != null}
+                        >
+                          {href != null ? (
+                            <Link
+                              href={href}
+                              aria-current={
+                                isActive(pathname, href) ? "page" : undefined
+                              }
+                              onClick={() => setNavOpen(false)}
+                            >
+                              {label}
+                            </Link>
+                          ) : (
+                            <span>{label}</span>
+                          )}
+                        </Button>
+                      </motion.li>
+                    ))}
+                  </motion.ul>
+                )}
+              </AnimatePresence>
+            </nav>
 
             {/* Logo, centred (columns 5–8 straddle the middle of 12); no
               pointing hand (the link variant's ::after) */}
@@ -277,7 +388,7 @@ export default function LLNav() {
               size="xs"
               // Baskerville Neo Display; while the menu is open Baskerville
               // Neo Text (upright, no swashes)
-              className={`col-start-5 col-span-4 justify-self-center text-sm tracking-[60%] flex items-center whitespace-nowrap h-9 px-3 after:content-none ${navOpen ? "font-baskervilleNeoText" : "font-baskervilleNeoDisplay"}`}
+              className={`col-start-5 col-span-4 justify-self-center text-sm tracking-[60%] flex items-center whitespace-nowrap h-6 lg:h-6 px-3 after:content-none ${navOpen ? "font-baskervilleNeoText" : "font-baskervilleNeoText"}`}
               asChild
             >
               <Link href="/" aria-label="L´Amour — La Mort">
@@ -301,7 +412,7 @@ export default function LLNav() {
               size="xs"
               // Cart: its item count in brackets, in Baskerville Neo, in the bar's
               // top-right corner
-              className="col-start-12 w-auto justify-self-end h-9 px-3 font-baskervilleNeoDisplay text-sm after:content-none"
+              className="col-start-12 w-auto justify-self-end h-6 lg:h-6 px-3 font-baskervilleNeoDisplay normal-case tracking-wide text-sm after:content-none"
               onClick={() => setDrawerOpen(true)}
               aria-label={t("openCart")}
             >
@@ -312,7 +423,12 @@ export default function LLNav() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.25, ease: "easeOut" }}
                 >
-                  {totalItems}
+                  Cart{" "}
+                  {/* The count in a small circle, raised. inline-flex: an
+                    inline span ignores width and aspect-ratio */}
+                  <span className="inline-flex align-super  text-[10px] leading-none tracking-normal ">
+                    {totalItems}
+                  </span>
                 </motion.span>
               </Reveal>
             </Button>
@@ -321,70 +437,56 @@ export default function LLNav() {
 
         {/* ── HEADER ── */}
         <div
-          className={`relative flex lg:hidden justify-between   items-start w-full shrink-0   h-16 px-0 lg:px-3.5 pt-0 transition-colors duration-300 ${navOpen ? "bg-foreground" : "bg-transparent"}`}
+          className={`relative flex lg:hidden justify-start items-start w-full shrink-0 h-16 px-0 lg:px-3.5 pt-0 transition-colors duration-300 ${navOpen ? "bg-foreground" : "bg-transparent"}`}
         >
-          {/* Menu toggle — mobile only, square, top left: three thin
-            horizontal lines that animate into an X while the menu is open
-            (outer lines meet in the middle and turn ±45°, the middle one
-            fades, and the X's lines shorten from 24px to 16px) */}
-          <Button
-            onClick={() => setNavOpen((v) => !v)}
-            variant="link"
-            className="lg:hidden h-16 w-16 lg:h-12 bg-transparent    aspect-square px-0 justify-center items-center after:content-none"
-            aria-label={t("menu")}
-            aria-expanded={navOpen}
-          >
-            <Reveal on={intro} order={0}>
-              <span
-                aria-hidden
-                className="flex flex-col items-center gap-[4px] pb-0"
-              >
-                {[
-                  "w-3 translate-y-[4.5px] rotate-45",
-                  "opacity-0",
-                  "w-3 -translate-y-[4.5px] -rotate-45",
-                ].map((open, i) => (
-                  <span
-                    key={i}
-                    className={`block h-[0.5px] transition-all duration-300 ease-out bg-background ${navOpen ? open : "w-6"}`}
-                  />
-                ))}
-              </span>
-            </Reveal>
-          </Button>
+          {/* Menu and, below it, the cart (just its item count), top
+            left, like the desktop menu button (Baskerville Neo Text, normal
+            case, wide spacing); no pointing hands */}
+          <div className="flex flex-col items-start pt-3">
+            <Button
+              variant="link"
+              size="xs"
+              className="w-auto h-6 px-3 font-baskervilleNeoText text-xs normal-case tracking-wide whitespace-nowrap after:content-none"
+              onClick={() => setNavOpen((v) => !v)}
+              aria-expanded={navOpen}
+            >
+              <Reveal on={intro} order={0}>
+                {navOpen ? `${t("closeMenu")} (x)` : t("menu")}
+              </Reveal>
+            </Button>
+            <Button
+              variant="link"
+              size="xs"
+              className="w-auto h-6 px-3 font-baskervilleNeoText text-sm normal-case tracking-wide after:content-none"
+              onClick={() => setDrawerOpen(true)}
+              aria-label={t("openCart")}
+            >
+              <Reveal on={intro} order={1}>
+                <motion.span
+                  key={totalItems}
+                  className="inline-block"
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
+                >
+                  {totalItems}
+                </motion.span>
+              </Reveal>
+            </Button>
+          </div>
 
-          {/* Logo — middle two columns (mobile header). No pointing hand (the
+          {/* Logo, centred on the header (absolute, so the menu and cart
+            beside it don't move it). No pointing hand (the
             link variant's ::after) */}
           <Button
             variant="link"
             size="xs"
-            className={`flex items-center justify-center px-3 border-none h-16 lg:h-12 w-auto after:content-none`}
+            className={`absolute left-1/2 top-0 -translate-x-1/2 flex items-center justify-center px-3 border-none h-12 w-auto after:content-none`}
             asChild
           >
             <Link href="/">
               <RevealWords on={intro} text="L'Amour — La Mort" />
             </Link>
-          </Button>
-
-          {/* Cart — mobile only, last column: the item count, centred in
-              the square (no padding or letter-spacing: the size's tracking
-              adds space after the ")", pushing it off centre) */}
-          <Button
-            variant="link"
-            className={`h-16 w-16  lg:h-12 p-0 tracking-normal leading-none flex justify-center items-center after:content-none lg:hidden`}
-            onClick={() => setDrawerOpen(true)}
-            aria-label={t("openCart")}
-          >
-            <Reveal on={intro} order={1}>
-              <motion.span
-                key={totalItems}
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.25, ease: "easeOut" }}
-              >
-                {totalItems}
-              </motion.span>
-            </Reveal>
           </Button>
         </div>
 
@@ -395,13 +497,6 @@ export default function LLNav() {
           <NavOverlay navOpen={navOpen} setNavOpen={setNavOpen} />
         </div>
       </motion.div>
-
-      {/* ── NAV OVERLAY (desktop): a panel sliding down from the top, below
-          the navbar's items (z-89, under the nav's z-90). Outside the nav,
-          so the nav's blend doesn't apply to it ── */}
-      <div className="hidden lg:block">
-        <NavOverlay navOpen={navOpen} setNavOpen={setNavOpen} desktop />
-      </div>
     </>
   );
 }

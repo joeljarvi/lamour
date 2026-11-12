@@ -24,6 +24,17 @@ export const issuesQuery = groq`*[_type == "issue"] | order(issueNumber desc) {
   pageCount,
   isbn,
   binding,
+  // The issue page's hero background: the Media Library item when one is
+  // picked, else the uploaded Hero Image (shaped like backgroundMediaQuery)
+  "heroMedia": select(
+    defined(heroMediaItem) => heroMediaItem->{
+      mediaType,
+      image,
+      poster,
+      "videoUrl": video.asset->url
+    },
+    defined(heroImage.asset) => { "mediaType": "image", "image": heroImage }
+  ),
   description,
   contributors,
   // Renamed from themeEditors; falls back to it for issues saved before
@@ -42,6 +53,17 @@ export const issueBySlugQuery = groq`*[_type == "issue" && slug.current == $slug
   cover,
   productImage,
   useProductImage,
+  // The issue page's hero background: the Media Library item when one is
+  // picked, else the uploaded Hero Image (shaped like backgroundMediaQuery)
+  "heroMedia": select(
+    defined(heroMediaItem) => heroMediaItem->{
+      mediaType,
+      image,
+      poster,
+      "videoUrl": video.asset->url
+    },
+    defined(heroImage.asset) => { "mediaType": "image", "image": heroImage }
+  ),
   "previewImages": previewImages[] { _key, alt, asset },
   description,
   contributors,
@@ -59,6 +81,26 @@ export const issueBySlugQuery = groq`*[_type == "issue" && slug.current == $slug
   pageCount,
   isbn,
   binding
+}`;
+
+// A section background (Hero Media, Subscribe Media…), by its document id:
+// the Media Library item chosen as its "Media in use" (Hero Media), or else
+// what was uploaded on the document itself
+export const backgroundMediaQuery = groq`*[_id == $id][0] {
+  ...select(
+    defined(active) => active->{
+      mediaType,
+      image,
+      poster,
+      "videoUrl": video.asset->url
+    },
+    {
+      mediaType,
+      image,
+      poster,
+      "videoUrl": video.asset->url
+    }
+  )
 }`;
 
 export const seriesQuery = groq`*[_type == "series"] | order(title asc) {

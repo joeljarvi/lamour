@@ -64,7 +64,7 @@ export default defineType({
       title: "Product Image",
       type: "image",
       description:
-        "Optional. Shown on the issue's tile in the shop instead of the cover when \"Use product image\" is on",
+        'Optional. Shown on the issue\'s tile in the shop instead of the cover when "Use product image" is on',
       options: { hotspot: true },
       fields: [
         defineField({
@@ -100,6 +100,25 @@ export default defineType({
           ],
         },
       ],
+    }),
+    // The issue page's hero background: an image uploaded here, or an
+    // image or video picked from the Media Library (used first when set)
+    defineField({
+      name: "heroImage",
+      title: "Hero Image",
+      type: "image",
+      description:
+        "Background of the issue page's first screen. Or pick one from the Media Library below",
+      options: { hotspot: true },
+      fields: [defineField({ name: "alt", title: "Alt Text", type: "string" })],
+    }),
+    defineField({
+      name: "heroMediaItem",
+      title: "Hero Image from Media Library",
+      type: "reference",
+      to: [{ type: "mediaItem" }],
+      description:
+        "An image or video from the Media Library; used instead of the Hero Image above when set",
     }),
     defineField({
       name: "description",
@@ -182,7 +201,8 @@ export default defineType({
       name: "price",
       title: "Price (SEK)",
       type: "number",
-      description: "Enter in SEK, e.g. 220. Multiply by 100 when sending to Stripe.",
+      description:
+        "Enter in SEK, e.g. 220. Multiply by 100 when sending to Stripe.",
     }),
     defineField({
       name: "weight",
@@ -224,7 +244,11 @@ export default defineType({
           type: "object",
           fields: [
             defineField({ name: "width", title: "Width (mm)", type: "number" }),
-            defineField({ name: "height", title: "Height (mm)", type: "number" }),
+            defineField({
+              name: "height",
+              title: "Height (mm)",
+              type: "number",
+            }),
           ],
         }),
         defineField({

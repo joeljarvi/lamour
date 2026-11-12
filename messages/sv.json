@@ -1,8 +1,11 @@
 {
   "Nav": {
+    "soundOn": "Ljud på",
+    "soundOff": "Ljud av",
     "allIssues": "Alla nummer",
     "allArticles": "Alla artiklar",
     "about": "Om oss",
+    "aboutText": "L'Amour — La Mort är en tidskrift om kärleken och döden, i text och bild. Varje nummer samlar essäer, skönlitteratur, poesi och konst kring ett tema.",
     "subscribe": "Prenumerera",
     "contact": "Kontakt",
     "nextIssue": "Nästa nummer",
@@ -23,6 +26,7 @@
     "latestArticle": "Senaste artikeln",
     "goToArticle": "Gå till artikel",
     "becomeSubscriber": "Bli prenumerant",
+    "subscribeCta": "Bli prenumerant",
     "explore": "Utforska",
     "series": "Serier",
     "menu": "Meny",
@@ -46,7 +50,7 @@
     "increase": "Lägg till en {title}"
   },
   "Issue": {
-    "close": "stäng",
+    "close": "Stäng",
     "seeAllImages": "Se alla bilder",
     "soldOut": "slutsåld",
     "addToCart": "lägg i korg",
@@ -68,11 +72,18 @@
     "productBindingType": "{binding, select, hardcover {Inbunden} other {Häftad}}",
     "productLanguage": "Språk",
     "productWeight": "Vikt",
-    "backToShop": "Tillbaka till butiken",
+    "backToShop": "Tillbaka till affären",
     "readMore": "Läs mer",
     "readLess": "Visa mindre",
     "productReleaseDate": "Släppdatum",
-    "imageOf": "{current} av {total}"
+    "imageOf": "{current} av {total}",
+    "title": "Titel",
+    "cover": "Omslag",
+    "colophon": "Kolofon",
+    "aboutIssue": "Om numret",
+    "price": "Pris",
+    "exploreIssue": "Utforska nummer",
+    "andMore": "m.m"
   },
   "Article": {
     "close": "stäng",
@@ -119,6 +130,7 @@
     "clear": "Rensa",
     "clearFilters": "Rensa filter",
     "search": "Sök",
+    "searchPlaceholder": "Sök...",
     "apply": "Visa resultat",
     "clearSearch": "Rensa sökning",
     "removeFilter": "Ta bort filtret {filter}",

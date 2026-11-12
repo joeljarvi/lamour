@@ -96,7 +96,7 @@ export default function CartDrawer() {
                       // With more than one title: one column, no cover
                       <div
                         key={item.id}
-                        // One box for the list, as the Produktinfo table in IssueCard:
+                        // One box for the list, as the Produktinfo table on the issue page:
                         // each item draws its sides and bottom line (the first
                         // also the top), the first with rounded top corners,
                         // the last with rounded bottom ones (overflow-hidden

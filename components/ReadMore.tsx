@@ -78,7 +78,7 @@ export default function ReadMore({
               variant="link"
               size="xs"
               aria-expanded={expanded}
-              className={`w-auto after:opacity-100 text-foreground ${expanded ? "after:content-['☝']" : "after:content-['☟']"}`}
+              className={`w-auto after:opacity-100 text-foreground font-baskervilleNeoText text-sm tracking-widest uppercase ${expanded ? "after:content-['☝']" : "after:content-['☟']"}`}
               onClick={() => {
                 setToggled(true);
                 setExpanded((e) => !e);

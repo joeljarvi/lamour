@@ -1,8 +1,11 @@
 {
   "Nav": {
+    "soundOn": "Sound on",
+    "soundOff": "Sound off",
     "allIssues": "All issues",
     "allArticles": "All articles",
     "about": "About",
+    "aboutText": "L'Amour — La Mort is a magazine about love and death, in words and images. Each issue gathers essays, fiction, poetry and art around a theme.",
     "subscribe": "Subscribe",
     "contact": "Contact",
     "nextIssue": "Next issue",
@@ -23,6 +26,7 @@
     "latestArticle": "Latest article",
     "goToArticle": "Go to article",
     "becomeSubscriber": "Become a subscriber",
+    "subscribeCta": "Subscribe",
     "explore": "Explore",
     "series": "Series",
     "menu": "Menu",
@@ -46,7 +50,7 @@
     "increase": "Add one {title}"
   },
   "Issue": {
-    "close": "close",
+    "close": "Close",
     "seeAllImages": "See all images",
     "soldOut": "sold out",
     "addToCart": "add to cart",
@@ -72,7 +76,14 @@
     "readMore": "Read more",
     "readLess": "Show less",
     "productReleaseDate": "Release date",
-    "imageOf": "{current} of {total}"
+    "imageOf": "{current} of {total}",
+    "title": "Title",
+    "cover": "Cover",
+    "colophon": "Colophon",
+    "aboutIssue": "About the issue",
+    "price": "Price",
+    "exploreIssue": "Explore issue",
+    "andMore": "and more"
   },
   "Article": {
     "close": "close",
@@ -119,6 +130,7 @@
     "clear": "Clear",
     "clearFilters": "Clear filters",
     "search": "Search",
+    "searchPlaceholder": "Search...",
     "apply": "Apply filters",
     "clearSearch": "Clear search",
     "removeFilter": "Remove filter {filter}",

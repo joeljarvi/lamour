@@ -3,6 +3,9 @@ import { setRequestLocale } from "next-intl/server";
 import ShopClient from "@/components/ShopClient";
 import IntroCard from "@/components/IntroCard";
 import JustifyLetters from "@/components/JustifyLetters";
+import HeroSection from "@/components/HeroSection";
+import LatestIssueSection from "@/components/LatestIssueSection";
+import SubscribeSection from "@/components/SubscribeSection";
 
 export const revalidate = 3600;
 
@@ -23,8 +26,10 @@ export default async function Home({
       {/* "L'AMOUR" fixed to the top and "LA MORT" to the bottom, each
           spread across the full width */}
 
-      <div className="h-dvh w-full "></div>
+      <HeroSection />
+
       <ShopClient />
+      <SubscribeSection />
     </div>
   );
 }

@@ -18,7 +18,8 @@ import { splitNames } from "@/lib/splitNames";
 import SanityPortableText from "@/components/SanityPortableText";
 import ReadMore from "@/components/ReadMore";
 import { Button } from "./ui/button";
-import { Field, LABEL } from "./IssueInfo";
+import { Field, LABEL, useProductInfo } from "./IssueInfo";
+import BackgroundMedia, { hasBackgroundMedia } from "./BackgroundMedia";
 
 // Mobile: how far (px) the page must be pulled up past its end to close
 const PULL_TO_CLOSE = 120;
@@ -98,6 +99,8 @@ export default function IssuePage({
   }
 
   const soldOut = issue?.inStock === false;
+  const hasHero = hasBackgroundMedia(issue?.heroMedia ?? null);
+  const productInfo = useProductInfo(issue);
   const contributors = splitNames(issue?.contributors);
   const editors = splitNames(issue?.editors);
   // Credits, one field per role (e.g. "Omslag"), its names one per line,
@@ -118,20 +121,20 @@ export default function IssuePage({
           aria-label={issueTitle(issue.title)}
           aria-modal="true"
           role="dialog"
-          className="fixed inset-0 z-80 w-full bg-background flex flex-col"
+          className="fixed inset-0 z-95 w-full bg-background flex flex-col"
           initial={{ y: "100%" }}
           animate={{ y: 0 }}
           // Closed by swiping up: leave upwards; otherwise slide down
           exit={{ y: exitUp ? "-100%" : "100%" }}
           transition={{ duration: 0.35, ease: "easeInOut" }}
         >
-          {/* "Stäng (x)", top right (top left on mobile, below the navbar's
-              menu button), like the navbar's menu button */}
-          <div className="fixed top-20 lg:top-6 left-6 lg:left-auto lg:right-6 z-90">
+          {/* "Stäng (x)", top right, on the navbar's line, like its menu
+              button (Baskerville Neo Text, text-xs; text-sm on desktop) */}
+          <div className="fixed top-0 right-0 lg:top-6 lg:right-6 z-90">
             <Button
               variant="link"
               size="xs"
-              className="shrink-0 w-auto h-12 lg:h-9 px-3 font-johnSans gap-6 lg:font-baskervilleNeoText lg:text-sm lg:normal-case lg:tracking-wide text-foreground after:content-none"
+              className="shrink-0 w-auto h-12 lg:h-9 px-3 font-baskervilleNeoText text-xs lg:text-sm normal-case tracking-wide text-foreground after:content-none"
               onClick={onClose}
             >
               {t("close")} (x)
@@ -147,25 +150,58 @@ export default function IssuePage({
             onTouchCancel={onTouchEnd}
             className="relative flex-1 min-h-0 overflow-y-auto"
           >
-            {/* Hero: the issue number, large and centred (like the home
-                page hero's text) */}
-            <section className="flex h-[80dvh] w-full items-center justify-center px-6">
-              <h1 className="text-center font-baskervilleNeoDisplay text-2xl leading-tight lg:text-6xl">
+            {/* Hero: the title, large and centred (like the home page
+                hero's text), at most four lines (line-clamp-4) */}
+            {/* Over the issue's Hero Image (or Media Library item) when it
+                has one, filling the section (not darkened), the text
+                white */}
+            <section className="relative flex h-[90dvh] w-full items-center justify-center overflow-hidden px-6">
+              {hasHero && (
+                <>
+                  <BackgroundMedia
+                    media={issue.heroMedia ?? null}
+                    priority
+                    veil={false}
+                  />
+                </>
+              )}
+              <h1
+                className={`relative z-10 max-w-5xl text-center font-baskervilleNeoDisplay text-2xl leading-tight lg:text-6xl whitespace-pre-line line-clamp-4 ${hasHero ? "text-white" : ""}`}
+              >
                 {issue.title}
               </h1>
             </section>
 
-            <section className="flex flex-col gap-12 px-6 pb-24 lg:grid lg:grid-cols-12 lg:gap-6 lg:items-start">
+            <section className="flex flex-col gap-12 px-6 pb-24 lg:grid lg:grid-cols-12 lg:gap-6 lg:items-start pt-6">
               {/* Desktop: two rows. Title and price in the first (columns
                   1–4); the description, add to cart and credits below them,
                   with editors and contributors (columns 6–8) on the same
                   row, so they start level with "Om numret". The cover
                   (columns 9–12) spans both */}
               <dl className="order-2 -mb-6 lg:mb-0 lg:order-none lg:col-span-4 lg:row-start-1 flex flex-col gap-6">
-                <Field label={t("title")} values={[issueTitle(issue.title)]} />
-                {issue.price != null && (
-                  <Field label={t("price")} values={[`${issue.price} kr`]} />
-                )}
+                <Field
+                  valueClassName="pStyle"
+                  label={t("title")}
+                  values={[issueTitle(issue.title)]}
+                />
+                {/* Price, with "Lägg i korg" beside it ("Slutsåld",
+                    disabled, when sold out); the button's pointing hand
+                    on hover */}
+                <div className="flex flex-col gap-1">
+                  <dt className={LABEL}>{t("price")}</dt>
+                  <dd className="pStyle flex items-baseline gap-6">
+                    {issue.price != null && <span>{issue.price} kr</span>}
+                    <Button
+                      variant="link"
+                      size="xs"
+                      disabled={soldOut}
+                      className="w-auto h-auto lg:h-auto px-0 pStyle text-lg tracking-wide normal-case text-foreground after:ml-3 disabled:opacity-30"
+                      onClick={handleAddToCart}
+                    >
+                      {soldOut ? t("soldOut") : t("addToCart")}
+                    </Button>
+                  </dd>
+                </div>
               </dl>
 
               <div className="order-3 lg:order-none lg:col-span-4 lg:row-start-2 flex flex-col gap-6">
@@ -181,35 +217,52 @@ export default function IssuePage({
                     </ReadMore>
                   </div>
                 )}
-                <Button
-                  variant="default"
-                  size="default"
-                  disabled={soldOut}
-                  className="flex w-full justify-center bg-foreground text-background disabled:opacity-30 disabled:cursor-not-allowed font-baskervilleNeoText lg:text-sm text-xs normal-case tracking-wide hover:bg-foreground"
-                  onClick={handleAddToCart}
-                >
-                  {soldOut ? t("soldOut") : t("addToCart")}
-                </Button>
+
                 {creditRows.length > 0 && (
                   <dl className="flex flex-col gap-6">
                     {creditRows.map((row) => (
                       <Field
+                        valueClassName="pStyle"
                         key={row.label}
                         label={row.label}
                         values={row.names}
+                        inline
                       />
                     ))}
                   </dl>
                 )}
+
+                {/* Product details: year, format, pages, ISBN… */}
+                <dl className="flex flex-col gap-6">
+                  {productInfo.map((row) => (
+                    <Field
+                      valueClassName="pStyle"
+                      key={row.label}
+                      label={row.label}
+                      values={[row.value]}
+                      inline
+                    />
+                  ))}
+                </dl>
               </div>
 
               {/* Editors and contributors */}
               <dl className="order-4 lg:order-none lg:col-span-3 lg:col-start-6 lg:row-start-2 flex flex-col gap-6">
                 {editors.length > 0 && (
-                  <Field label={t("editors")} values={editors} />
+                  <Field
+                    valueClassName="pStyle"
+                    label={t("editors")}
+                    values={editors}
+                    inline
+                  />
                 )}
                 {contributors.length > 0 && (
-                  <Field label={t("contributors")} values={contributors} />
+                  <Field
+                    valueClassName="pStyle"
+                    label={t("contributors")}
+                    values={contributors}
+                    inline
+                  />
                 )}
               </dl>
 

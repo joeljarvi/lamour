@@ -49,7 +49,7 @@ export default function PageMenu({
     // below it over the page. A line along the bar's outer edge (top on
     // mobile, bottom on desktop) while every section is closed
     <div
-      className={`fixed inset-x-0 bottom-0 lg:sticky lg:inset-x-auto mix-blend-difference lg:bottom-auto lg:top-12 lg:mx-3 bg-transparent z-40  gap-0 pb-3 px-3 lg:px-0 lg:pb-0   grid grid-cols-2 lg:grid-cols-12 ${open ? "" : ""}`}
+      className={`fixed inset-x-0 bottom-0 lg:sticky lg:inset-x-auto mix-blend-difference lg:bottom-auto lg:top-[max(3rem,calc(var(--nav-h,0px)+0.75rem))] lg:transition-[top] lg:duration-300 lg:mx-3 bg-transparent z-40  gap-0 pb-3 px-3 lg:px-0 lg:pb-0   grid grid-cols-2 lg:grid-cols-12 ${open ? "" : ""}`}
     >
       {/* Buttons (or inline items): on desktop side by side on the first row
           of the 12-column grid, at their `column`; on mobile half the width

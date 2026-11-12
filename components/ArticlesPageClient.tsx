@@ -4,9 +4,12 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useArticles, type Article } from "@/lib/contexts/ArticlesContext";
 import { articleTitle } from "@/lib/articleTitle";
-import ArticleTile from "./ArticleTile";
+import ArticleCover from "./ArticleCover";
 import PageMenu from "./PageMenu";
 import { FilterActions, FilterGroup, SearchField } from "./FilterParts";
+
+// Desktop column where each article in a row starts (24-column grid)
+const COL_START = ["lg:col-start-1", "lg:col-start-10", "lg:col-start-19"];
 
 // Shown for articles without a publication date in Sanity
 const PLACEHOLDER_DATE = "2026-01-01";
@@ -52,9 +55,8 @@ const unique = (values: (string | undefined)[]) =>
     a.localeCompare(b, "sv"),
   );
 
-// Every article, newest first (as the layout loads them), in one column:
-// each a full-width row linking to the article, the date above the title,
-// then the author and, for an article in a series, which series. A page
+// Every article, newest first (as the layout loads them),
+// in a grid like the shop's: each its cover, title and author. A page
 // menu filters them (series, author, year) and searches them
 export default function ArticlesPageClient() {
   const { articles } = useArticles();
@@ -68,10 +70,9 @@ export default function ArticlesPageClient() {
   const [query, setQuery] = useState("");
   // Which filter groups are open (all closed by default)
   const [openGroups, setOpenGroups] = useState<(keyof Filters)[]>([]);
-  // All but the latest (the first), which LatestArticle shows above the grid
-  const visibleArticles = articles
-    .slice(1)
-    .filter((a) => matchesFilters(a, filters) && matchesSearch(a, query));
+  const visibleArticles = articles.filter(
+    (a) => matchesFilters(a, filters) && matchesSearch(a, query),
+  );
 
   // Filter groups, each with its options taken from the articles
   const groups: {
@@ -103,12 +104,13 @@ export default function ArticlesPageClient() {
 
   return (
     <>
-      <ul className="grid grid-cols-1 lg:grid-cols-3 w-full">
+      {/* Like the shop: two per row on mobile; on desktop a 24-column
+          grid, three per row, each 6 columns wide with 3 empty columns
+          between them (starting at columns 1, 10 and 19) */}
+      <ul className="grid w-full grid-cols-2 gap-x-6 gap-y-12 px-6 py-24 lg:grid-cols-24 lg:gap-y-24">
         {visibleArticles.map((article, i) => (
-          <li key={article._id} className="relative">
-            {/* + 1: the latest article above the grid takes the first
-                colour */}
-            <ArticleTile article={article} index={i + 1} />
+          <li key={article._id} className={`lg:col-span-6 ${COL_START[i % 3]}`}>
+            <ArticleCover article={article} index={i} />
           </li>
         ))}
       </ul>

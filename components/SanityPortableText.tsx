@@ -73,7 +73,7 @@ function buildComponents(
         const initial = (value as any)._initial ? "initial" : "";
         return (
           <p
-            className={`readStyle text-neutral-800 ${normalAlign} ${indent} ${dropcap} ${initial}  mx-auto `}
+            className={`pStyle text-neutral-800 ${normalAlign} ${indent} ${dropcap} ${initial}  mx-auto `}
           >
             {children}
           </p>

@@ -232,7 +232,7 @@ export default function IssueCard({
   );
   // The price, on the "Läs mer" button's line below the description
   const price = issue?.price != null && (
-    <span className="font-johnSans text-xs uppercase tracking-[24%]">
+    <span className="font-baskervilleNeoText text-xs uppercase tracking-[48%] text-xs uppercase tracking-[24%]">
       {issue.price} kr
     </span>
   );
@@ -251,13 +251,11 @@ export default function IssueCard({
     <AnimatePresence onExitComplete={onExited}>
       {issue && (
         <>
-          {/* Backdrop and panel fill the screen beneath the navbar, which
-              sits above them (z-90) and stays visible; the panel's own
-              header starts below the navbar (60px on mobile: its 12px top
-              padding + 48px header; 48px on desktop) */}
-          {/* Backdrop */}
+          {/* Beneath the navbar, which sits above them (z-90) and stays
+              visible. Backdrop: the page dimmed (a click on it closes the
+              card) */}
           <motion.div
-            className="fixed inset-x-0 bottom-0 top-0 lg:top-0 z-70 w-full bg-background"
+            className="fixed inset-0 z-70 w-full bg-foreground/40"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -265,18 +263,38 @@ export default function IssueCard({
             onClick={onClose}
           />
 
-          {/* Panel, full width. It's the containing block for its fixed
-              add-to-cart bar (contain: layout), so that bar always spans
-              the panel */}
+          {/* Panel: the full screen on mobile; on desktop a box centred on
+              the screen (inset-0 with auto margins and a set size), at most
+              72rem wide, 4rem clear of the top and bottom, the page dimmed
+              around it, the box's background fading out at its edges. It's
+              the containing block for its fixed parts
+              (contain: layout): the add-to-cart bar and "Stäng" */}
           <motion.aside
             aria-label={issueTitle(issue.title)}
-            className="fixed bottom-0 top-0 lg:top-0 right-0 z-80 w-full bg-background flex flex-col shadow-md [contain:layout]"
+            aria-modal="true"
+            role="dialog"
+            className="fixed inset-0 z-80 w-full h-screen bg-background lg:bg-transparent flex flex-col shadow-md lg:shadow-none [contain:layout]"
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             // Closed by swiping up: leave upwards; otherwise slide down
             exit={{ y: exitUp ? "-100%" : "100%" }}
             transition={{ duration: 0.35, ease: "easeInOut" }}
           >
+            {/* Desktop: the card's background, solid, fading to
+                transparent in a thin band (4px) along every edge, so the
+                card's border is soft: a
+                background layer masked by a horizontal and a vertical fade,
+                intersected */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0 -z-10 hidden lg:block bg-background"
+              style={{
+                maskImage:
+                  "linear-gradient(to right, transparent, black 0.25rem, black calc(100% - 0.25rem), transparent), linear-gradient(to bottom, transparent, black 0.25rem, black calc(100% - 0.25rem), transparent)",
+                maskComposite: "intersect",
+                WebkitMaskComposite: "source-in",
+              }}
+            />
             {/* Scrolls inside the panel (not the panel itself) so the pinned
                 add-to-cart stays put */}
             <motion.div
@@ -298,14 +316,16 @@ export default function IssueCard({
                     is white). Positioned on the scrolling content (not
                     fixed, and outside the sticky left column), so it scrolls
                     away with the panel */}
-                <div className="fixed top-20 lg:top-20 left-6  lg:left-auto lg:right-6 z-90  shrink-0 items-start justify-start h-auto">
+                <div className="fixed top-20 lg:top-6 left-6  lg:left-auto lg:right-6 z-90  shrink-0 items-start justify-start h-auto">
                   <Button
                     variant="link"
                     size="xs"
-                    className="shrink-0 w-auto h-12 lg:h-9 px-3 font-johnSans  gap-6 lg:text-xs text-foreground after:content-none"
+                    // Desktop: like the navbar's menu button (Baskerville Neo Text,
+                    // text-sm, normal case, wide spacing)
+                    className="shrink-0 w-auto h-12 lg:h-9 px-3 font-johnSans gap-6 lg:font-baskervilleNeoText lg:text-sm lg:normal-case lg:tracking-wide text-foreground after:content-none"
                     onClick={onClose}
                   >
-                    {t("close")}
+                    {t("close")} (x)
                   </Button>
                 </div>
                 {/* First screen: header, carousel, title, price. On mobile
@@ -313,7 +333,7 @@ export default function IssueCard({
                   information frame starts below the fold; on desktop the
                   left column, the full screen height, dark (bg-foreground,
                   light text for the arrows and counter) */}
-                <section className="relative flex h-[calc(100dvh-3.75rem)] lg:h-dvh lg:sticky lg:top-0 flex-col px-3 ">
+                <section className="relative flex h-[calc(100dvh-3.75rem)] lg:h-[calc(100dvh-8rem)] lg:sticky lg:top-0 flex-col px-3 ">
                   {/* Carousel (and, on mobile, title and price), centred in the
                 panel. On mobile the bottom padding clears the pinned
                 add-to-cart (5rem) and its 2rem fade; on desktop the column is
@@ -462,7 +482,7 @@ export default function IssueCard({
                   At least a screen tall, longer if the text needs it */}
                 <section
                   ref={infoRef}
-                  className="flex flex-col min-h-dvh gap-12 lg:gap-6 px-6 lg:pl-0 lg:pr-48 lg:pt-24   lg:pb-24 0 "
+                  className="flex flex-col min-h-dvh lg:min-h-0 gap-12 lg:gap-6 px-6 lg:pl-0 lg:pr-12 lg:pt-24 lg:pb-24"
                 >
                   {/* Desktop: number + title at the top of the right column.
                       Static, so it scrolls away */}
@@ -490,14 +510,15 @@ export default function IssueCard({
                     variant="default"
                     size="default"
                     disabled={soldOut}
-                    className="hidden lg:flex w-full justify-center bg-foreground text-background disabled:opacity-30 disabled:cursor-not-allowed font-johnSans text-xs tracking-[60%] uppercase hover:bg-foreground"
+                    className="hidden lg:flex w-full justify-center bg-foreground text-background disabled:opacity-30 disabled:cursor-not-allowed font-baskervilleNeoText lg:text-sm text-xs normal-case tracking-wide hover:bg-foreground"
                     onClick={handleAddToCart}
                   >
                     {soldOut ? t("soldOut") : t("addToCart")}
                   </Button>
                   {/* Produktinfo: always shown, a two-column table — the
                       table draws the whole frame (square corners), all in
-                      John Sans; rows stacked
+                      Baskerville Neo Text, text-xs: the labels in capitals
+                      (12% spacing), the values in normal case; rows stacked
                       with no gaps, each drawing its bottom line but the last
                       (the frame closes it), a line between the title (first
                       half) and the value.
@@ -505,7 +526,7 @@ export default function IssueCard({
                       then the credits (a row per role), then the product
                       details */}
                   <div className="flex w-full flex-col items-start gap-0 col-span-2 mb-28">
-                    <dl className="flex w-full flex-col border border-neutral-600 font-johnSans text-neutral-800 leading-[1.5]  text-xs">
+                    <dl className="flex w-full flex-col border border-neutral-600 font-baskervilleNeoText text-neutral-800 leading-[1.5]  text-sm">
                       {[
                         ...(contributors.length > 0
                           ? [
@@ -524,7 +545,7 @@ export default function IssueCard({
                           key={row.label}
                           className="grid grid-cols-2 tracking-[0%] border-b border-neutral-600 last:border-b-0"
                         >
-                          <dt className="font-johnSans uppercase tracking-[48%] text-xs text-neutral-700 py-3 px-4 border-r border-r-neutral-600">
+                          <dt className="font-baskervilleNeoText not-italic uppercase tracking-[12%] text-xs text-neutral-700 py-3 px-4 border-r border-r-neutral-600">
                             {row.label}
                           </dt>
                           {/* One name per line, each with a line under it
@@ -536,7 +557,7 @@ export default function IssueCard({
                               {row.names.map((name, i) => (
                                 <li
                                   key={i}
-                                  className="px-3 py-2 border-b text-xs font-johnSans  leading-[1.8] tracking-[12%] border-b-neutral-600 last:border-b-0"
+                                  className="px-3 py-2 border-b font-baskervilleNeoText text-xs normal-case leading-[1.8] tracking-wide border-b-neutral-600 last:border-b-0"
                                 >
                                   {name}
                                 </li>
@@ -550,15 +571,24 @@ export default function IssueCard({
                           key={row.label}
                           className="grid grid-cols-2 tracking-[24%] items-baseline border-b border-neutral-600 last:border-b-0"
                         >
-                          <dt className="font-johnSans uppercase tracking-[48%] text-xs text-neutral-700 py-3 px-4 border-r border-r-neutral-600">
+                          <dt className="font-baskervilleNeoText not-italic uppercase tracking-[12%] text-xs text-neutral-700 py-3 px-4 border-r border-r-neutral-600">
                             {row.label}
                           </dt>
-                          <dd className="px-3 py-2 font-johnSans text-xs tracking-[12%] leading-[1.8]">
+                          <dd className="px-3 py-2 font-baskervilleNeoText text-xs normal-case tracking-wide leading-[1.8]">
                             {row.value}
                           </dd>
                         </div>
                       ))}
                     </dl>
+                    {/* Back to the shop: closes the card */}
+                    <Button
+                      variant="link"
+                      size="xs"
+                      className="mt-6 w-full h-12 lg:h-12 justify-center border border-neutral-600 font-baskervilleNeoText text-sm normal-case tracking-wide text-foreground after:content-none"
+                      onClick={onClose}
+                    >
+                      {t("backToShop")}
+                    </Button>
                   </div>
                 </section>
               </div>

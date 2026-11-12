@@ -4,12 +4,9 @@ import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useIssues, type Issue } from "@/lib/contexts/IssuesContext";
 import { issueTitle } from "@/lib/issueTitle";
-import IssueTile from "./IssueTile";
+import ShopCover from "./ShopCover";
 import { Button } from "./ui/button";
-import ShopFilterDrawer, {
-  FILTER_TOGGLE_CLASS,
-  type ShopSort,
-} from "./ShopFilterDrawer";
+import ShopFilterDrawer, { type ShopSort } from "./ShopFilterDrawer";
 
 // Whether the search text appears in the issue's number, title,
 // contributors or editors (ignoring case)
@@ -31,6 +28,9 @@ function contributorsOf(issue: Issue) {
     .map((name) => name.trim())
     .filter(Boolean);
 }
+
+// Desktop column where each cover in a row starts (24-column grid)
+const COL_START = ["lg:col-start-1", "lg:col-start-10", "lg:col-start-19"];
 
 // The shop: every issue as a grid of tiles, searched, sorted and filtered
 // by contributor in the filter drawer (opened by "Filtrera & sök")
@@ -100,63 +100,8 @@ export default function ShopClient() {
 
   return (
     <div>
-      {/* "Filtrera", fixed bottom right, in John Sans, above the filter
-          panel and the mobile overlay (z-60; below the issue card, z-70 / z-80): opens and closes it (the
-          panel has no close button of its own) */}
-      <Button
-        variant="link"
-        onClick={() => setFilterOpen((v) => !v)}
-        aria-expanded={filterOpen}
-        className={`fixed bottom-6 right-6 z-60 ${FILTER_TOGGLE_CLASS}`}
-      >
-        {filterOpen ? t("closeMenu") : t("filterSearch")}
-      </Button>
-
       {/* A sticky strip below the navbar with no height (so it takes no
           space), for the active filters */}
-      <div className="sticky top-14 z-50 h-0">
-        {/* Top right of the grid: "Alla nummer" (opens the
-            filters), then the active filters — the search text and the
-            chosen contributors — each with an × (click to remove it), and
-            "Rensa filter" to clear them all. The
-            row wraps leftwards, stopping short of the filter panel while
-            it's open */}
-        <div
-          className={`absolute top-3 right-6 flex h-10 flex-wrap items-center justify-end gap-3 ${filterOpen ? "left-6 lg:left-[calc(33.3333%+1.5rem)]" : "left-6"}`}
-        >
-          <Button
-            variant="link"
-            size="xs"
-            className="w-auto font-johnSans text-foreground after:content-none"
-            onClick={() => setFilterOpen(true)}
-          >
-            {t("allIssues")}
-          </Button>
-          {activeFilters.map(({ key, label, remove }) => (
-            <Button
-              key={key}
-              variant="link"
-              size="xs"
-              className="w-auto font-johnSans text-foreground after:content-none"
-              onClick={remove}
-              aria-label={tFilter("removeFilter", { filter: label })}
-            >
-              {label} ×
-            </Button>
-          ))}
-          {/* Clear every filter (shown while any is active) */}
-          {activeFilters.length > 0 && (
-            <Button
-              variant="link"
-              size="xs"
-              className="w-auto font-johnSans text-foreground underline underline-offset-4 decoration-[0.5px] after:content-none"
-              onClick={clearAll}
-            >
-              {tFilter("clearFilters")}
-            </Button>
-          )}
-        </div>
-      </div>
 
       {/* Desktop: the filter panel, while open, fixed on the left (a third
           of the screen); the grid moves right past it (ml-1/3) (two columns then, so the tiles keep their
@@ -176,11 +121,18 @@ export default function ShopClient() {
           clear={clearAll}
           resultCount={visibleIssues.length}
         />
+        {/* The covers: two per row on mobile; on desktop a 24-column grid,
+            three per row, each 6 columns wide with 3 empty columns between
+            them (starting at columns 1, 10 and 19) */}
         <div
-          className={`grid flex-1 min-w-0 min-h-dvh content-start grid-cols-2 ${filterOpen ? "lg:grid-cols-2 lg:ml-[33.3333%]" : "lg:grid-cols-3"}`}
+          className={`grid flex-1 min-w-0 min-h-dvh content-start grid-cols-2 gap-x-6 gap-y-12 px-6 py-24 lg:grid-cols-24 lg:gap-y-24 ${filterOpen ? "lg:ml-[33.3333%]" : ""}`}
         >
-          {visibleIssues.map((issue) => (
-            <IssueTile key={issue._id} issue={issue} />
+          {visibleIssues.map((issue, i) => (
+            <ShopCover
+              key={issue._id}
+              issue={issue}
+              className={`lg:col-span-6 ${COL_START[i % 3]}`}
+            />
           ))}
         </div>
       </div>
@@ -199,6 +151,29 @@ export default function ShopClient() {
         clear={clearAll}
         resultCount={visibleIssues.length}
       />
+
+      {/* "Filtrera", bottom right: opens and closes the filter panel (it
+          has no close button of its own). Sticky at the bottom of the
+          screen, but only within the shop (this strip, with no height, is
+          the shop's last child): over the hero it waits below the screen,
+          coming up as the shop scrolls in. Light text with
+          mix-blend-difference (on the strip, since a sticky element with a
+          z-index blends its contents only within itself), so it inverts
+          against whatever is behind it. z-60: above the filter panel and
+          mobile overlay, below the issue page (z-95) */}
+      {/* The strip sticks the button's height (h-14, lg:h-20) plus 24px
+          above the bottom, and the button hangs below it (top-0): so it
+          never reaches above the shop's top edge into the hero */}
+      <div className="sticky bottom-20 lg:bottom-26 z-60 h-0 mix-blend-difference">
+        <Button
+          variant="link"
+          onClick={() => setFilterOpen((v) => !v)}
+          aria-expanded={filterOpen}
+          className="absolute top-0 right-6 w-auto h-14 lg:h-20 text-sm font-baskervilleNeoDisplay normal-case tracking-wide text-background"
+        >
+          {filterOpen ? t("closeMenu") : t("filterSearch")}
+        </Button>
+      </div>
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "@/i18n/navigation";
-import IssueCard from "@/components/IssueCard";
+import IssuePage from "@/components/IssuePage";
 import { useIssues } from "@/lib/contexts/IssuesContext";
 
 // Issue panel as a modal over the page it was opened from (the intercepted
@@ -14,7 +14,7 @@ export default function IssueModal({ slug }: { slug: string }) {
   const [closing, setClosing] = useState(false);
 
   return (
-    <IssueCard
+    <IssuePage
       issue={closing ? null : issue}
       onClose={() => setClosing(true)}
       onExited={() => router.back()}

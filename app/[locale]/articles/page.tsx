@@ -1,7 +1,7 @@
 import type { Locale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import ArticlesPageClient from "@/components/ArticlesPageClient";
-import LatestArticle from "@/components/LatestArticle";
+import ArticlesHero from "@/components/ArticlesHero";
 
 export default async function ArticlesPage({
   params,
@@ -13,8 +13,8 @@ export default async function ArticlesPage({
 
   return (
     <section className="flex flex-col w-full  ">
-      {/* The latest article, a full-width tile above the grid */}
-      <LatestArticle />
+      {/* A hero like the home page's, then the grid */}
+      <ArticlesHero />
       <ArticlesPageClient />
     </section>
   );
