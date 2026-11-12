@@ -113,7 +113,7 @@ export default function ShopClient() {
       {/* Desktop: the filter panel, while open, fixed on the left (a third
           of the screen); the grid moves right past it (ml-1/3) (two columns then, so the tiles keep their
           size) */}
-      <div className="lg:flex lg:items-start mt-[33.3vh]">
+      <div className="lg:flex lg:items-start mt-[66.6vh]">
         <div
           className={`flex-1 min-w-0 min-h-dvh ${filterOpen ? "lg:ml-[33.3333%]" : ""}`}
         >
