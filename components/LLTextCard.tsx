@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
+import { Button } from "./ui/button";
 
 // "Om oss", a yellow card in the middle of the screen when the page loads
 // (fixed, over the page, below the navbar), fading in; "Stäng (x)" or
@@ -24,31 +26,38 @@ export default function LLTextCard() {
         <motion.div
           role="dialog"
           aria-label="Om oss"
-          className="fixed inset-0 z-60 m-auto flex h-screen  w-full flex-col items-center justify-center overflow-y-auto bg-yellow-300 p-4"
+          className="fixed inset-0 z-60 m-auto flex h-screen  w-full flex-col items-center justify-center overflow-y-auto  p-4 bg-background/80"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.4 }}
         >
-          <div className="mb-4 flex items-baseline justify-between gap-3">
-            <h2 className="font-baskervilleSC lowercase text-lg lg:text-xl">
-              Om oss
-            </h2>
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              className="cursor-pointer font-baskervilleNeoText text-xs normal-case tracking-wide underline-offset-4 hover:underline"
+          <div className="flex flex-col max-w-3xl aspect-video mx-auto bg-yellow-300 p-3 lg:p-6 ">
+            <div className="mb-12 flex flex-col items-baseline justify-between gap-1 ">
+              <h1 className="pStyle ">L'Amour — La Mort</h1>
+              <h2 className="pStyle italic tracking-wide ">en tids skrift</h2>
+            </div>
+            <p className="pStyle">
+              Sedan 2017 har vi samlat ung litteratur under ett skevt
+              konsthistoriskt paraply och publicerat över hundra författare och
+              konstnärer i början, mitten, och slutet av sina karriärer. Målet?
+              Att ge skimret av ett samlad förtrupp. Att historisera allt nu. En
+              tids skrift av text och bild.
+            </p>
+            {/* "Prenumerera", to the subscribe page (like the subscribe
+                section's button: italic with swashes, dark) */}
+            <Button
+              variant="link"
+              size="xs"
+              // The pointing hand (☜) always shown, not only on hover
+              className=" text-neutral-800 w-min text-[18px] lg:text-lg px-0 h-auto mt-6 normal-case tracking-wide after:opacity-100"
+              asChild
             >
-              {t("closeMenu")} (x)
-            </button>
+              <Link href="/subscribe" onClick={() => setOpen(false)}>
+                {t("subscribe")}
+              </Link>
+            </Button>
           </div>
-          <p className="font-baskerVilleOld text-base">
-            Sedan 2017 har vi samlat ung litteratur under ett skevt
-            konsthistoriskt paraply och publicerat över hundra författare och
-            konstnärer i början, mitten, och slutet av sina karriärer. Målet?
-            Att ge skimret av ett samlad förtrupp. Att historisera allt nu. En
-            tids skrift av text och bild.
-          </p>
         </motion.div>
       )}
     </AnimatePresence>
