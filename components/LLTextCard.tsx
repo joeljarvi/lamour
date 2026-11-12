@@ -32,12 +32,20 @@ export default function LLTextCard() {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.4 }}
         >
-          <div className="flex flex-col max-w-3xl aspect-video mx-auto bg-yellow-300 p-3 lg:p-6 ">
+          <div className="relative flex flex-col max-w-lg  mx-auto bg-yellow-300 p-3 lg:p-6 ">
+            {/* "Stäng (x)", top right: closes the card */}
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="absolute top-3 right-3 lg:top-6 lg:right-6 cursor-pointer pStyle text-neutral-800 underline-offset-4 hover:underline"
+            >
+              {t("closeMenu")} (x)
+            </button>
             <div className="mb-12 flex flex-col items-baseline justify-between gap-1 ">
               <h1 className="pStyle ">L'Amour — La Mort</h1>
               <h2 className="pStyle italic tracking-wide ">en tids skrift</h2>
             </div>
-            <p className="pStyle">
+            <p className="pStyle max-w-full text-justify">
               Sedan 2017 har vi samlat ung litteratur under ett skevt
               konsthistoriskt paraply och publicerat över hundra författare och
               konstnärer i början, mitten, och slutet av sina karriärer. Målet?
