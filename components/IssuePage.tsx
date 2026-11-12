@@ -155,7 +155,7 @@ export default function IssuePage({
             {/* Over the issue's Hero Image (or Media Library item) when it
                 has one, filling the section (not darkened), the text
                 white */}
-            <section className="relative flex h-[90dvh] w-full items-center justify-center overflow-hidden px-6">
+            <section className="relative hidden  h-[75dvh] w-full items-center justify-center overflow-hidden px-6">
               {hasHero && (
                 <>
                   <BackgroundMedia

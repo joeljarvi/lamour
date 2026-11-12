@@ -19,7 +19,7 @@ export default async function HeroSection() {
           Clicks pass through to the video (pausing it), except on "lägg i
           korg", which adds the latest issue to the cart */}
       <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center  h-screen">
-        <h2 className="max-w-full px-6 lg:px-0 lg:max-w-5xl text-center font-baskervilleNeoDisplay text-2xl leading-tight text-background lg:text-6xl">
+        <h2 className=" max-w-full px-6 lg:px-0 lg:max-w-5xl text-center font-baskervilleNeoDisplay text-2xl leading-tight text-background lg:text-6xl">
           #22—23 DRUNK <span className="italic">nytt dubbelnummer ute nu</span>,{" "}
           <AddLatestIssueToCart className="pointer-events-auto text-2xl lg:text-6xl font-baskervilleNeoDisplay uppercase tracking-normal leading-snug text-white">
             lägg i korg

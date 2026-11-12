@@ -119,132 +119,69 @@ function RevealWords({ on, text }: { on: boolean; text: string }) {
   ));
 }
 
-/* ─── NAV OVERLAY ─── */
+/* ─── NAV LINKS ─── */
 
-// Overlay buttons (and the submenu's rows) span the row with the label
-// left-aligned and the pointing hand (the link variant's ::after) pinned to
-// the right edge (on desktop, 12px after the label instead). Light text
-// blended with mix-blend-difference, on the dark overlay. Dotted lines between the rows; Baskerville Neo Display,
-// text-sm, on desktop
-const OVERLAY_BUTTON_CLASS =
-  "relative justify-start text-left px-6 text-background after:absolute after:right-4 after:ml-0 lg:after:static lg:after:ml-3 lg:ml-6 font-baskervilleNeoText lg:text-sm";
-
-// Affären and Artiklar go straight to their pages, then Om oss (no page
-// yet), Prenumerera and the cart
-// `desktop`: a dark (bg-foreground) panel the screen's full width (as tall as its
-// content, at most the screen), the links in a column on the left. Fixed
-// below the navbar's items, sliding down from the top (and back up when
-// closed). On mobile: the rows straight inside the full-screen overlay
-function NavOverlay({
-  navOpen,
-  setNavOpen,
-  desktop = false,
+// The nav links in a column (the menu's contents, on desktop below "Meny"
+// in the bar, on mobile on the dark full-screen menu): Baskerville Neo
+// Text, text-sm, normal case; the pointing hand (☜) on hover and for the
+// current page; fading in one after another. A click closes the menu
+function NavLinks({
+  pathname,
+  close,
 }: {
-  navOpen: boolean;
-  setNavOpen: (v: boolean) => void;
-  desktop?: boolean;
+  pathname: string;
+  close: () => void;
 }) {
   const t = useTranslations("Nav");
-  const pathname = usePathname();
-  const { totalItems, setDrawerOpen } = useCart();
-
-  const close = () => setNavOpen(false);
-
-  const pageLinks = [
-    { label: t("shop"), href: "/" },
-    { label: t("articles"), href: "/articles" },
-  ];
-
   return (
-    <AnimatePresence>
-      {navOpen && (
-        <motion.div
-          key="nav-overlay"
-          className={
-            desktop
-              ? "fixed top-0 left-0 z-89 max-h-dvh w-full overflow-y-auto overscroll-contain bg-foreground"
-              : "w-full"
-          }
-          initial={desktop ? { y: "-100%" } : false}
-          animate={{ y: 0 }}
-          exit={desktop ? { y: "-100%" } : undefined}
-          transition={{ duration: 0.45, ease: [0.32, 0.72, 0, 1] }}
-        >
-          <motion.ul
-            className={`flex flex-col lg:items-start w-full justify-center items-center font-baskerville bg-transparent py-0 lg:pt-18 lg:pb-6 mt-24 lg:mt-0 px-0 list-none gap-y-0`}
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-            variants={{
-              hidden: {},
-              visible: { transition: { staggerChildren: 0.1 } },
-            }}
+    <motion.ul
+      key="desktop-links"
+      className="flex flex-col items-start list-none pt-3 pb-3"
+      initial="hidden"
+      animate="visible"
+      exit="hidden"
+      variants={{
+        hidden: {
+          transition: {
+            staggerChildren: 0.04,
+            staggerDirection: -1,
+          },
+        },
+        visible: { transition: { staggerChildren: 0.06 } },
+      }}
+    >
+      {[
+        { label: t("shop"), href: "/" },
+        { label: t("articles"), href: "/articles" },
+        // TODO: no about page yet — link it once it exists
+        { label: t("about"), href: null },
+        { label: t("subscribe"), href: "/subscribe" },
+      ].map(({ label, href }) => (
+        <motion.li key={label} variants={ITEM_VARIANTS}>
+          <Button
+            variant="link"
+            size="xs"
+            className="w-auto h-6 lg:h-6 px-3 font-baskervilleNeoText text-sm normal-case tracking-wide whitespace-nowrap after:ml-3"
+            asChild={href != null}
           >
-            {pageLinks.map(({ label, href }) => (
-              <motion.li key={href} className="w-full" variants={ITEM_VARIANTS}>
-                <Button
-                  variant="link"
-                  size="sm"
-                  className={OVERLAY_BUTTON_CLASS}
-                  asChild
-                >
-                  <Link
-                    href={href}
-                    aria-current={isActive(pathname, href) ? "page" : undefined}
-                    onClick={close}
-                  >
-                    {label}
-                  </Link>
-                </Button>
-              </motion.li>
-            ))}
-
-            {/* TODO: no about page yet — link it once it exists */}
-            <motion.li className="w-full" variants={ITEM_VARIANTS}>
-              <Button variant="link" size="sm" className={OVERLAY_BUTTON_CLASS}>
-                {t("about")}
-              </Button>
-            </motion.li>
-
-            <motion.li className="w-full" variants={ITEM_VARIANTS}>
-              <Button
-                variant="link"
-                size="sm"
-                className={OVERLAY_BUTTON_CLASS}
-                asChild
+            {href != null ? (
+              <Link
+                href={href}
+                aria-current={isActive(pathname, href) ? "page" : undefined}
+                onClick={close}
               >
-                <Link
-                  href="/subscribe"
-                  aria-current={
-                    isActive(pathname, "/subscribe") ? "page" : undefined
-                  }
-                  onClick={close}
-                >
-                  {t("subscribe")}
-                </Link>
-              </Button>
-            </motion.li>
-
-            <motion.li className="w-full" variants={ITEM_VARIANTS}>
-              <Button
-                variant="link"
-                size="sm"
-                // The cart opens a drawer, not a page: no pointing hand
-                className={`${OVERLAY_BUTTON_CLASS} after:content-none`}
-                onClick={() => {
-                  close();
-                  setDrawerOpen(true);
-                }}
-              >
-                {t("cart", { count: totalItems })}
-              </Button>
-            </motion.li>
-          </motion.ul>
-        </motion.div>
-      )}
-    </AnimatePresence>
+                {label}
+              </Link>
+            ) : (
+              <span>{label}</span>
+            )}
+          </Button>
+        </motion.li>
+      ))}
+    </motion.ul>
   );
 }
+
 /* ─── MAIN NAV ─── */
 
 export default function LLNav() {
@@ -354,53 +291,11 @@ export default function LLNav() {
               </Button>
               <AnimatePresence>
                 {navOpen && (
-                  <motion.ul
+                  <NavLinks
                     key="desktop-links"
-                    className="flex flex-col items-start list-none pt-3 pb-3"
-                    initial="hidden"
-                    animate="visible"
-                    exit="hidden"
-                    variants={{
-                      hidden: {
-                        transition: {
-                          staggerChildren: 0.04,
-                          staggerDirection: -1,
-                        },
-                      },
-                      visible: { transition: { staggerChildren: 0.06 } },
-                    }}
-                  >
-                    {[
-                      { label: t("shop"), href: "/" },
-                      { label: t("articles"), href: "/articles" },
-                      // TODO: no about page yet — link it once it exists
-                      { label: t("about"), href: null },
-                      { label: t("subscribe"), href: "/subscribe" },
-                    ].map(({ label, href }) => (
-                      <motion.li key={label} variants={ITEM_VARIANTS}>
-                        <Button
-                          variant="link"
-                          size="xs"
-                          className="w-auto h-6 lg:h-6 px-3 font-baskervilleNeoText text-sm normal-case tracking-wide whitespace-nowrap after:ml-3"
-                          asChild={href != null}
-                        >
-                          {href != null ? (
-                            <Link
-                              href={href}
-                              aria-current={
-                                isActive(pathname, href) ? "page" : undefined
-                              }
-                              onClick={() => setNavOpen(false)}
-                            >
-                              {label}
-                            </Link>
-                          ) : (
-                            <span>{label}</span>
-                          )}
-                        </Button>
-                      </motion.li>
-                    ))}
-                  </motion.ul>
+                    pathname={pathname}
+                    close={() => setNavOpen(false)}
+                  />
                 )}
               </AnimatePresence>
             </nav>
@@ -518,11 +413,20 @@ export default function LLNav() {
           </Button>
         </div>
 
-        {/* ── NAV OVERLAY (mobile): the menu filling the screen ── */}
+        {/* ── NAV OVERLAY (mobile): the menu filling the screen (dark),
+            the links in a column below "Meny", like the desktop menu ── */}
         <div
           className={`flex flex-col flex-1 min-h-0 overflow-y-auto overscroll-contain lg:hidden ${navOpen ? "" : "hidden"}`}
         >
-          <NavOverlay navOpen={navOpen} setNavOpen={setNavOpen} />
+          <AnimatePresence>
+            {navOpen && (
+              <NavLinks
+                key="mobile-links"
+                pathname={pathname}
+                close={() => setNavOpen(false)}
+              />
+            )}
+          </AnimatePresence>
         </div>
       </motion.div>
     </>

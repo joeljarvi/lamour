@@ -103,12 +103,18 @@ export const backgroundMediaQuery = groq`*[_id == $id][0] {
   )
 }`;
 
-export const seriesQuery = groq`*[_type == "series"] | order(title asc) {
+// "Intervjuer" is a category (Interview), not a series, though it's still
+// a series document in Sanity: left out of the series, and its articles
+// count as interviews outside any series. Once those articles have their
+// Category set to Interview and their Series cleared, and the document is
+// deleted, this changes nothing
+export const seriesQuery = groq`*[_type == "series" && title != "Intervjuer"] | order(title asc) {
   _id,
   title,
   slug,
   description,
-  aboutText
+  aboutText,
+  coverImage
 }`;
 
 export const articlesQuery = groq`*[_type == "article"] | order(coalesce(publishedAt, _createdAt) desc) {
@@ -117,10 +123,18 @@ export const articlesQuery = groq`*[_type == "article"] | order(coalesce(publish
   slug,
   "author": author->{name, slug},
   "issue": issue->{title, issueNumber},
-  "series": series->{title, slug},
+  // Not "Intervjuer" (a category, see seriesQuery)
+  "series": select(
+    series->title == "Intervjuer" => null,
+    series->{title, slug}
+  ),
   coverImage,
   publishedAt,
   color,
+  "category": coalesce(
+    category,
+    select(series->title == "Intervjuer" => "interview")
+  ),
   "bodyLength": length(pt::text(body))
 }`;
 

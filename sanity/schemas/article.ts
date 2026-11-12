@@ -157,7 +157,7 @@ export default defineType({
         list: [
           { title: "Article", value: "article" },
           { title: "Interview", value: "interview" },
-          { title: "Freeform", value: "freeform" },
+          { title: "Poem", value: "poem" },
         ],
         layout: "radio",
       },

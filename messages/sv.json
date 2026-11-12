@@ -109,7 +109,9 @@
     "queueEmpty": "Kön är tom.",
     "removeFromQueue": "Ta bort {title} ur kön",
     "queue": "Kö",
-    "latest": "Senaste artikeln"
+    "latest": "Senaste artikeln",
+    "seriesCount": "Serie · {count, plural, one {# artikel} other {# artiklar}}",
+    "showArticles": "visa artiklar"
   },
   "Author": {
     "backToArticles": "← Artiklar",
@@ -142,7 +144,10 @@
     "allContributors": "Alla medverkande",
     "byAuthor": "Filtrera efter författare",
     "allAuthors": "Alla författare",
-    "allSeries": "Alla serier"
+    "allSeries": "Alla serier",
+    "categories": "Kategorier",
+    "allCategories": "Alla kategorier",
+    "categoryName": "{category, select, interview {Intervju} poem {Dikt} other {Artikel}}"
   },
   "Home": {
     "scroll": "Skrolla ner"

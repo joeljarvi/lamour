@@ -14,6 +14,8 @@ export type Article = {
   bodyLength?: number;
   // The tile colour chosen in Sanity (red, purple, green, yellow, pink)
   color?: string;
+  // Article, Interview or Poem (unset = Article)
+  category?: "article" | "interview" | "poem";
 };
 
 export type Series = {
@@ -22,6 +24,7 @@ export type Series = {
   slug: { current: string };
   description?: string;
   aboutText?: string;
+  coverImage?: { asset?: { _ref: string }; alt?: string };
 };
 
 type ArticlesContextType = {

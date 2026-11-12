@@ -147,6 +147,20 @@ export default function ShopClient() {
               >
                 {contributorsOpen ? t("closeMenu") : tFilter("byContributor")}
               </Button>
+              {/* "Rensa filter": back to every issue, newest first; only
+                  while something is chosen, searched or sorted */}
+              {(chosen.length > 0 ||
+                query.trim() !== "" ||
+                sort !== "latest") && (
+                <Button
+                  variant="link"
+                  size="xs"
+                  className={SORT_BUTTON}
+                  onClick={clearAll}
+                >
+                  {tFilter("clearFilters")}
+                </Button>
+              )}
               {/* Searches the issues (title, contributors…), as the
                   filter panel's search does */}
               <input

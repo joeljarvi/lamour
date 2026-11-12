@@ -109,7 +109,9 @@
     "queueEmpty": "The queue is empty.",
     "removeFromQueue": "Remove {title} from the queue",
     "queue": "Queue",
-    "latest": "The latest article"
+    "latest": "The latest article",
+    "seriesCount": "Series · {count, plural, one {# article} other {# articles}}",
+    "showArticles": "show articles"
   },
   "Author": {
     "backToArticles": "← Articles",
@@ -142,7 +144,10 @@
     "allContributors": "All contributors",
     "byAuthor": "Filter by author",
     "allAuthors": "All authors",
-    "allSeries": "All series"
+    "allSeries": "All series",
+    "categories": "Categories",
+    "allCategories": "All categories",
+    "categoryName": "{category, select, interview {Interview} poem {Poem} other {Article}}"
   },
   "Home": {
     "scroll": "Scroll down"
