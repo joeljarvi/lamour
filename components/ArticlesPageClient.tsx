@@ -10,8 +10,6 @@ import {
 import { articleTitle } from "@/lib/articleTitle";
 import ArticleCover from "./ArticleCover";
 import SeriesCover from "./SeriesCover";
-import Image from "next/image";
-import { urlFor } from "@/lib/sanity/image";
 import { Button } from "./ui/button";
 
 // Desktop column where each article in a row starts (24-column grid)
@@ -69,12 +67,13 @@ const itemKey = (
     | { kind: "series"; series: Series },
 ) => (it.kind === "article" ? it.article._id : `series-${it.series._id}`);
 
-// Every article in a grid like the shop's (a series as one cover; a click
-// shows its articles in the grid instead) (each its cover, title and
-// author), with a header like the shop's: "Alla artiklar", "Serier"
-// (every series, with its cover), "Kategorier" (Artikel, Intervju,
-// Dikt) and "Filtrera efter författare" (each showing its options below the header,
-// one list open at a time), a search field, and the sort (Senaste / A–Ö)
+// Every article in a grid like the shop's, each its cover, title and
+// author; a series as one cover, a click showing its articles in the grid
+// instead. The header: a heading saying what's shown ("Alla serier och
+// kategorier", or the choice, with "Rensa filter"), "Serier" (every
+// series, by title), "Kategorier" (Artikel, Intervju, Dikt), "Filtrera
+// efter författare" (each list opening below the header, one at a time),
+// a search field, and the sort (Senaste / A–Ö) on the right
 export default function ArticlesPageClient() {
   const { articles, series } = useArticles();
   const t = useTranslations("Nav");
@@ -139,27 +138,37 @@ export default function ArticlesPageClient() {
         "sv",
       ),
     );
+  // The header's heading: the chosen series, category and author, or
+  // "Alla serier och kategorier"
+  const heading =
+    [
+      filters.series,
+      filters.category &&
+        tFilter("categoryName", { category: filters.category }),
+      filters.author,
+    ]
+      .filter(Boolean)
+      .join(" · ") || tFilter("allSeriesAndCategories");
+
   // The chosen series (its document, for its about text)
   const chosenSeries = filters.series
     ? series.find((s) => s.title === filters.series)
     : undefined;
 
   // The filter lists: each its "all" option and its options (value,
-  // label, and for a series its cover image)
+  // label)
   type ListKey = "series" | "category" | "author";
   type Option = {
     value: string;
     label: string;
-    image?: { asset?: { _ref: string }; alt?: string };
   };
   const lists: Record<ListKey, { all: string; options: Option[] }> = {
-    // Every series in Sanity, with its cover
+    // Every series in Sanity
     series: {
       all: tFilter("allSeries"),
       options: series.map((s) => ({
         value: s.title,
         label: s.title,
-        image: s.coverImage,
       })),
     },
     category: {
@@ -195,12 +204,25 @@ export default function ArticlesPageClient() {
     (rootRef.current?.getBoundingClientRect().top ?? 0) + window.scrollY;
 
   return (
-    <div ref={rootRef} className="min-h-dvh">
+    <div ref={rootRef} className="min-h-dvh mt-[33.3vh]">
       {/* Header: "Alla artiklar", Serier, Filtrera efter författare and the
           search on the left; the sort on the right */}
-      <div className="flex items-baseline justify-between gap-6 px-3 lg:px-6 pt-6 pb-3 lg:pb-6 font-baskervilleNeoText text-sm normal-case tracking-wide">
+      <div className="flex items-baseline justify-between gap-6 px-3 lg:px-6  pb-3 lg:pb-6 font-baskervilleNeoText text-sm normal-case tracking-wide">
         <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2">
-          <h2>{t("allArticles")}</h2>
+          {/* What's shown: "Alla serier och kategorier", or the chosen
+              series, category and author (e.g. "Liveblog från Bokmässan
+              2025 · Intervju"), then "Rensa filter" back to all */}
+          <h2>{heading}</h2>
+          {heading !== tFilter("allSeriesAndCategories") && (
+            <Button
+              variant="link"
+              size="xs"
+              className={HEADER_BUTTON}
+              onClick={() => setFilters({})}
+            >
+              {tFilter("clearFilters")}
+            </Button>
+          )}
           <Button
             variant="link"
             size="xs"
@@ -249,8 +271,8 @@ export default function ArticlesPageClient() {
       </div>
 
       {/* The open list (series, categories or authors), wrapping: first
-          "Alla …" (clears the choice), then each option, a series with its
-          cover beside its title; the chosen one dark, the rest faded */}
+          "Alla …" (clears the choice), then each option by name; the chosen
+          one neutral-800, the rest neutral-500 (800 on hover) */}
       {open && (
         <div className="flex flex-wrap items-center gap-x-6 gap-y-3 px-3 lg:px-6 pb-12 font-baskervilleNeoText text-sm normal-case tracking-wide">
           {[undefined, ...open.options].map((option) => {
@@ -261,19 +283,8 @@ export default function ArticlesPageClient() {
                 type="button"
                 aria-pressed={on}
                 onClick={() => choose(open.key, option?.value)}
-                className={`flex cursor-pointer items-center gap-3 transition-opacity hover:opacity-100 ${on ? "" : "opacity-50"}`}
+                className={`cursor-pointer transition-colors hover:text-neutral-800 ${on ? "text-neutral-800" : "text-neutral-500"}`}
               >
-                {option?.image?.asset && (
-                  <span className="relative block h-12 aspect-[3/4] shrink-0 overflow-hidden">
-                    <Image
-                      src={urlFor(option.image).width(120).url()}
-                      alt=""
-                      fill
-                      sizes="36px"
-                      className="object-cover"
-                    />
-                  </span>
-                )}
                 {option?.label ?? open.all}
               </button>
             );
@@ -281,25 +292,11 @@ export default function ArticlesPageClient() {
         </div>
       )}
 
-      {/* With a series chosen: its title and about text above its
-          articles, and "Stäng" back to every article */}
-      {filters.series && (
-        <div className="flex flex-col gap-3 px-3 lg:px-6 pb-12">
-          <div className="flex items-baseline gap-6 font-baskervilleNeoText text-sm normal-case tracking-wide">
-            <h3>{filters.series}</h3>
-            <Button
-              variant="link"
-              size="xs"
-              className={HEADER_BUTTON}
-              onClick={() => choose("series", undefined)}
-            >
-              {t("closeMenu")}
-            </Button>
-          </div>
-          {chosenSeries?.aboutText && (
-            <p className="pStyle max-w-2xl">{chosenSeries.aboutText}</p>
-          )}
-        </div>
+      {/* With a series chosen: its about text above its articles */}
+      {chosenSeries?.aboutText && (
+        <p className="pStyle max-w-2xl px-3 lg:px-6 pb-3 lg:pb-6">
+          {chosenSeries.aboutText}
+        </p>
       )}
 
       {/* Like the shop: two per row on mobile; on desktop a 24-column

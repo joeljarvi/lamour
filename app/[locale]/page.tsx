@@ -26,8 +26,6 @@ export default async function Home({
       {/* "L'AMOUR" fixed to the top and "LA MORT" to the bottom, each
           spread across the full width */}
 
-      <HeroSection />
-
       <ShopClient />
       <SubscribeSection />
     </div>

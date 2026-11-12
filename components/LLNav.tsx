@@ -85,22 +85,35 @@ function Reveal({
   );
 }
 
-// The italic logo ("Lamour kursiv"), as tall as the text it replaced
-// (h-4, about text-sm's capitals and descenders). Its letters are a mask
-// over a box in the text colour (bg-current), so it takes the navbar's
-// colour like text does (light over the hero, dark elsewhere). The file's
-// viewBox is cropped to the letters (108.5 × 13.5)
-function KursivLogo() {
+// The logo in the bar, as tall as the text it replaced. Its letters are a
+// mask over a box in the text colour (bg-current), so it takes the
+// navbar's colour like text does (light over the hero, dark elsewhere).
+// The files' viewBoxes are cropped to the letters. Two to try:
+// "Lamour kursiv" (italic) and "Lamour svart" (upright capitals, in use)
+const LOGOS = {
+  kursiv: {
+    src: "/logo/lamour-kursiv-letters.svg",
+    className: "h-4 aspect-[108.5/13.5]",
+  },
+  svart: {
+    src: "/logo/lamour-svart-letters.svg",
+    // Capitals only: 12px, about text-sm's capitals
+    className: "h-3 aspect-[212/15.5]",
+  },
+} as const;
+const LOGO = LOGOS.svart;
+
+function NavLogo() {
   return (
     <span
       aria-hidden
-      className="block h-4 aspect-[108.5/13.5] bg-current"
+      className={`block bg-current ${LOGO.className}`}
       style={{
-        maskImage: "url(/logo/lamour-kursiv-letters.svg)",
+        maskImage: `url(${LOGO.src})`,
         maskSize: "contain",
         maskRepeat: "no-repeat",
         maskPosition: "center",
-        WebkitMaskImage: "url(/logo/lamour-kursiv-letters.svg)",
+        WebkitMaskImage: `url(${LOGO.src})`,
         WebkitMaskSize: "contain",
         WebkitMaskRepeat: "no-repeat",
         WebkitMaskPosition: "center",
@@ -312,7 +325,7 @@ export default function LLNav() {
             >
               <Link href="/" aria-label="L´Amour — La Mort">
                 <Reveal on={intro} order={0} at={LOGO_AT}>
-                  <KursivLogo />
+                  <NavLogo />
                 </Reveal>
               </Link>
             </Button>
@@ -407,7 +420,7 @@ export default function LLNav() {
           >
             <Link href="/" aria-label="L´Amour — La Mort">
               <Reveal on={intro} order={0} at={LOGO_AT}>
-                <KursivLogo />
+                <NavLogo />
               </Reveal>
             </Link>
           </Button>

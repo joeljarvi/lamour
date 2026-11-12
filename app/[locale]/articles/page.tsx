@@ -14,7 +14,7 @@ export default async function ArticlesPage({
   return (
     <section className="flex flex-col w-full  ">
       {/* A hero like the home page's, then the grid */}
-      <ArticlesHero />
+
       <ArticlesPageClient />
     </section>
   );

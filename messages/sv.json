@@ -147,7 +147,8 @@
     "allSeries": "Alla serier",
     "categories": "Kategorier",
     "allCategories": "Alla kategorier",
-    "categoryName": "{category, select, interview {Intervju} poem {Dikt} other {Artikel}}"
+    "categoryName": "{category, select, interview {Intervju} poem {Dikt} other {Artikel}}",
+    "allSeriesAndCategories": "Alla serier och kategorier"
   },
   "Home": {
     "scroll": "Skrolla ner"

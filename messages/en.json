@@ -147,7 +147,8 @@
     "allSeries": "All series",
     "categories": "Categories",
     "allCategories": "All categories",
-    "categoryName": "{category, select, interview {Interview} poem {Poem} other {Article}}"
+    "categoryName": "{category, select, interview {Interview} poem {Poem} other {Article}}",
+    "allSeriesAndCategories": "All series and categories"
   },
   "Home": {
     "scroll": "Scroll down"
