@@ -57,7 +57,7 @@ export default function SeriesCover({
       <button
         type="button"
         onClick={onOpen}
-        className="self-start cursor-pointer font-baskervilleNeoText text-sm normal-case tracking-wide underline-offset-4 hover:underline transition-opacity duration-300 focus-visible:opacity-100 lg:opacity-0 lg:group-hover:opacity-80"
+        className="hidden lg:block self-start cursor-pointer font-baskervilleNeoText text-sm normal-case tracking-wide underline-offset-4 hover:underline transition-opacity duration-300 focus-visible:opacity-100 lg:opacity-0 lg:group-hover:opacity-80"
       >
         {t("showArticles")}
       </button>

@@ -199,7 +199,7 @@ export default function ArticlesPageClient() {
       {/* Header: "Alla artiklar", Serier, Filtrera efter författare and the
           search on the left; the sort on the right */}
       <div className="flex items-baseline justify-between gap-6 px-3 lg:px-6  pb-3 lg:pb-6 font-baskervilleNeoText text-sm normal-case tracking-wide">
-        <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2">
+        <div className="flex min-w-0 flex-wrap items-baseline gap-x-6 gap-y-2">
           {/* "Alla serier och kategorier": a filter button like the
               lists' options, active (neutral-800) while nothing is chosen,
               otherwise neutral-500; a click clears every choice */}
@@ -209,7 +209,11 @@ export default function ArticlesPageClient() {
             onClick={() => setFilters({})}
             className={`cursor-pointer transition-colors hover:text-neutral-800 ${anyChosen ? "text-neutral-500" : "text-neutral-800"}`}
           >
-            {tFilter("allSeriesAndCategories")}
+            {/* Shortened to "Alla serier" on mobile */}
+            <span className="lg:hidden">{tFilter("allSeries")}</span>
+            <span className="hidden lg:inline">
+              {tFilter("allSeriesAndCategories")}
+            </span>
           </button>
           <Button
             variant="link"
@@ -236,7 +240,15 @@ export default function ArticlesPageClient() {
             onClick={() => toggleList("author")}
             aria-expanded={openList === "author"}
           >
-            {openList === "author" ? t("closeMenu") : tFilter("byAuthor")}
+            {openList === "author" ? (
+              t("closeMenu")
+            ) : (
+              <>
+                {/* Just "Filtrera" on mobile */}
+                <span className="lg:hidden">{t("filterSearch")}</span>
+                <span className="hidden lg:inline">{tFilter("byAuthor")}</span>
+              </>
+            )}
           </Button>
           {/* Searches the titles, authors and series */}
           <input
@@ -245,13 +257,13 @@ export default function ArticlesPageClient() {
             onChange={(e) => setQuery(e.target.value)}
             placeholder={tFilter("searchPlaceholder")}
             aria-label={tFilter("search")}
-            className="w-32 lg:w-48 bg-transparent outline-none placeholder:text-neutral-400 font-baskervilleNeoText text-sm normal-case tracking-wide"
+            className="w-24 lg:w-48 bg-transparent outline-none placeholder:text-neutral-400 font-baskervilleNeoText text-sm normal-case tracking-wide"
           />
         </div>
         <Button
           variant="link"
           size="xs"
-          className={HEADER_BUTTON}
+          className={`shrink-0 ${HEADER_BUTTON}`}
           onClick={() => setSort(sort === "latest" ? "az" : "latest")}
         >
           {sort === "latest" ? tFilter("latest") : tFilter("az")}

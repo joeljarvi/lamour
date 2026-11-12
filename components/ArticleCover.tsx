@@ -54,11 +54,11 @@ export default function ArticleCover({
         )}
       </div>
 
-      {/* "Läs nu", revealed on hover (always shown on touch screens),
+      {/* "Läs nu", desktop only, revealed on hover,
           like the shop covers' "Lägg i korg" */}
       <Link
         href={`/articles/${article.slug.current}`}
-        className="self-start font-baskervilleNeoText text-sm normal-case tracking-wide underline-offset-4 hover:underline transition-opacity duration-300 lg:opacity-0 lg:group-hover:opacity-80 focus-visible:opacity-100"
+        className="hidden lg:block self-start font-baskervilleNeoText text-sm normal-case tracking-wide underline-offset-4 hover:underline transition-opacity duration-300 lg:opacity-0 lg:group-hover:opacity-80 focus-visible:opacity-100"
       >
         {t("readNow")}
       </Link>
