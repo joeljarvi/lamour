@@ -44,13 +44,12 @@ export default function ArticleCover({
       </Link>
 
       <div className="flex flex-col gap-1 font-baskervilleNeoText text-xs">
-        <h3 className="font-baskervilleNeoText uppercase tracking-wide leading-tight text-xs">
+        <h3 className="font-baskervilleNeoText uppercase tracking-wide leading-relaxed text-xs">
           {title}
         </h3>
         {article.author && (
           <p className="normal-case tracking-wide text-sm text-neutral-700 font-baskervilleNeoText">
             {article.author.name}
-            {article.series && `, ${article.series.title}`}
           </p>
         )}
       </div>

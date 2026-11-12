@@ -59,7 +59,7 @@ export default function CookieAccept() {
         <motion.div
           role="dialog"
           aria-label={t("label")}
-          className="fixed inset-x-6 bottom-6 lg:inset-x-0 lg:mx-auto lg:w-md z-[95] flex flex-col gap-6 p-6 rounded-md border border-neutral-700 bg-background text-foreground"
+          className="fixed bottom-6 left-6  lg:mx-0 lg:w-md z-[95] flex flex-col gap-6 p-6  border border-neutral-700 bg-background text-foreground"
           // Rises in shortly after the first scroll; leaves at once when
           // answered
           initial={{ opacity: 0, y: 24 }}
@@ -74,14 +74,12 @@ export default function CookieAccept() {
             transition: { duration: 0.3, ease: "easeIn" },
           }}
         >
-          <p className="font-baskervilleNeoText text-sm leading-[1.6]">
-            {t("text")}
-          </p>
+          <p className="pStyle">{t("text")}</p>
           <div className="flex items-baseline justify-between">
             <Button
               variant="link"
               size="xs"
-              className="w-auto px-0 text-foreground after:content-none h2Style"
+              className="w-auto px-0 text-foreground tracking-wide text-[18px] lg:text-lg after:content-none "
               onClick={() => answer("declined")}
             >
               ( {t("decline")} )
@@ -89,7 +87,7 @@ export default function CookieAccept() {
             <Button
               variant="link"
               size="xs"
-              className="w-auto px-0 text-foreground after:content-none h2Style"
+              className="w-auto px-0 text-foreground tracking-wide text-[18px] lg:text-lg after:content-none"
               onClick={() => answer("accepted")}
             >
               ( {t("accept")} )

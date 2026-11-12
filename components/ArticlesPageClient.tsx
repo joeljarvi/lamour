@@ -69,8 +69,8 @@ const itemKey = (
 
 // Every article in a grid like the shop's, each its cover, title and
 // author; a series as one cover, a click showing its articles in the grid
-// instead. The header: a heading saying what's shown ("Alla serier och
-// kategorier", or the choice, with "Rensa filter"), "Serier" (every
+// instead. The header: "Alla serier och kategorier" (a filter button,
+// active while nothing is chosen; clears the choice), "Serier" (every
 // series, by title), "Kategorier" (Artikel, Intervju, Dikt), "Filtrera
 // efter författare" (each list opening below the header, one at a time),
 // a search field, and the sort (Senaste / A–Ö) on the right
@@ -138,17 +138,8 @@ export default function ArticlesPageClient() {
         "sv",
       ),
     );
-  // The header's heading: the chosen series, category and author, or
-  // "Alla serier och kategorier"
-  const heading =
-    [
-      filters.series,
-      filters.category &&
-        tFilter("categoryName", { category: filters.category }),
-      filters.author,
-    ]
-      .filter(Boolean)
-      .join(" · ") || tFilter("allSeriesAndCategories");
+  // Whether any series, category or author is chosen
+  const anyChosen = !!(filters.series || filters.category || filters.author);
 
   // The chosen series (its document, for its about text)
   const chosenSeries = filters.series
@@ -209,20 +200,17 @@ export default function ArticlesPageClient() {
           search on the left; the sort on the right */}
       <div className="flex items-baseline justify-between gap-6 px-3 lg:px-6  pb-3 lg:pb-6 font-baskervilleNeoText text-sm normal-case tracking-wide">
         <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2">
-          {/* What's shown: "Alla serier och kategorier", or the chosen
-              series, category and author (e.g. "Liveblog från Bokmässan
-              2025 · Intervju"), then "Rensa filter" back to all */}
-          <h2>{heading}</h2>
-          {heading !== tFilter("allSeriesAndCategories") && (
-            <Button
-              variant="link"
-              size="xs"
-              className={HEADER_BUTTON}
-              onClick={() => setFilters({})}
-            >
-              {tFilter("clearFilters")}
-            </Button>
-          )}
+          {/* "Alla serier och kategorier": a filter button like the
+              lists' options, active (neutral-800) while nothing is chosen,
+              otherwise neutral-500; a click clears every choice */}
+          <button
+            type="button"
+            aria-pressed={!anyChosen}
+            onClick={() => setFilters({})}
+            className={`cursor-pointer transition-colors hover:text-neutral-800 ${anyChosen ? "text-neutral-500" : "text-neutral-800"}`}
+          >
+            {tFilter("allSeriesAndCategories")}
+          </button>
           <Button
             variant="link"
             size="xs"

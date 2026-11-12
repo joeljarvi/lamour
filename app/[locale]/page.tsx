@@ -6,6 +6,7 @@ import JustifyLetters from "@/components/JustifyLetters";
 import HeroSection from "@/components/HeroSection";
 import LatestIssueSection from "@/components/LatestIssueSection";
 import SubscribeSection from "@/components/SubscribeSection";
+import LLTextCard from "@/components/LLTextCard";
 
 export const revalidate = 3600;
 
@@ -26,6 +27,8 @@ export default async function Home({
       {/* "L'AMOUR" fixed to the top and "LA MORT" to the bottom, each
           spread across the full width */}
 
+      {/* "Om oss", in the middle of the screen on load */}
+      <LLTextCard />
       <ShopClient />
       <SubscribeSection />
     </div>

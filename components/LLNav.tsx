@@ -89,7 +89,8 @@ function Reveal({
 // mask over a box in the text colour (bg-current), so it takes the
 // navbar's colour like text does (light over the hero, dark elsewhere).
 // The files' viewBoxes are cropped to the letters. Two to try:
-// "Lamour kursiv" (italic) and "Lamour svart" (upright capitals, in use)
+// "Lamour kursiv" (italic, the default) and "Lamour svart" (upright
+// capitals, while the menu is open)
 const LOGOS = {
   kursiv: {
     src: "/logo/lamour-kursiv-letters.svg",
@@ -101,9 +102,9 @@ const LOGOS = {
     className: "h-3 aspect-[212/15.5]",
   },
 } as const;
-const LOGO = LOGOS.svart;
 
-function NavLogo() {
+function NavLogo({ menuOpen }: { menuOpen: boolean }) {
+  const LOGO = menuOpen ? LOGOS.svart : LOGOS.kursiv;
   return (
     <span
       aria-hidden
@@ -325,7 +326,7 @@ export default function LLNav() {
             >
               <Link href="/" aria-label="L´Amour — La Mort">
                 <Reveal on={intro} order={0} at={LOGO_AT}>
-                  <NavLogo />
+                  <NavLogo menuOpen={navOpen} />
                 </Reveal>
               </Link>
             </Button>
@@ -420,7 +421,7 @@ export default function LLNav() {
           >
             <Link href="/" aria-label="L´Amour — La Mort">
               <Reveal on={intro} order={0} at={LOGO_AT}>
-                <NavLogo />
+                <NavLogo menuOpen={navOpen} />
               </Reveal>
             </Link>
           </Button>
