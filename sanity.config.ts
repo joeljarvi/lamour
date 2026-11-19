@@ -8,6 +8,8 @@ const SINGLETONS = [
   { id: "heroMedia", title: "Hero Media" },
   { id: "subscribeMedia", title: "Subscribe Media" },
   { id: "articlesHeroMedia", title: "Articles Hero Media" },
+  { id: "heroTexts", title: "Hero Texts" },
+  { id: "shippingRates", title: "Shipping Rates" },
 ];
 const SINGLETON_IDS = new Set(SINGLETONS.map(({ id }) => id));
 
@@ -40,6 +42,14 @@ export default defineConfig({
             S.listItem()
               .title("Media Library")
               .child(S.documentTypeList("mediaItem").title("Media Library")),
+            // The subscriptions offered on the subscribe page
+            S.listItem()
+              .title("Subscription Plans")
+              .child(
+                S.documentTypeList("subscriptionPlan").title(
+                  "Subscription Plans",
+                ),
+              ),
             // One document each, not a list
             ...SINGLETONS.map(({ id, title }) =>
               S.listItem()

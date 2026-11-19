@@ -58,7 +58,7 @@ const unique = (values: (string | undefined)[]) =>
 // The header's buttons: plain text, dark, no fixed height, underlined on
 // hover (no pointing hand)
 const HEADER_BUTTON =
-  "w-auto h-auto lg:h-auto px-0 font-baskervilleNeoText text-sm normal-case tracking-wide text-foreground underline-offset-4 hover:underline after:content-none";
+  "w-auto h-auto lg:h-auto px-0 pStyle normal-case text-foreground underline-offset-4 hover:underline after:content-none";
 
 // A grid item's key
 const itemKey = (
@@ -69,8 +69,7 @@ const itemKey = (
 
 // Every article in a grid like the shop's, each its cover, title and
 // author; a series as one cover, a click showing its articles in the grid
-// instead. The header: "Alla serier och kategorier" (a filter button,
-// active while nothing is chosen; clears the choice), "Serier" (every
+// instead. The header: "Serier" (every
 // series, by title), "Kategorier" (Artikel, Intervju, Dikt), "Filtrera
 // efter författare" (each list opening below the header, one at a time),
 // a search field, and the sort (Senaste / A–Ö) on the right
@@ -138,8 +137,6 @@ export default function ArticlesPageClient() {
         "sv",
       ),
     );
-  // Whether any series, category or author is chosen
-  const anyChosen = !!(filters.series || filters.category || filters.author);
 
   // The chosen series (its document, for its about text)
   const chosenSeries = filters.series
@@ -191,30 +188,23 @@ export default function ArticlesPageClient() {
   // Where the grid's header is on the page (scrolled to when a series
   // opens)
   const rootRef = useRef<HTMLDivElement>(null);
+  // How far below the top of the screen the header lands (px)
+  const SERIES_OFFSET = 96;
   const gridTop = () =>
     (rootRef.current?.getBoundingClientRect().top ?? 0) + window.scrollY;
 
   return (
-    <div ref={rootRef} className="min-h-dvh mt-[33.3vh]">
-      {/* Header: "Alla artiklar", Serier, Filtrera efter författare and the
+    <div ref={rootRef} className="min-h-dvh  mt-[96px] ">
+      {/* Header: Serier, Kategorier, Filtrera efter författare and the
           search on the left; the sort on the right */}
-      <div className="flex items-baseline justify-between gap-6 px-3 lg:px-6  pb-3 lg:pb-3 font-baskervilleNeoText text-sm normal-case tracking-wide">
-        <div className="flex min-w-0 flex-wrap items-baseline gap-x-6 gap-y-2">
-          {/* "Alla serier och kategorier": a filter button like the
-              lists' options, active (neutral-800) while nothing is chosen,
-              otherwise neutral-500; a click clears every choice */}
-          <button
-            type="button"
-            aria-pressed={!anyChosen}
-            onClick={() => setFilters({})}
-            className={`cursor-pointer transition-colors hover:text-neutral-800 ${anyChosen ? "text-neutral-500" : "text-neutral-800"}`}
-          >
-            {/* Shortened to "Alla serier" on mobile */}
-            <span className="lg:hidden">{tFilter("allSeries")}</span>
-            <span className="hidden lg:inline">
-              {tFilter("allSeriesAndCategories")}
-            </span>
-          </button>
+      {/* 72px (3 rows of 24px), the buttons centred in it; on mobile, if
+          they wrap, it grows by whole rows (24px lines, 24px padding) */}
+      <div
+        id="filter"
+        data-section="filter"
+        className="flex min-h-[72px] items-center justify-between gap-6 px-3 py-[24px] lg:ml-(--layout-ml) lg:transition-[margin,padding] lg:duration-500 lg:ease-in-out lg:h-[72px] lg:w-auto lg:pl-0 lg:pr-(--layout-mr) lg:py-0 pStyle normal-case"
+      >
+        <div className="flex min-w-0 flex-wrap items-baseline gap-x-6 gap-y-0">
           <Button
             variant="link"
             size="xs"
@@ -250,6 +240,20 @@ export default function ArticlesPageClient() {
               </>
             )}
           </Button>
+          {/* The sort, before the search */}
+          <Button
+            variant="link"
+            size="xs"
+            className={`shrink-0 ${HEADER_BUTTON}`}
+            onClick={() => setSort(sort === "latest" ? "az" : "latest")}
+          >
+            {/* Desktop: "sortera: senaste" / "sortera: a–ö" (all lower
+                case); mobile just the sort */}
+            <span className="lg:lowercase">
+              <span className="hidden lg:inline">{tFilter("sortLabel")}: </span>
+              {sort === "latest" ? tFilter("latest") : tFilter("az")}
+            </span>
+          </Button>
           {/* Searches the titles, authors and series */}
           <input
             type="search"
@@ -257,24 +261,19 @@ export default function ArticlesPageClient() {
             onChange={(e) => setQuery(e.target.value)}
             placeholder={tFilter("searchPlaceholder")}
             aria-label={tFilter("search")}
-            className="w-24 lg:w-48 bg-transparent outline-none placeholder:text-neutral-400 font-baskervilleNeoText text-sm normal-case tracking-wide"
+            className="w-24 lg:w-48 bg-transparent outline-none placeholder:text-neutral-400 pStyle normal-case"
           />
         </div>
-        <Button
-          variant="link"
-          size="xs"
-          className={`shrink-0 ${HEADER_BUTTON}`}
-          onClick={() => setSort(sort === "latest" ? "az" : "latest")}
-        >
-          {sort === "latest" ? tFilter("latest") : tFilter("az")}
-        </Button>
       </div>
 
       {/* The open list (series, categories or authors), wrapping: first
           "Alla …" (clears the choice), then each option by name; the chosen
           one neutral-800, the rest neutral-500 (800 on hover) */}
       {open && (
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-3 px-3 lg:px-6 pb-12 font-baskervilleNeoText text-sm normal-case tracking-wide justify-between">
+        <div
+          data-section="filter"
+          className="flex flex-wrap items-center gap-x-6 gap-y-3 px-3 lg:ml-(--layout-ml) lg:transition-[margin,padding] lg:duration-500 lg:ease-in-out lg:w-auto lg:pl-0 lg:pr-(--layout-mr) pb-3 lg:pb-6 pStyle normal-case justify-start"
+        >
           {[undefined, ...open.options].map((option) => {
             const on = filters[open.key] === option?.value;
             return (
@@ -294,7 +293,7 @@ export default function ArticlesPageClient() {
 
       {/* With a series chosen: its about text above its articles */}
       {chosenSeries?.aboutText && (
-        <p className="pStyle max-w-2xl px-3 lg:px-6 pb-3 lg:pb-6">
+        <p className="pStyle max-w-full px-3 lg:ml-(--layout-ml) lg:transition-[margin,padding] lg:duration-500 lg:ease-in-out lg:pr-(--layout-mr) lg:px-0 pb-3 lg:pb-6">
           {chosenSeries.aboutText}
         </p>
       )}
@@ -303,33 +302,43 @@ export default function ArticlesPageClient() {
           grid, three per row, each 6 columns wide with 3 empty columns
           between them (starting at columns 1, 10 and 19). A series is one
           cover; a click shows its articles here instead */}
-      <ul className="grid w-full grid-cols-2 gap-x-3 lg:gap-x-6 gap-y-12 px-3 lg:px-6 pb-24 lg:grid-cols-24 lg:gap-y-24">
-        {items.map((item, i) => (
-          <li
-            key={itemKey(item)}
-            className={`lg:col-span-6 ${COL_START[i % 3]}`}
-          >
-            {item.kind === "article" ? (
-              // Its place in the full list picks its colour, so it keeps
-              // it when filtered or sorted
-              <ArticleCover
-                article={item.article}
-                index={articles.indexOf(item.article)}
-              />
-            ) : (
-              <SeriesCover
-                series={item.series}
-                count={item.articles.length}
-                index={series.indexOf(item.series)}
-                onOpen={() => {
-                  choose("series", item.series.title);
-                  window.scrollTo({ top: gridTop(), behavior: "smooth" });
-                }}
-              />
-            )}
-          </li>
-        ))}
-      </ul>
+      <div>
+        <ul
+          id="archive"
+          data-section="archive"
+          className="grid w-full grid-cols-2 gap-x-3 lg:gap-x-6 gap-y-12 px-3 pb-24 lg:grid-cols-24 lg:ml-(--layout-ml) lg:transition-[margin,padding] lg:duration-500 lg:ease-in-out lg:w-auto lg:gap-y-24 lg:pl-0 lg:pr-(--layout-mr)"
+        >
+          {items.map((item, i) => (
+            <li
+              key={itemKey(item)}
+              className={`lg:col-span-6 ${COL_START[i % 3]}`}
+            >
+              {item.kind === "article" ? (
+                // Its place in the full list picks its colour, so it keeps
+                // it when filtered or sorted
+                <ArticleCover
+                  article={item.article}
+                  index={articles.indexOf(item.article)}
+                />
+              ) : (
+                <SeriesCover
+                  series={item.series}
+                  count={item.articles.length}
+                  index={series.indexOf(item.series)}
+                  onOpen={() => {
+                    choose("series", item.series.title);
+                    // The grid's header SERIES_OFFSET (96px) below the top of the screen
+                    window.scrollTo({
+                      top: Math.max(0, gridTop() - SERIES_OFFSET),
+                      behavior: "smooth",
+                    });
+                  }}
+                />
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { PortableText, PortableTextComponents } from "@portabletext/react";
 import Image from "next/image";
 import { urlFor } from "@/lib/sanity/image";
+import { cn } from "@/lib/utils";
 
 // An image's width and height, read from its asset reference
 // ("image-<id>-<width>x<height>-<format>"); null if it can't be read
@@ -9,26 +10,26 @@ function imageSize(value: any): { width: number; height: number } | null {
   return match ? { width: Number(match[1]), height: Number(match[2]) } : null;
 }
 
-// Whether an image is taller than it is wide
-const isPortrait = (value: any) => {
-  const size = imageSize(value);
-  return !!size && size.height > size.width;
-};
-
 // An image block from the body, with its caption (the image's alt text)
 // under it. With `innerClassName`, the image and caption sit in their own
-// box inside the figure (e.g. one that sticks while the figure scrolls)
+// box inside the figure (e.g. one that sticks while the figure scrolls).
+// The image fills its box's width, at most a screen tall; scaled down to
+// fit, it sits at the box's left edge (object-left), or centred when
+// `wide`. The caption starts at that same edge (no side padding)
 function BodyImage({
   value,
   className = "",
   innerClassName,
-  imageClassName = "w-full h-auto object-cover  mx-auto",
+  imageClassName = "",
+  wide = false,
   sizes,
 }: {
   value: any;
   className?: string;
   innerClassName?: string;
+  // Extra classes for the image (e.g. a tighter height limit)
   imageClassName?: string;
+  wide?: boolean;
   sizes?: string;
 }) {
   const content = (
@@ -39,10 +40,23 @@ function BodyImage({
         width={imageSize(value)?.width ?? 1200}
         height={imageSize(value)?.height ?? 800}
         sizes={sizes}
-        className={imageClassName}
+        // cn: the caller's height limit replaces max-h-dvh
+        className={cn(
+          "min-h-0 w-full h-auto max-h-dvh object-contain",
+          wide ? "object-center" : "object-left",
+          imageClassName,
+        )}
       />
       {value.alt && (
-        <figcaption className=" p-6 lg:p-12 h2Style">{value.alt}</figcaption>
+        <figcaption
+          className={`w-full pt-3 font-baskervilleNeoText text-xs lg:text-sm flex justify-between gap-6 ${wide ? "" : "text-left"}`}
+        >
+          {/* The image's number in the body: fig 1., fig 2.… */}
+          {value._fig != null && (
+            <span className="shrink-0">fig {value._fig}.</span>
+          )}
+          <span>{value.alt}</span>
+        </figcaption>
       )}
     </>
   );
@@ -63,12 +77,15 @@ function buildComponents(
   // (sticky and wide ones are laid out by the sections instead)
   articleLayout = false,
 ): PortableTextComponents {
-  const normalAlign = category === "interview" ? "text-center" : "text-left";
+  const normalAlign =
+    category === "interview"
+      ? "text-left lg:text-justify"
+      : "text-left lg:text-justify";
   return {
     block: {
       normal: ({ children, value }) => {
         if ((value as any)._empty) return null;
-        const indent = (value as any)._indented ? "indent-16" : "";
+        const indent = (value as any)._indented ? "indent-0" : "";
         const dropcap = (value as any)._dropcap ? "dropcap" : "";
         const initial = (value as any)._initial ? "initial" : "";
         return (
@@ -80,17 +97,17 @@ function buildComponents(
         );
       },
       h1: ({ children }) => (
-        <h1 className="font-universTypewriter text-xl tracking-wider text-center">
+        <h1 className="font-baskervilleNeoDisplay text-4xl tracking-wide text-center">
           {children}
         </h1>
       ),
       h2: ({ children }) => (
-        <h2 className="font-universTypewriter text-xl tracking-widest text-center">
+        <h2 className="font-baskervilleNeoDisplay text-2xl tracking-wide text-center">
           {children}
         </h2>
       ),
       blockquote: ({ children }) => (
-        <blockquote className="font-universTypewriter text-xl italic border-l-2 border-foreground pl-6 text-foreground/80">
+        <blockquote className="font-baskervilleNeoDisplay text-2xl italic tracking-wider border-l-2 border-foreground pl-6 text-foreground/80">
           {children}
         </blockquote>
       ),
@@ -100,7 +117,7 @@ function buildComponents(
         </blockquote>
       ),
       preamble: ({ children }) => (
-        <p className="font-baskervilleNeoText italic text-base lg:text-lg tracking-[6%] text-center mb-6">
+        <p className="font-baskervilleNeoText italic text-[18px] lg:text-lg  text-justify mb-6">
           {children}
         </p>
       ),
@@ -112,32 +129,31 @@ function buildComponents(
       // Centred across the column: full width (w-full), as the column
       // aligns its items to the start, which would shrink it to its text
       name: ({ children }) => (
-        <p className="h2Style not-italic w-full text-center">{children}</p>
+        <p className="text-[18px] lg:text-sm uppercase tracking-widest font-baskervilleNeoText   w-full text-left">
+          {children}
+        </p>
       ),
     },
     types: {
       image: ({ value }) =>
         articleLayout ? (
-          // Small and centred in the text column, with room around it:
-          // landscape half the column, portrait a third (wider on mobile)
+          // The text column's full width
           <BodyImage
             value={value}
-            className="w-full my-12 flex flex-col items-center"
-            imageClassName={`h-auto ${isPortrait(value) ? "w-1/2 lg:w-1/3" : "w-2/3 lg:w-1/2"}`}
-            sizes="(min-width: 1024px) 25vw, 67vw"
+            className="w-full border flex flex-col items-start"
+            sizes="(min-width: 1024px) 50vw, 100vw"
           />
         ) : (
-          // A two-screen-tall frame; the image (half the text column wide,
-          // with its caption) sticks in the middle of the screen through it, then
-          // scrolls away with the frame's end before the text continues.
-          // Its box is a screen tall with 48px padding, the image scaled to
-          // fit (min-h-0 lets it shrink to leave room for the caption)
+          // A two-screen-tall frame; the image (with its caption) sticks
+          // in the middle of the screen through it, then scrolls away with
+          // the frame's end before the text continues. Its box is a screen
+          // tall (no padding), the image scaled to fit (max-h-full)
           <BodyImage
             value={value}
             className="w-full h-[200dvh]"
-            innerClassName="sticky top-0 h-dvh p-12 flex flex-col items-center justify-center gap-6"
-            imageClassName="min-h-0 w-1/2 h-auto max-h-full object-contain"
-            sizes="(min-width: 1024px) 25vw, 50vw"
+            innerClassName="sticky top-0 h-dvh flex flex-col items-start justify-center"
+            imageClassName="max-h-full"
+            sizes="(min-width: 1024px) 50vw, 100vw"
           />
         ),
     },
@@ -301,6 +317,14 @@ export default function SanityPortableText({
     normalized = markDropcap(normalized);
   if (initial && Array.isArray(normalized))
     normalized = markInitial(normalized);
+  // Number the images in the order they come (_fig: 1, 2…), for their
+  // captions ("fig 1.", "fig 2."…)
+  if (Array.isArray(normalized)) {
+    let fig = 0;
+    normalized = normalized.map((block: any) =>
+      block?._type === "image" ? { ...block, _fig: ++fig } : block,
+    );
+  }
   const components = buildComponents(category, articleLayout);
 
   if (articleLayout && Array.isArray(normalized)) {
@@ -315,14 +339,17 @@ export default function SanityPortableText({
                 key={section.image._key ?? i}
                 value={section.image}
                 className="w-full flex flex-col items-center"
-                imageClassName={`h-auto ${isPortrait(section.image) ? "w-2/3 lg:w-1/3" : "w-full lg:w-2/3"}`}
-                sizes="(min-width: 1024px) 67vw, 100vw"
+                wide
+                sizes="100vw"
               />
             );
           }
 
           const text = (
-            <div className="flex flex-col items-start justify-start gap-4 min-w-0">
+            // 24px between the paragraphs (and headings, quotes…); at most
+            // 75 characters a line (--measure, set by ArticleReader; 75ch
+            // until it's measured)
+            <div className="flex flex-col items-start justify-start gap-6 min-w-0 w-full max-w-[var(--measure,75ch)] mx-auto">
               <PortableText value={section.blocks} components={components} />
             </div>
           );
@@ -354,9 +381,9 @@ export default function SanityPortableText({
                   row's height couldn't stick */}
               <BodyImage
                 value={section.image}
-                className={`sticky top-16 z-10 self-start w-full bg-background py-6 lg:top-0 lg:z-auto lg:h-dvh lg:py-16 lg:bg-transparent flex flex-col items-center justify-center lg:row-start-1 ${left ? "lg:col-start-1" : "lg:col-start-2"}`}
-                imageClassName={`min-h-0 h-auto max-h-[50dvh] lg:max-h-full object-contain ${isPortrait(section.image) ? "w-[70%]" : "w-[90%]"}`}
-                sizes="(min-width: 1024px) 45vw, 90vw"
+                className={`sticky top-16 z-10 self-start w-full bg-background lg:top-0 lg:z-auto lg:h-dvh lg:bg-transparent flex flex-col items-start justify-center lg:row-start-1 ${left ? "lg:col-start-1" : "lg:col-start-2"}`}
+                imageClassName="max-h-[50dvh] lg:max-h-full"
+                sizes="(min-width: 1024px) 50vw, 100vw"
               />
               <div
                 className={`lg:row-start-1 ${left ? "lg:col-start-2" : "lg:col-start-1"}`}

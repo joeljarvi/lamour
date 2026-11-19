@@ -32,15 +32,15 @@ export default function Footer() {
 
   return (
     // Dark (bg-foreground), its text all light (text-background)
-    <footer className="flex flex-col items-center justify-start gap-6 w-full px-3 pt-24 pb-12 bg-foreground ">
-      <ul className="flex flex-wrap justify-center gap-x-3 lg:gap-x-6 gap-y-6 list-none">
+    <footer className="flex flex-col items-start justify-start gap-6 w-full px-[48px] pt-[48px] pb-[48px] bg-neutral-200">
+      <ul className="flex flex-col justify-start items-start gap-x-3 lg:gap-x-6 gap-y-0 list-none">
         {items.map((item) => (
           <li key={item.key}>
             {item.href ? (
               <Button
                 variant="link"
                 size="xs"
-                className="w-auto text-xs text-background"
+                className="pStyle text-left justify-start text-neutral-800 normal-case px-0"
                 asChild
               >
                 <Link
@@ -58,7 +58,7 @@ export default function Footer() {
               <Button
                 variant="link"
                 size="xs"
-                className="w-auto text-xs text-background"
+                className="pStyle text-left justify-start text-neutral-800 normal-case px-0"
               >
                 {item.label}
               </Button>
@@ -66,7 +66,7 @@ export default function Footer() {
           </li>
         ))}
       </ul>
-      <span className="font-baskervilleNeoText text-[8px] tracking-[48%] uppercase text-background italic pb-9 px-6">
+      <span className="font-baskervilleNeoText text-[14px] tracking-[24px] uppercase text-foreground text-center w-full pb-[24px] px-0">
         © {new Date().getFullYear()} L&apos;Amour — La Mort
       </span>
     </footer>

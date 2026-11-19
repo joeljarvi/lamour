@@ -9,6 +9,7 @@ import { urlFor } from "@/lib/sanity/image";
 
 import { Button } from "./ui/button";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 
 export default function CartDrawer() {
   const t = useTranslations("Cart");
@@ -52,25 +53,25 @@ export default function CartDrawer() {
           {/* Drawer panel: all its text and buttons in John Sans (the
               buttons' sizes set their own font, so [&_button] overrides it) */}
           <motion.div
-            className="fixed top-0 right-0 z-100 h-full w-[calc(100vw-2rem)] lg:w-1/3 bg-background flex px-6 flex-col shadow-md font-johnSans [&_button]:font-johnSans"
+            className="fixed top-0 right-0 z-100 h-full w-[calc(100vw-2rem)] lg:w-1/3 bg-background flex px-6 flex-col shadow-md font-baskervilleNeoText "
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
             {/* Header */}
-            <div className="flex items-center justify-between pt-3 pb-3 px-0  h-16 lg:h-auto   w-full">
+            <div className="flex items-center justify-between pt-3 pb-3 px-0  h-[48px] lg:h-auto   w-full">
               <Button
                 variant="link"
                 size="xs"
-                className="w-min font-johnSans text-foreground"
+                className="w-min pStyle normal-case text-neutral-800 after:content-none"
               >
                 {t("title", { count: totalItems })}
               </Button>
               <Button
                 variant="link"
                 size="xs"
-                className="w-min justify-end font-johnSans text-foreground text-xs tracking-[48%] after:content-none"
+                className="w-min pStyle normal-case text-neutral-800 after:content-none"
                 onClick={() => setDrawerOpen(false)}
                 aria-label={t("closeLabel")}
               >
@@ -84,7 +85,7 @@ export default function CartDrawer() {
             <div className="relative flex-1 min-h-0 flex flex-col">
               <div className="flex-1 overflow-y-auto scrollbar-none p-0  gap-0  flex flex-col">
                 {items.length === 0 ? (
-                  <p className="font-johnSans text-xs text-neutral-700 leading-[1.5] p-3">
+                  <p className="font-baskervilleNeoText text-neutral-800 leading-[24px] p-[24px]">
                     {t("empty")}
                   </p>
                 ) : (
@@ -131,57 +132,69 @@ export default function CartDrawer() {
                           <div
                             className={`flex justify-between gap-6 h-full p-6 ${compact ? "items-baseline" : "flex-col"}`}
                           >
-                            <span className="min-w-0 font-johnSans text-xs uppercase tracking-[48%] whitespace-normal leading-loose">
+                            <span className="min-w-0 font-baskervilleNeoText text-[14px] uppercase tracking-[6px]whitespace-normal leading-[24px]">
                               {item.title}
                             </span>
-                            <span className="shrink-0 font-johnSans text-xs uppercase tracking-[24%] whitespace-nowrap">
+                            <span className="shrink-0 font-baskervilleNeoText text-[14px] uppercase tracking-[6px] whitespace-nowrap">
                               {item.price}
+                              {/* A subscription: how often (e.g. "/ år") */}
+                              {item.subscription &&
+                                ` ${item.subscription.period}`}
                             </span>
                           </div>
                           {/* Remove (X), then the amount with − and + (− at one removes it), at the bottom */}
-                          <div className="mt-auto flex items-center gap-0 w-full justify-between border-t border-t-neutral-600">
+                          <div className="mt-auto flex h-[48px] shrink-0 items-stretch gap-0 w-full justify-between border-t border-t-neutral-600">
                             {/* Remove: the same square as − / +, left of −,
                                 a line between them */}
                             <Button
                               variant="secondary"
                               size="xs"
-                              className="size-12 lg:size-12 aspect-square p-0 font-johnSans tracking-normal leading-none justify-center items-center text-neutral-700 bg-background hover:bg-secondary border-r border-r-neutral-600"
+                              className="h-full lg:h-full w-[48px] shrink-0 p-0 font-baskervilleNeoText tracking-normal leading-none justify-center items-center text-neutral-700 bg-background hover:bg-secondary border-r border-r-neutral-600"
                               onClick={() => removeFromCart(item.id)}
                               aria-label={t("remove", { title: item.title })}
                             >
                               X
                             </Button>
-                            <Button
-                              variant="secondary"
-                              size="xs"
-                              // Square; no padding or letter-spacing (the xs
-                              // size's tracking adds space after the sign,
-                              // pushing it off centre)
-                              className="size-12 lg:size-12 aspect-square p-0 tracking-normal leading-none justify-center items-center bg-background hover:bg-secondary "
-                              onClick={() => decreaseQuantity(item.id)}
-                              aria-label={t("decrease", { title: item.title })}
-                            >
-                              −
-                            </Button>
-                            <span className="font-johnSans text-xs tabular-nums text-center h-full flex items-center justify-center border-x border-x-neutral-600 w-full">
-                              {item.quantity}
-                            </span>
-                            <Button
-                              variant="secondary"
-                              size="xs"
-                              // Same square as −
-                              className="size-12 lg:size-12 aspect-square p-0 tracking-normal leading-none justify-center items-center bg-background hover:bg-secondary "
-                              onClick={() =>
-                                addToCart({
-                                  id: item.id,
-                                  title: item.title,
-                                  price: item.price,
-                                })
-                              }
-                              aria-label={t("increase", { title: item.title })}
-                            >
-                              +
-                            </Button>
+                            {/* A subscription: one of it, no − / + */}
+                            {!item.subscription && (
+                              <>
+                                <Button
+                                  variant="secondary"
+                                  size="xs"
+                                  // Square; no padding or letter-spacing (the xs
+                                  // size's tracking adds space after the sign,
+                                  // pushing it off centre)
+                                  className="h-full lg:h-full w-[48px] shrink-0 p-0 tracking-normal leading-none justify-center items-center bg-background hover:bg-secondary "
+                                  onClick={() => decreaseQuantity(item.id)}
+                                  aria-label={t("decrease", {
+                                    title: item.title,
+                                  })}
+                                >
+                                  −
+                                </Button>
+                                <span className="font-johnSans text-xs tabular-nums text-center h-full flex items-center justify-center border-x border-x-neutral-600 w-full">
+                                  {item.quantity}
+                                </span>
+                                <Button
+                                  variant="secondary"
+                                  size="xs"
+                                  // Same square as −
+                                  className="h-full lg:h-full w-[48px] shrink-0 p-0 tracking-normal leading-none justify-center items-center bg-background hover:bg-secondary "
+                                  onClick={() =>
+                                    addToCart({
+                                      id: item.id,
+                                      title: item.title,
+                                      price: item.price,
+                                    })
+                                  }
+                                  aria-label={t("increase", {
+                                    title: item.title,
+                                  })}
+                                >
+                                  +
+                                </Button>
+                              </>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -207,12 +220,17 @@ export default function CartDrawer() {
                   </span>
                 </div>
 
+                {/* To the checkout page (closing the cart) */}
                 <Button
                   variant="default"
                   size="default"
-                  className="bg-foreground text-background font-johnSans"
+                  // 72px (3 rows of 24px)
+                  className="h-[72px] lg:h-[72px] bg-foreground text-background font-johnSans"
+                  asChild
                 >
-                  {t("checkout")}
+                  <Link href="/checkout" onClick={() => setDrawerOpen(false)}>
+                    {t("checkout")}
+                  </Link>
                 </Button>
               </div>
             )}

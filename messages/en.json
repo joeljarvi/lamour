@@ -10,7 +10,7 @@
     "contact": "Contact",
     "nextIssue": "Next issue",
     "readAll": "read all",
-    "toCheckout": "to checkout",
+    "toCheckout": "To Checkout",
     "openCart": "Open cart",
     "switchLanguage": "Svenska",
     "shop": "Shop",
@@ -35,7 +35,19 @@
     "cart": "Cart ({count})",
     "filter": "Filter & sort",
     "filterSearch": "Filter",
-    "cartWord": "Cart"
+    "cartWord": "Cart",
+    "toShop": "To the shop",
+    "toArticles": "To articles",
+    "sectionIntro": "En tids skrift",
+    "sectionFilter": "Filters",
+    "sectionShop": "The shop",
+    "sectionSubscribe": "Subscribe",
+    "sectionArticles": "Articles",
+    "sectionArchive": "Archive",
+    "sectionThanks": "Thanks",
+    "sectionPlans": "About",
+    "sectionAbout": "About us",
+    "sectionEditors": "The editors"
   },
   "Cart": {
     "title": "cart {count}",
@@ -97,8 +109,8 @@
     "colophonDate": "Published",
     "colophonSeries": "Series",
     "alsoInSeries": "Also in this series",
-    "fromSeries": "from — {series}",
-    "readNow": "read now",
+    "fromSeries": "from the series — <i>{series}</i>",
+    "readNow": "Read Now",
     "readLater": "add to queue",
     "inQueue": "in queue",
     "hideQueue": "hide queue",
@@ -111,7 +123,10 @@
     "queue": "Queue",
     "latest": "The latest article",
     "seriesCount": "Series · {count, plural, one {# article} other {# articles}}",
-    "showArticles": "show articles"
+    "showArticles": "show articles",
+    "prevInSeries": "Previous",
+    "nextInSeries": "Next",
+    "backToArticles": "Back to articles"
   },
   "Author": {
     "backToArticles": "← Articles",
@@ -148,7 +163,8 @@
     "categories": "Categories",
     "allCategories": "All categories",
     "categoryName": "{category, select, interview {Interview} poem {Poem} other {Article}}",
-    "allSeriesAndCategories": "All series and categories"
+    "allSeriesAndCategories": "All series and categories",
+    "sortLabel": "Sort"
   },
   "Home": {
     "scroll": "Scroll down"
@@ -158,5 +174,30 @@
     "text": "We use cookies to make the site work and to understand how it's used.",
     "accept": "accept",
     "decline": "decline"
+  },
+  "Checkout": {
+    "title": "Checkout",
+    "chooseZone": "Where should it be sent?",
+    "zone_sweden": "Sweden",
+    "zone_europe": "Europe",
+    "zone_world": "Rest of the world",
+    "changeZone": "Change country",
+    "emptyCart": "Your cart is empty.",
+    "backToShop": "To the shop",
+    "loading": "Loading checkout…",
+    "notSetUp": "Payments aren't set up yet.",
+    "error": "Something went wrong. Please try again.",
+    "thanksTitle": "Thank you!",
+    "thanksOrder": "Your order is paid. A receipt is on its way to {email}.",
+    "thanksSubscription": "Your subscription has started. A receipt is on its way to {email}.",
+    "notPaid": "The payment didn't go through.",
+    "tryAgain": "Try again",
+    "plansTitle": "Subscriptions",
+    "choosePlan": "Choose",
+    "perMonth": "{count, plural, one {kr / month} other {kr / # months}}",
+    "perYear": "{count, plural, one {kr / year} other {kr / # years}}",
+    "noPlans": "No subscriptions to choose from yet.",
+    "zone_pickup": "Pick up at our office",
+    "pickupAt": "Pick up at: {address}"
   }
 }

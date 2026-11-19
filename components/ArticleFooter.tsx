@@ -4,7 +4,11 @@ import { useEffect, useRef } from "react";
 import { useInView } from "motion/react";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
-import { useArticles, useNextInSeries } from "@/lib/contexts/ArticlesContext";
+import {
+  useArticles,
+  useNextInSeries,
+  usePrevInSeries,
+} from "@/lib/contexts/ArticlesContext";
 import { articleTitle } from "@/lib/articleTitle";
 import { cn } from "@/lib/utils";
 import { tileColor, useArticleColor } from "./ArticleTile";
@@ -37,6 +41,7 @@ export default function ArticleFooter({ slug }: { slug: string }) {
   // The next article, and whether its panel has been scrolled (almost)
   // fully into view: then it opens, once
   const next = useNextInSeries(slug);
+  const prev = usePrevInSeries(slug);
   const nextRef = useRef<HTMLAnchorElement>(null);
   const nextInView = useInView(nextRef, { amount: 0.9 });
   const opened = useRef(false);
@@ -79,17 +84,48 @@ export default function ArticleFooter({ slug }: { slug: string }) {
       )}
     >
       {/* Colophon: one row per detail, the label on the left */}
-      <dl className="flex flex-col w-full lg:w-1/2 mx-auto font-baskervilleNeoText text-xs uppercase tracking-[24%]">
+      <dl className="flex flex-col w-full lg:w-1/2 mx-auto font-baskervilleNeoText text-xs  gap-6">
         {colophon.map((row) => (
-          <div
-            key={row.label}
-            className="grid grid-cols-2 gap-6 py-3 border-b border-b-current/20"
-          >
-            <dt className="opacity-60">{row.label}</dt>
-            <dd>{row.value}</dd>
+          <div key={row.label} className="flex flex-col gap-2   ">
+            <dt className="text-neutral-600 uppercase tracking-widest">
+              {row.label}
+            </dt>
+            <dd className="pStyle">{row.value}</dd>
           </div>
         ))}
       </dl>
+
+      {/* Previous and next in the series (when it's in one and they
+          exist), and back to the articles; above the next-article panel,
+          which opens the next article once it's fully in view */}
+      <nav className="flex w-full lg:w-1/2 mx-auto items-baseline justify-between gap-6 font-baskervilleNeoText text-sm normal-case tracking-wide">
+        <span className="flex-1">
+          {prev && (
+            <Link
+              href={`/articles/${prev.slug.current}`}
+              className="hover:underline underline-offset-4"
+            >
+              ← {t("prevInSeries")}
+            </Link>
+          )}
+        </span>
+        <Link
+          href="/articles"
+          className="shrink-0 hover:underline underline-offset-4"
+        >
+          {t("backToArticles")}
+        </Link>
+        <span className="flex-1 text-right">
+          {next && (
+            <Link
+              href={`/articles/${next.slug.current}`}
+              className="hover:underline underline-offset-4"
+            >
+              {t("nextInSeries")} →
+            </Link>
+          )}
+        </span>
+      </nav>
 
       {next && (
         // The whole panel links to the next article too

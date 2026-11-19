@@ -7,6 +7,13 @@ export type CartItem = {
   title: string;
   price: string;
   quantity: number;
+  // A subscription plan (its id is the plan's): how often it's billed
+  // (e.g. "/ år") and where it ships. At most one in the cart, always one
+  // of it
+  subscription?: {
+    period: string;
+    zone: "sweden" | "europe" | "world";
+  };
 };
 
 type CartContextValue = {
@@ -37,6 +44,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   function addToCart(item: Omit<CartItem, "quantity">) {
+    // A subscription replaces any other in the cart, one of it
+    if (item.subscription) {
+      setItems((prev) => [
+        ...prev.filter((i) => !i.subscription),
+        { ...item, quantity: 1 },
+      ]);
+      return;
+    }
     setItems((prev) => {
       const existing = prev.find((i) => i.id === item.id);
       if (existing) {

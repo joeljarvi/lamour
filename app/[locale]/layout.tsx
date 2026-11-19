@@ -23,6 +23,7 @@ import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import BackgroundStripes from "@/components/BackgroundStripes";
+import DrunkFilter from "@/components/DrunkFilter";
 
 export const revalidate = 3600;
 
@@ -168,6 +169,15 @@ const universXBlack = localFont({
   display: "swap",
 });
 
+// Egyptienne E: `font-egyptienne`
+const egyptienne = localFont({
+  src: "../../public/fonts/Egyptienne-E.woff",
+  weight: "400",
+  style: "normal",
+  variable: "--font-egyptienne-e",
+  display: "swap",
+});
+
 // Venus Acier: `font-venusAcier`
 const venusAcier = localFont({
   src: "../../public/fonts/Venus+Acier.otf",
@@ -235,7 +245,7 @@ export default async function RootLayout({
   return (
     <html lang={locale}>
       <body
-        className={`${baskerville.variable} ${baskervilleOldFace.variable} ${baskervilleClassic.variable} ${baskervilleSC.variable} ${universTypewriter.variable} ${johnSans.variable} ${baskervilleNeoDisplay.variable} ${baskervilleNeoText.variable} ${unifraktur.variable} ${abcDiatype.variable} ${universBlackCond.variable} ${universBlackExt.variable} ${universXBlack.variable} ${venusAcier.variable} ${venusPlomb.variable} ${rage.variable} antialiased`}
+        className={`${baskerville.variable} ${baskervilleOldFace.variable} ${baskervilleClassic.variable} ${baskervilleSC.variable} ${universTypewriter.variable} ${johnSans.variable} ${baskervilleNeoDisplay.variable} ${baskervilleNeoText.variable} ${unifraktur.variable} ${abcDiatype.variable} ${universBlackCond.variable} ${universBlackExt.variable} ${universXBlack.variable} ${egyptienne.variable} ${venusAcier.variable} ${venusPlomb.variable} ${rage.variable} antialiased`}
       >
         {/* Striped background, fixed behind the page */}
 
@@ -256,6 +266,8 @@ export default async function RootLayout({
               <CookieAccept />
             </IssuesProvider>
           </CartProvider>
+          {/* "Drunk filter" toggle, bottom right, on every page */}
+          <DrunkFilter />
         </NextIntlClientProvider>
       </body>
     </html>

@@ -14,7 +14,7 @@ import ArticleBottomBar from "./ArticleBottomBar";
 // The article reader's navbar: a fixed top section, in the same colour as
 // the article's tile — the series and title ("<series>: <title>", a
 // ticker) top left on mobile; on desktop the series top left and the title
-// top centre, tickers too; and "Stäng" top right, back to the articles
+// top centre, as plain text; and "Stäng" top right, back to the articles
 // list — and the bottom bar (ArticleBottomBar)
 export default function ArticleNavbar({
   slug,
@@ -60,43 +60,68 @@ export default function ArticleNavbar({
   return (
     <>
       {/* Top: the title (mobile) and close, on the background so the
-          text scrolls away beneath it */}
+          text scrolls away beneath it. All its text has a 16px line
+          height (leading-4), the close cross's size, so they line up */}
       <header
         className={cn(
-          "fixed top-0 inset-x-0 z-20 grid grid-cols-3 lg:grid-cols-12 items-center gap-6 h-16 lg:h-12 px-6 lg:px-6 bg-background text-foreground ",
+          "fixed top-0 inset-x-0 z-20 grid grid-cols-3 lg:grid-cols-12 items-center gap-6 h-9 lg:h-[72px] pl-3 pr-2 lg:px-6 bg-background text-foreground border-b border-b-foreground ",
           color,
         )}
       >
         {/* Mobile: "<series>: <title>", like the hero heading; runs as a
             ticker when it doesn't fit */}
-        <span className="lg:hidden col-start-1 col-span-2 min-w-0 flex items-baseline font-baskervilleNeoText text-xs uppercase tracking-[24%]">
+        <span className="lg:hidden col-start-1 col-span-2 min-w-0 flex items-baseline pStyle leading-4 tracking-wider ">
           <span className="min-w-0">
-            <Ticker text={series ? `${series.title}: ${title}` : title} />
+            {/* The series upright, the title in italics */}
+            <Ticker text={series ? `${series.title}: ${title}` : title}>
+              {series && <>{series.title}: </>}
+              <span className="italic">{title}</span>
+            </Ticker>
           </span>
         </span>
         {/* Desktop: the series top left ("ur — <series>") and the title top
-            centre, each a ticker when it doesn't fit */}
-        <span className="hidden lg:block col-start-1 col-span-1 min-w-0 font-baskervilleNeoText text-xs uppercase tracking-[24%]">
-          {series && (
-            <Ticker text={t("fromSeries", { series: series.title })} />
-          )}
+            centre, as plain text (no tickers), cut off with "…" when they
+            don't fit */}
+        <span className="hidden lg:block col-start-1 col-span-1 lg:col-span-4 min-w-0 truncate pStyle ">
+          {/* "ur serien — <series>", the series' name in italics */}
+          {series &&
+            t.rich("fromSeries", {
+              series: series.title,
+              i: (chunks) => (
+                <span className="italic tracking-wider">{chunks}</span>
+              ),
+            })}
         </span>
         {/* "Artiklar — <title>", centred */}
-        <span className="hidden lg:flex col-start-5 col-span-4 min-w-0 items-baseline justify-center font-baskervilleNeoText text-xs uppercase tracking-[24%]">
-          {breadcrumb}
-          <span className="min-w-0">
-            <Ticker text={title} />
-          </span>
+        <span className="hidden lg:flex col-start-5 col-span-4 min-w-0 items-baseline justify-center pStyle uppercase tracking-widest">
+          <span className="min-w-0 truncate">{title}</span>
         </span>
-        <Button
-          variant="link"
-          size="xs"
-          // The bar's text colour (light on the dark tile colour)
-          className="justify-self-end w-auto text-inherit after:content-none col-start-3 lg:col-start-12"
-          asChild
-        >
-          <Link href="/articles"> (x)</Link>
-        </Button>
+        {/* Top right: the close cross (the reading percentage is bottom
+            left: ArticleBottomBar) */}
+        <div className="col-start-3 lg:col-start-12 justify-self-end flex items-center">
+          <Button
+            variant="link"
+            size="xs"
+            // The bar's text colour (light on the dark tile colour)
+            className="w-auto h-auto justify-end lg:h-auto p-0 text-inherit after:content-none hover:opacity-60 transition-opacity"
+            asChild
+          >
+            {/* A thin cross (0.75px lines, 20px), in the bar's text colour;
+              back to the articles */}
+            <Link href="/articles" aria-label={tNav("closeMenu")}>
+              <svg
+                aria-hidden
+                viewBox="0 0 20 20"
+                className="size-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={0.75}
+              >
+                <path d="M3 3 L17 17 M17 3 L3 17" />
+              </svg>
+            </Link>
+          </Button>
+        </div>
       </header>
 
       {/* Settings, next article / clear queue, and the queue */}

@@ -56,6 +56,19 @@ export function useArticles() {
 // The next article in the series of the one with this slug: the first in
 // the series published after it (the list is newest first); null if it's
 // the last, or isn't in a series
+// The previous (older) article in the same series as `currentSlug` (the
+// list is newest first, so the nearest one after it), or null
+export function usePrevInSeries(currentSlug: string) {
+  const { articles } = useArticles();
+  const index = articles.findIndex((a) => a.slug.current === currentSlug);
+  const seriesSlug = articles[index]?.series?.slug.current;
+  if (!seriesSlug) return null;
+  for (let i = index + 1; i < articles.length; i++) {
+    if (articles[i].series?.slug.current === seriesSlug) return articles[i];
+  }
+  return null;
+}
+
 export function useNextInSeries(currentSlug: string) {
   const { articles } = useArticles();
   const index = articles.findIndex((a) => a.slug.current === currentSlug);

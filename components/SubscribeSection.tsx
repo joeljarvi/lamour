@@ -18,18 +18,19 @@ export default async function SubscribeSection() {
   ]);
 
   return (
-    <section className="grid w-full grid-cols-1 lg:grid-cols-2 lg:min-h-dvh">
+    <section
+      id="subscribe"
+      data-section="subscribe"
+      className=" w-full flex flex-col lg:min-h-dvh relative z-10  h-full items-start justify-start lg:border-x lg:border-x-neutral-200 lg:ml-[359px]  justify-center gap-6 px-[24px] pt-[24px] pb-[24px]"
+    >
       {/* The media, filling the column (a screen tall on desktop) */}
       <div className="relative h-[60dvh] lg:h-auto overflow-hidden">
         <BackgroundMedia media={media} />
       </div>
 
-      <div className="flex flex-col items-center justify-center gap-12 px-6 py-24 w-3/4 mx-auto">
-        <h2 className="font-baskervilleNeoDisplay uppercase tracking-[48%]">
-          Bli prenumerant
-        </h2>
+      <div className="flex flex-col items-start justify-center gap-12 px-6 py-24  lg:w-[721px] ">
         {/* TODO: placeholder about text — replace with the real one */}
-        <p className="max-w-xl font-baskervilleNeoText text-base leading-relaxed">
+        <p className="max-w-xl pStyle">
           {t("aboutText")}
         </p>
         <Button

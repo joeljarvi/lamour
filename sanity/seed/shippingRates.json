@@ -1,0 +1,25 @@
+{
+  "_id": "shippingRates",
+  "_type": "shippingRates",
+  "sweden": [
+    { "_key": "se250", "_type": "rate", "maxWeight": 250, "price": 39 },
+    { "_key": "se500", "_type": "rate", "maxWeight": 500, "price": 59 },
+    { "_key": "se1000", "_type": "rate", "maxWeight": 1000, "price": 79 },
+    { "_key": "se2000", "_type": "rate", "maxWeight": 2000, "price": 99 },
+    { "_key": "se5000", "_type": "rate", "maxWeight": 5000, "price": 149 }
+  ],
+  "europe": [
+    { "_key": "eu250", "_type": "rate", "maxWeight": 250, "price": 89 },
+    { "_key": "eu500", "_type": "rate", "maxWeight": 500, "price": 129 },
+    { "_key": "eu1000", "_type": "rate", "maxWeight": 1000, "price": 189 },
+    { "_key": "eu2000", "_type": "rate", "maxWeight": 2000, "price": 269 },
+    { "_key": "eu5000", "_type": "rate", "maxWeight": 5000, "price": 399 }
+  ],
+  "world": [
+    { "_key": "ww250", "_type": "rate", "maxWeight": 250, "price": 119 },
+    { "_key": "ww500", "_type": "rate", "maxWeight": 500, "price": 179 },
+    { "_key": "ww1000", "_type": "rate", "maxWeight": 1000, "price": 259 },
+    { "_key": "ww2000", "_type": "rate", "maxWeight": 2000, "price": 369 },
+    { "_key": "ww5000", "_type": "rate", "maxWeight": 5000, "price": 549 }
+  ]
+}

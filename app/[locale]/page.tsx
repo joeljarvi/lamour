@@ -4,9 +4,14 @@ import ShopClient from "@/components/ShopClient";
 import IntroCard from "@/components/IntroCard";
 import JustifyLetters from "@/components/JustifyLetters";
 import HeroSection from "@/components/HeroSection";
+import HeroGrid from "@/components/HeroGrid";
+import HeroLinks from "@/components/HeroLinks";
 import LatestIssueSection from "@/components/LatestIssueSection";
 import SubscribeSection from "@/components/SubscribeSection";
 import LLTextCard from "@/components/LLTextCard";
+import ColumnNumbers from "@/components/ColumnNumbers";
+import Latest from "@/components/Latest";
+import BottomNav from "@/components/BottomNav";
 
 export const revalidate = 3600;
 
@@ -20,7 +25,13 @@ export default async function Home({
   setRequestLocale(locale as Locale);
 
   return (
-    <div className="flex flex-col mt-0  px-0 ">
+    <div className="relative flex flex-col mt-0  px-0 ">
+      {/* Down the page's left edge, its full height, scrolling with it
+          (absolute in this relative box; h-auto: top-0 + bottom-0 set
+          the height) */}
+
+      {/* Along the top of the page, the page's full width */}
+
       {/* HERO: the title and tagline, the about text and a subscribe
           button, then the latest issue */}
 
@@ -29,8 +40,20 @@ export default async function Home({
 
       {/* "Om oss", in the middle of the screen on load */}
       <LLTextCard />
+      {/* The hero (first version: logo, text and the nav links at the
+          bottom); <HeroGrid /> and <HeroLinks /> are the other versions */}
+      <HeroSection />
+      {/* Hidden for now (class "hidden"; "flex flex-col lg:flex-row" to
+          show them again): the latest issue and, next to it, the latest
+          article (on desktop side by side, starting 359px in; stacked on
+          mobile) */}
+      <div className="hidden">
+        <Latest kind="issue" className="lg:ml-[359px]" />
+        <Latest kind="article" />
+      </div>
       <ShopClient />
-      <SubscribeSection />
+      {/* Back to the top, the articles, subscribe */}
+      <BottomNav />
     </div>
   );
 }

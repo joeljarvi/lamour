@@ -1,7 +1,7 @@
 import { redirect } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 
-// The shop lives at the home page now; keep old /shop links working
+// The shop (Affären) is the home page: /shop leads there
 export default async function ShopPage({
   params,
 }: {

@@ -1,7 +1,9 @@
 import type { Locale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import ArticlesPageClient from "@/components/ArticlesPageClient";
-import ArticlesHero from "@/components/ArticlesHero";
+import HeroSection from "@/components/HeroSection";
+
+export const revalidate = 3600;
 
 export default async function ArticlesPage({
   params,
@@ -12,9 +14,9 @@ export default async function ArticlesPage({
   setRequestLocale(locale as Locale);
 
   return (
-    <section className="flex flex-col w-full  ">
-      {/* A hero like the home page's, then the grid */}
-
+    <section className="relative flex flex-col w-full  ">
+      {/* The hero (the articles' text from Hero Texts), then the grid */}
+      <HeroSection page="articles" />
       <ArticlesPageClient />
     </section>
   );

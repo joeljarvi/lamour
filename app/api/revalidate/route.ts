@@ -34,10 +34,12 @@ export async function POST(request: NextRequest) {
     if (slug) revalidate(`/articles/${slug}`);
   } else if (type === "author") {
     if (slug) revalidate(`/authors/${slug}`);
+  } else if (type === "heroTexts") {
+    // Every page with a hero
+    ["/", "/articles", "/about", "/subscribe"].forEach(revalidate);
   } else {
     revalidate("/");
   }
-
 
   return NextResponse.json({ revalidated: true, type, slug });
 }

@@ -13,7 +13,17 @@ const EDGE_FADE =
 // loop like a newsroom ticker (two copies with a gap, moved left by one
 // copy's width, then repeated); when it fits it stays still. Pauses on
 // hover; with reduced motion it stays still and is cut off with an ellipsis
-export default function Ticker({ text }: { text: string }) {
+// `children`: the same text with styling (e.g. part in italics), shown
+// instead of `text`, which stays the plain version (re-measured when it
+// changes)
+export default function Ticker({
+  text,
+  children,
+}: {
+  text: string;
+  children?: React.ReactNode;
+}) {
+  const content = children ?? text;
   const boxRef = useRef<HTMLSpanElement>(null);
   const textRef = useRef<HTMLSpanElement>(null);
   // Seconds one loop takes, or null while the text fits
@@ -67,12 +77,12 @@ export default function Ticker({ text }: { text: string }) {
         }
       >
         <span className={moving ? "pr-12" : ""}>
-          <span ref={textRef}>{text}</span>
+          <span ref={textRef}>{content}</span>
         </span>
         {/* The second copy follows the first, so the loop is seamless */}
         {moving && (
           <span aria-hidden className="pr-12">
-            {text}
+            {content}
           </span>
         )}
       </span>

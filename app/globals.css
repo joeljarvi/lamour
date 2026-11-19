@@ -51,6 +51,7 @@
   --font-universBlackCond: var(--font-univers-black-cond);
   --font-universBlackExt: var(--font-univers-black-ext);
   --font-universXBlack: var(--font-univers-xblack);
+  --font-egyptienne: var(--font-egyptienne-e);
   --font-venusAcier: var(--font-venus-acier-face);
   --font-venusPlomb: var(--font-venus-plomb-face);
   --font-rage: var(--font-rage-script);
@@ -93,6 +94,11 @@
 }
 
 :root {
+  /* The line grid (LineNumbers, the navbar, the hero): one line of pStyle
+     text (18px, leading-tight: 22.5px), the first line starting 14px
+     from the top */
+  --line: 1.40625rem;
+  --line-top: 0.875rem;
   --dark-plum: #30133d;
   --dark-brown: #533019;
   --dark-navy: #000764;
@@ -197,15 +203,12 @@
   .h1Style {
     @apply leading-loose  text-base lg:text-2xl  font-baskervilleNeoText lg:font-baskervilleNeoDisplay;
   }
-  .readStyle {
-    @apply font-baskervilleNeoText text-base lg:text-base tracking-normal leading-[1.8];
-  }
   .pStyle {
-    @apply font-baskervilleNeoText text-[18px] lg:text-lg tracking-normal leading-tight;
+    @apply font-baskervilleNeoText text-[18px] leading-[24px] tracking-normal;
   }
 
-  .h3Style .btnStyle {
-    @apply font-baskervilleNeoText text-xs  tracking-[24%] leading-normal uppercase;
+  .h3Style {
+    @apply tracking-widest font-baskervilleNeoText uppercase text-xs;
   }
 
   /* Italic capitals with Baskerville Neo's swashes (the .italic swash rule
@@ -269,4 +272,60 @@ textarea,
 }
 .ticker:hover {
   animation-play-state: paused;
+}
+
+/* WordArt: big text in solid golden yellow with a dark
+   outline and a deep extrusion below-right (chained 1px drop-shadows, each
+   adding to the last, following the letters' shapes), slowly rocking in
+   3D (the parent sets the perspective). Still for visitors who prefer
+   reduced motion */
+@keyframes wordart-spin {
+  from {
+    transform: rotateY(-25deg) rotateX(8deg);
+  }
+  50% {
+    transform: rotateY(25deg) rotateX(-4deg);
+  }
+  to {
+    transform: rotateY(-25deg) rotateX(8deg);
+  }
+}
+.wordArt {
+  display: inline-block;
+  animation: wordart-spin 4s ease-in-out infinite;
+  color: #ffff;
+  -webkit-text-stroke: 1px #7a1a00;
+  filter: drop-shadow(1px 1px 0 #7a1a00) drop-shadow(1px 1px 0 #7a1a00)
+    drop-shadow(1px 1px 0 #7a1a00) drop-shadow(1px 1px 0 #7a1a00)
+    drop-shadow(1px 1px 0 #5a1200) drop-shadow(1px 1px 0 #5a1200)
+    drop-shadow(4px 6px 8px rgb(0 0 0 / 0.35));
+}
+@media (prefers-reduced-motion: reduce) {
+  .wordArt {
+    animation: none;
+  }
+}
+
+/* The article's body text (ArticleReader: data-reader-focus): each
+   paragraph light grey except the one in the middle of the screen
+   (data-active, set while scrolling), which is dark. Outside any layer,
+   so it wins over the paragraphs' own colour classes */
+[data-reader-focus] .pStyle {
+  transition: color 0.3s ease;
+}
+[data-reader-focus] .pStyle:not([data-active]) {
+  color: var(--color-neutral-400);
+}
+[data-reader-focus] .pStyle[data-active] {
+  color: var(--color-neutral-800);
+}
+
+/* Every page's layout on desktop (filter bars, grids, the bottom nav,
+   Redaktionen, the plans, the checkout): --layout-ml in from the left,
+   --layout-mr from the right; 20vw each, 12.5vw with the menu closed
+   (LLNav's "Stäng"). Both also set by LLNav (inline on <html>), so a
+   stale CSS build can't keep an old value */
+:root {
+  --layout-ml: 20vw;
+  --layout-mr: 20vw;
 }

@@ -35,16 +35,13 @@ function isActive(pathname: string, href: string) {
     : pathname === href || pathname.startsWith(`${href}/`);
 }
 
-// The navbar's text colour: light (text-background) while it's over the
-// home page's hero (its image or video), dark (text-foreground) once past
-// it and on every other page. Light too on mobile while the menu is open
-// (the full-screen menu is dark)
-function navText(overHero: boolean, navOpen: boolean) {
+// The navbar's text colour: dark (text-foreground) everywhere, top of the
+// page included; light only on mobile while the menu is open (the
+// full-screen menu is dark)
+function navText(navOpen: boolean) {
   return [
     "[&_a]:transition-colors [&_button]:transition-colors [&_a]:duration-300 [&_button]:duration-300",
-    overHero
-      ? "[&_a]:text-background [&_button]:text-background"
-      : "[&_a]:text-foreground [&_button]:text-foreground",
+    "[&_a]:text-foreground [&_button]:text-foreground",
     navOpen
       ? "max-lg:[&_a]:text-background max-lg:[&_button]:text-background"
       : "",
@@ -88,13 +85,13 @@ function Reveal({
 // The logo in the bar, as tall as the text it replaced. Its letters are a
 // mask over a box in the text colour (bg-current), so it takes the
 // navbar's colour like text does (light over the hero, dark elsewhere).
-// The files' viewBoxes are cropped to the letters. Two to try:
-// "Lamour kursiv" (italic, the default) and "Lamour svart" (upright
-// capitals, while the menu is open)
+// The files' viewBoxes are cropped to the letters. Two to choose from:
+// "Lamour kursiv" (italic, used always) and "Lamour svart" (upright
+// capitals, not used now)
 const LOGOS = {
   kursiv: {
     src: "/logo/lamour-kursiv-letters.svg",
-    className: "h-4 aspect-[108.5/13.5]",
+    className: "h-4 lg:h-[24px] aspect-[108.5/13.5]",
   },
   svart: {
     src: "/logo/lamour-svart-letters.svg",
@@ -103,23 +100,15 @@ const LOGOS = {
   },
 } as const;
 
-function NavLogo({ menuOpen }: { menuOpen: boolean }) {
-  const LOGO = menuOpen ? LOGOS.svart : LOGOS.kursiv;
+// The navbar's name, as text: "L'Amour — La Mort" in Baskerville Neo Text,
+// 18px on a 24px line, normal case and spacing (the button around it sets
+// its own size and tracking, overridden here). The logo files (LOGOS) stay
+// for now, unused
+function NavLogo() {
   return (
-    <span
-      aria-hidden
-      className={`block bg-current ${LOGO.className}`}
-      style={{
-        maskImage: `url(${LOGO.src})`,
-        maskSize: "contain",
-        maskRepeat: "no-repeat",
-        maskPosition: "center",
-        WebkitMaskImage: `url(${LOGO.src})`,
-        WebkitMaskSize: "contain",
-        WebkitMaskRepeat: "no-repeat",
-        WebkitMaskPosition: "center",
-      }}
-    />
+    <span className="block whitespace-nowrap pStyle normal-case">
+      L&apos;Amour — La Mort
+    </span>
   );
 }
 
@@ -139,12 +128,38 @@ function RevealWords({ on, text }: { on: boolean; text: string }) {
 // in the bar, on mobile on the dark full-screen menu): Baskerville Neo
 // Text, text-sm, normal case; the pointing hand (☜) on hover and for the
 // current page; fading in one after another. A click closes the menu
+// The menu's pages, in order; on desktop numbered "1. Affären",
+// "2. Artiklar"… (their submenus' sections continue it: "2.14 …")
+const PAGES = [
+  { key: "shop", href: "/" },
+  { key: "articles", href: "/articles" },
+  { key: "about", href: "/about" },
+  { key: "subscribe", href: "/subscribe" },
+  // "Till kassan": the checkout (the cart's contents)
+  { key: "toCheckout", href: "/checkout" },
+] as const;
+
+// A page's number in the menu (1-based), or 1 for a page not in it
+const pageNumber = (pathname: string) =>
+  PAGES.findIndex((p) => p.href === pathname) + 1 || 1;
+
 function NavLinks({
   pathname,
   close,
+  submenu,
+  footer,
+  numbered = false,
 }: {
   pathname: string;
   close: () => void;
+  // Below the last link, after an empty row (the desktop menu's
+  // "Stäng meny")
+  footer?: React.ReactNode;
+  // Each link with its number ("1. Affären": the desktop menu)
+  numbered?: boolean;
+  // The desktop menu's section submenu, shown right below the current
+  // page's link (Affären on the home page, Artiklar on the articles page)
+  submenu?: React.ReactNode;
 }) {
   const t = useTranslations("Nav");
   return (
@@ -164,18 +179,22 @@ function NavLinks({
         visible: { transition: { staggerChildren: 0.06 } },
       }}
     >
-      {[
-        { label: t("shop"), href: "/" },
-        { label: t("articles"), href: "/articles" },
-        // TODO: no about page yet — link it once it exists
-        { label: t("about"), href: null },
-        { label: t("subscribe"), href: "/subscribe" },
-      ].map(({ label, href }) => (
-        <motion.li key={label} variants={ITEM_VARIANTS}>
+      {PAGES.map(({ key, href }, i) => ({
+        label: numbered ? `${i + 1}. ${t(key)}` : t(key),
+        href,
+      })).map(({ label, href }) => (
+        // "Till kassan" set apart from the page links: one empty row
+        // (24px) above it
+        <motion.li
+          key={label}
+          variants={ITEM_VARIANTS}
+          className={href === "/checkout" ? "" : undefined}
+        >
           <Button
             variant="link"
             size="xs"
-            className="w-auto h-6 lg:h-6 px-3 font-baskervilleNeoText text-sm normal-case tracking-wide whitespace-nowrap after:ml-3"
+            // pStyle on mobile and desktop
+            className="w-auto h-[24px] lg:h-auto px-[24px] pStyle normal-case whitespace-nowrap after:ml-3"
             asChild={href != null}
           >
             {href != null ? (
@@ -190,9 +209,147 @@ function NavLinks({
               <span>{label}</span>
             )}
           </Button>
+          {/* Below the current page's link: the submenu, if given */}
+          {href === pathname && submenu}
         </motion.li>
       ))}
+      {footer && (
+        <motion.li variants={ITEM_VARIANTS} className="mt-[24px]">
+          {footer}
+        </motion.li>
+      )}
     </motion.ul>
+  );
+}
+
+/* ─── SECTION LINKS ─── */
+
+// Each page's sections the submenu jumps to (by element id), with their
+// labels, in page order; pages not listed have no submenu
+type Section = {
+  id: string;
+  label:
+    | "sectionIntro"
+    | "sectionFilter"
+    | "sectionShop"
+    | "sectionSubscribe"
+    | "sectionArticles"
+    | "sectionArchive"
+    | "sectionThanks"
+    | "sectionPlans"
+    | "sectionAbout"
+    | "sectionEditors";
+};
+const SECTIONS: Record<string, Section[]> = {
+  "/": [
+    { id: "intro", label: "sectionIntro" },
+    { id: "filter", label: "sectionFilter" },
+    { id: "shop", label: "sectionShop" },
+    { id: "subscribe", label: "sectionSubscribe" },
+  ],
+  "/articles": [
+    { id: "intro", label: "sectionArticles" },
+    { id: "filter", label: "sectionFilter" },
+    { id: "archive", label: "sectionArchive" },
+  ],
+  "/about": [
+    { id: "intro", label: "sectionAbout" },
+    { id: "editors", label: "sectionEditors" },
+  ],
+  "/subscribe": [
+    { id: "intro", label: "sectionThanks" },
+    { id: "plans", label: "sectionPlans" },
+  ],
+};
+
+// Height (px) of one line-number row (LineNumbers / ColumnNumbers)
+const ROW = 24;
+
+// Where the line numbers start on the page (their top edge, row 1), in
+// page coordinates; the page's top when they aren't on the page
+function lineNumbersTop() {
+  const list = document.getElementById("line-numbers");
+  return list ? list.getBoundingClientRect().top + window.scrollY : 0;
+}
+
+// Desktop submenu, below "Affären" in the nav links (24px padding all
+// round): a link to each of the page's
+// sections, numbered by the line-number row it starts on — "1.14
+// Introduktion", "1.43 Filtrering"… (row = its distance from the top of
+// the line numbers ÷ 24px, plus 1, as LineNumbers counts). Measured on the page,
+// so the numbers follow the layout (a screen-tall hero moves them),
+// remeasured on resize and when the page's height changes. Only the
+// sections on the current page (none: no submenu). A click scrolls the
+// section's first row to the middle of the screen
+function SectionLinks({ pathname }: { pathname: string }) {
+  const t = useTranslations("Nav");
+  const [rows, setRows] = useState<
+    {
+      id: string;
+      label: Section["label"];
+      row: number;
+    }[]
+  >([]);
+
+  useEffect(() => {
+    const measure = () =>
+      setRows(
+        (SECTIONS[pathname] ?? []).flatMap(({ id, label }) => {
+          const el = document.getElementById(id);
+          if (!el) return [];
+          // Measured from the line numbers' top edge (their row 1), so the
+          // rows match theirs exactly
+          const origin = lineNumbersTop();
+          const box = el.getBoundingClientRect();
+          const top = box.top + window.scrollY - origin;
+          return [
+            {
+              id,
+              label,
+              row: Math.floor(top / ROW) + 1,
+            },
+          ];
+        }),
+      );
+    // After the page has rendered
+    const frame = requestAnimationFrame(measure);
+    const observer = new ResizeObserver(measure);
+    observer.observe(document.body);
+    window.addEventListener("resize", measure);
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, [pathname]);
+
+  if (rows.length === 0) return null;
+  return (
+    <ul className="flex flex-col items-start list-none mt-[24px] pb-[24px] px-[48px]">
+      {rows.map(({ id, label, row }) => (
+        <li key={id}>
+          <a
+            href={`#${id}`}
+            onClick={(e) => {
+              e.preventDefault();
+              // Scroll so the section's first row is in the middle of the
+              // screen (the line numbers there are dark: LineNumbers)
+              const rowTop = lineNumbersTop() + (row - 1) * ROW;
+              window.scrollTo({
+                top: Math.max(0, rowTop + ROW / 2 - window.innerHeight / 2),
+                behavior: "smooth",
+              });
+            }}
+            className="block px-3 pStyle normal-case underline-offset-4 decoration-1 hover:underline"
+          >
+            <span className="tabular-nums">
+              {pageNumber(pathname)}.{row}
+            </span>{" "}
+            {t(label)}
+          </a>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -201,6 +358,20 @@ function NavLinks({
 export default function LLNav() {
   const pathname = usePathname();
   const [navOpen, setNavOpen] = useState(false);
+  // Desktop: the menu column slid away ("Stäng meny"); marks the page
+  // (data-menu-closed) and narrows --layout-ml / --layout-mr, so the
+  // layout widens with it
+  const [menuClosed, setMenuClosed] = useState(false);
+  useEffect(() => {
+    const root = document.documentElement;
+    root.toggleAttribute("data-menu-closed", menuClosed);
+    // Every page's layout: 20vw in from each side with the menu open
+    // (as globals.css), 12.5vw with it closed
+    const inset = menuClosed ? "12.5vw" : "20vw";
+    root.style.setProperty("--layout-ml", inset);
+    root.style.setProperty("--layout-mr", inset);
+  }, [menuClosed]);
+
   const { totalItems, setDrawerOpen } = useCart();
   const t = useTranslations("Nav");
   const locale = useLocale();
@@ -234,29 +405,6 @@ export default function LLNav() {
     };
   }, []);
 
-  // Whether the navbar is over the home page's hero (the section with
-  // id="hero"): until the hero's bottom edge scrolls up past the bar
-  const [overHero, setOverHero] = useState(false);
-  useEffect(() => {
-    // Looked up each time: the hero is only on the home page
-    const update = () => {
-      const hero = document.getElementById("hero");
-      const barHeight = barRef.current?.getBoundingClientRect().height ?? 0;
-      setOverHero(
-        !!hero && hero.getBoundingClientRect().bottom > barHeight / 2,
-      );
-    };
-    // After the new page has rendered
-    const frame = requestAnimationFrame(update);
-    window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
-    return () => {
-      cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
-    };
-  }, [pathname]);
-
   // Word-by-word reveal: only when the site opens on the home page (the
   // nav stays mounted while navigating, so it plays once)
   const [intro] = useState(() => pathname === "/");
@@ -276,9 +424,14 @@ export default function LLNav() {
         // desktop just the bar (the menu slides in as its own panel). Its
         // text light over the hero, dark past it (navText).
         // The same on every page.
-        // z-90: below the issue page (z-95), which covers it, and the cart (z-100)
-        className={`fixed top-0 lg:top-0 left-0 right-0 lg:pt-3 lg:px-3  z-90 flex flex-col transition-colors duration-500
-        ${navText(overHero, navOpen)} ${navOpen ? "h-dvh bg-foreground lg:h-auto lg:bg-transparent" : "bg-transparent h-16 lg:h-auto"}`}
+        // z-90: below the issue page (z-95), which covers it, and the cart (z-100).
+        // Desktop: clicks pass through the bar's empty space to the page
+        // under it (the filter buttons at the top…); only its links and
+        // buttons take them.
+        // Desktop: 168px tall, 7 rows of 24px, its bottom border (inside)
+        // on the same pixels as LineNumbers' line under row 7
+        className={`fixed top-0 lg:top-0 left-0 right-0 lg:pt-[24px] lg:pl-0 lg:pr-[24px]   z-90 flex flex-col transition-[color,background-color,opacity,translate] duration-500 lg:h-[168px] lg:pointer-events-none lg:[&_a]:pointer-events-auto lg:[&_button]:pointer-events-auto 
+        ${navText(navOpen)} ${navOpen ? "h-dvh bg-foreground lg:bg-transparent" : "bg-transparent h-16"}`}
       >
         {/* ── DESKTOP: nav links (col 1) · logo (centre) · cart ── */}
         <div className="hidden lg:block">
@@ -286,47 +439,63 @@ export default function LLNav() {
           <div
             className={`grid grid-cols-12 gap-0 items-start h-auto bg-transparent`}
           >
-            {/* "Meny" (Baskerville Neo Text, text-sm, normal case; no
-              pointing hand), opening and closing the nav links just below
-              it in a column, in the bar itself (no overlay). The links get
-              the pointing hand (☜) on hover and for the current page; one
-              click closes the menu */}
-            <nav className="col-start-1 col-span-2 justify-self-start flex flex-col items-start">
+            {/* The nav links, always shown on desktop (no "Meny" button),
+              in a column top left, in the bar itself. They get the
+              pointing hand (☜) on hover and for the current page */}
+            {/* The menu column: the links, sliding out to the left as a
+                drawer when closed ("Stäng meny"), "Meny" in their place to
+                bring them back. The page's layout moves left with it
+                (--layout-ml: globals.css) */}
+            <div className="relative col-start-1 col-span-2 justify-self-start">
+              <nav
+                aria-hidden={menuClosed || undefined}
+                inert={menuClosed || undefined}
+                className={`flex flex-col items-start [&_ul]:pt-0 transition-transform duration-500 ease-in-out ${menuClosed ? "-translate-x-[calc(100%+48px)]" : "translate-x-0"}`}
+              >
+                <NavLinks
+                  key="desktop-links"
+                  numbered
+                  pathname={pathname}
+                  close={() => setNavOpen(false)}
+                  // Below the current page's link: its sections, numbered
+                  // by row
+                  submenu={<SectionLinks pathname={pathname} />}
+                  footer={
+                    <Button
+                      variant="link"
+                      size="xs"
+                      className="w-auto h-auto lg:h-auto px-[48px] pStyle normal-case after:content-none underline-offset-4 decoration-1 hover:underline"
+                      onClick={() => setMenuClosed(true)}
+                    >
+                      {t("closeMenu")} (x)
+                    </Button>
+                  }
+                />
+              </nav>
+              {/* "Meny": while the menu is closed, top left, opens it */}
               <Button
                 variant="link"
                 size="xs"
-                className="w-auto h-6 lg:h-6 px-3 font-baskervilleNeoText text-sm normal-case tracking-wide whitespace-nowrap after:content-none"
-                onClick={() => setNavOpen((v) => !v)}
-                aria-expanded={navOpen}
+                aria-expanded={!menuClosed}
+                tabIndex={menuClosed ? 0 : -1}
+                className={`absolute top-0 left-0 w-auto h-auto lg:h-auto px-[24px] pStyle normal-case after:content-none underline-offset-4 decoration-1 hover:underline transition-opacity duration-500 ${menuClosed ? "opacity-100" : "pointer-events-none! opacity-0"}`}
+                onClick={() => setMenuClosed(false)}
               >
-                <Reveal on={intro} order={0}>
-                  {navOpen ? `${t("closeMenu")} (x)` : t("menu")}
-                </Reveal>
+                {t("menu")}
               </Button>
-              <AnimatePresence>
-                {navOpen && (
-                  <NavLinks
-                    key="desktop-links"
-                    pathname={pathname}
-                    close={() => setNavOpen(false)}
-                  />
-                )}
-              </AnimatePresence>
-            </nav>
+            </div>
 
-            {/* Logo, centred (columns 5–8 straddle the middle of 12); no
-              pointing hand (the link variant's ::after) */}
+            {/* Logo, centred (columns 5–8 straddle the middle of 12), 24px
+              tall; no pointing hand (the link variant's ::after) */}
             <Button
               variant="link"
               size="xs"
-              // Baskerville Neo Display; while the menu is open Baskerville
-              // Neo Text (upright, no swashes)
-              className={`col-start-5 col-span-4 justify-self-center text-sm tracking-[60%] flex items-center whitespace-nowrap h-6 lg:h-6 px-3 after:content-none ${navOpen ? "font-baskervilleNeoText" : "font-baskervilleNeoText"}`}
+              className="col-start-5 col-span-4 justify-self-center text-sm tracking-[60%] flex items-center whitespace-nowrap h-6 lg:h-[24px] px-3 after:content-none font-baskervilleNeoText"
               asChild
             >
               <Link href="/" aria-label="L´Amour — La Mort">
                 <Reveal on={intro} order={0} at={LOGO_AT}>
-                  <NavLogo menuOpen={navOpen} />
+                  <NavLogo />
                 </Reveal>
               </Link>
             </Button>
@@ -347,11 +516,11 @@ export default function LLNav() {
               size="xs"
               // Cart: its item count in brackets, in Baskerville Neo, in the bar's
               // top-right corner
-              className="col-start-12 w-auto justify-self-end h-6 lg:h-6 px-3 font-baskervilleNeoDisplay normal-case tracking-wide text-sm after:content-none"
+              className="col-start-12 w-auto justify-self-end h-6 lg:h-(--line) px-3 font-baskervilleNeoText normal-case text-sm after:content-none lg:text-lg lg:tracking-normal lg:leading-tight"
               onClick={() => setDrawerOpen(true)}
               aria-label={t("openCart")}
             >
-              <Reveal on={intro} order={3}>
+              <>
                 <motion.span
                   key={totalItems}
                   initial={{ opacity: 0, y: 4 }}
@@ -365,7 +534,7 @@ export default function LLNav() {
                     {totalItems}
                   </span>
                 </motion.span>
-              </Reveal>
+              </>
             </Button>
           </div>
         </div>
@@ -374,14 +543,12 @@ export default function LLNav() {
         <div
           className={`relative flex lg:hidden justify-start items-start w-full shrink-0 h-16 px-0 lg:px-3.5 pt-0 transition-colors duration-300 ${navOpen ? "bg-foreground" : "bg-transparent"}`}
         >
-          {/* Menu and, below it, the cart (just its item count), top
-            left, like the desktop menu button (Baskerville Neo Text, normal
-            case, wide spacing); no pointing hands */}
-          <div className="flex flex-col items-start pt-3">
+          {/* Menu, top left, in pStyle; no pointing hand */}
+          <div className="flex flex-col items-start pt-(--line-top)">
             <Button
               variant="link"
               size="xs"
-              className="w-auto h-6 px-3 font-baskervilleNeoText text-xs normal-case tracking-wide whitespace-nowrap after:content-none"
+              className="w-auto h-[24px] px-3 pStyle normal-case whitespace-nowrap after:content-none"
               onClick={() => setNavOpen((v) => !v)}
               aria-expanded={navOpen}
             >
@@ -389,26 +556,30 @@ export default function LLNav() {
                 {navOpen ? `${t("closeMenu")} (x)` : t("menu")}
               </Reveal>
             </Button>
-            <Button
-              variant="link"
-              size="xs"
-              className="w-auto h-6 px-3 font-baskervilleNeoText text-sm normal-case tracking-wide after:content-none"
-              onClick={() => setDrawerOpen(true)}
-              aria-label={t("openCart")}
-            >
-              <Reveal on={intro} order={1}>
-                <motion.span
-                  key={totalItems}
-                  className="inline-block"
-                  initial={{ opacity: 0, y: 4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.25, ease: "easeOut" }}
-                >
-                  {totalItems}
-                </motion.span>
-              </Reveal>
-            </Button>
           </div>
+
+          {/* Cart, top right, on Meny's line, in pStyle: "Cart" with the
+            item count raised (superscript), like the desktop cart */}
+          <Button
+            variant="link"
+            size="xs"
+            className="absolute right-0 top-(--line-top) w-auto h-[24px] px-3 pStyle normal-case after:content-none"
+            onClick={() => setDrawerOpen(true)}
+            aria-label={t("openCart")}
+          >
+            <motion.span
+              key={totalItems}
+              className="inline-block"
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+            >
+              Cart{" "}
+              <span className="inline-flex align-super text-[10px] leading-none tracking-normal">
+                {totalItems}
+              </span>
+            </motion.span>
+          </Button>
 
           {/* Logo, centred on the header (absolute, so the menu and cart
             beside it don't move it). No pointing hand (the
@@ -416,12 +587,12 @@ export default function LLNav() {
           <Button
             variant="link"
             size="xs"
-            className={`absolute left-1/2 top-0 -translate-x-1/2 flex items-center justify-center px-3 border-none h-12 w-auto after:content-none`}
+            className={`absolute left-1/2 top-(--line-top) -translate-x-1/2 flex items-center justify-center px-3 border-none h-(--line) w-auto after:content-none`}
             asChild
           >
             <Link href="/" aria-label="L´Amour — La Mort">
               <Reveal on={intro} order={0} at={LOGO_AT}>
-                <NavLogo menuOpen={navOpen} />
+                <NavLogo />
               </Reveal>
             </Link>
           </Button>

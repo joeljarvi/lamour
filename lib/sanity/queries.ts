@@ -108,6 +108,70 @@ export const backgroundMediaQuery = groq`*[_id == $id][0] {
 // count as interviews outside any series. Once those articles have their
 // Category set to Interview and their Series cleared, and the document is
 // deleted, this changes nothing
+// Checkout: the issues being bought (by id), with what the price and
+// shipping are worked out from — read on the server, never trusted from
+// the browser
+export const checkoutIssuesQuery = groq`*[_type == "issue" && _id in $ids] {
+  _id,
+  title,
+  issueNumber,
+  price,
+  weight,
+  inStock,
+  cover
+}`;
+
+// Checkout: the shipping price steps per zone (Shipping Rates in Sanity)
+export const shippingRatesQuery = groq`*[_id == "shippingRates"][0] {
+  sweden[] { maxWeight, price },
+  europe[] { maxWeight, price },
+  world[] { maxWeight, price },
+  pickupEnabled,
+  pickupAddress
+}`;
+
+// The subscription plans offered on the subscribe page, in order
+export const subscriptionPlansQuery = groq`*[_type == "subscriptionPlan" && active != false] | order(order asc, price asc) {
+  _id,
+  title,
+  description,
+  price,
+  interval,
+  intervalCount,
+  zone
+}`;
+
+// Checkout: one subscription plan (by id)
+export const subscriptionPlanQuery = groq`*[_type == "subscriptionPlan" && _id == $id && active != false][0] {
+  _id,
+  title,
+  description,
+  price,
+  interval,
+  intervalCount,
+  zone
+}`;
+
+// The text under the logo in each page's hero (Hero Texts in Sanity)
+export const heroTextsQuery = groq`*[_id == "heroTexts"][0] {
+  home,
+  shop,
+  articles,
+  about,
+  subscribe
+}`;
+
+// The home hero's nav: every issue's cover, newest first (shown in the
+// Affären row)
+export const heroNavQuery = groq`{
+  "issueCovers": *[_type == "issue" && defined(cover.asset)] | order(issueNumber desc) {
+    _id,
+    title,
+    "href": "/shop/" + slug.current,
+    "image": cover
+  }
+}`;
+
 export const seriesQuery = groq`*[_type == "series" && title != "Intervjuer"] | order(title asc) {
   _id,
   title,
@@ -165,3 +229,7 @@ export const authorBySlugQuery = groq`*[_type == "author" && slug.current == $sl
     "issue": issue->{title, issueNumber}
   }
 }`;
+
+// The editorial team (the about page's "Redaktionen"): the latest issue's
+// editors, as written in Sanity (one per line or comma)
+export const currentEditorsQuery = groq`*[_type == "issue"] | order(issueNumber desc)[0].editors`;

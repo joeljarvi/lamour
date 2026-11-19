@@ -18,9 +18,9 @@ const PRODUCT_PLACEHOLDER = {
 };
 
 export const LABEL =
-  "font-baskervilleNeoText uppercase tracking-[12%] text-xs text-neutral-600 indent-0 ";
+  "tracking-[3px] font-baskervilleNeoText uppercase leading-[24px] text-[12px] text-neutral-600   ";
 export const VALUE =
-  "font-baskervilleNeoText text-xs normal-case tracking-wide leading-[1.8] text-neutral-800";
+  "tracking-[3px] font-baskervilleNeoText uppercase leading-[24px] text-[12px] text-neutral-600";
 
 // A label (small capitals) with its value(s) below. `inline`: on mobile a
 // two-column row instead, the label in the first column and the value(s)

@@ -9,12 +9,14 @@ import { issueTitle } from "@/lib/issueTitle";
 import { useCart } from "@/lib/contexts/CartContext";
 
 // One issue in the shop: its cover (linking to the issue, which opens as a
-// modal), then its number + title with its price across from it, and
-// "Lägg i korg" below (the price and the button revealed on hover); sold out issues say so instead
+// modal), then its number + title, and below them the price with "Lägg i
+// korg" on the same baseline at the right (revealed on hover); sold out
+// issues say so instead
+
 // Text revealed on hover over the cover (desktop; always shown on touch
-// screens), as the old "Lägg i korg" was
+// screens)
 const REVEAL =
-  "font-baskervilleNeoText text-sm normal-case tracking-wide leading-tight transition-opacity duration-300 lg:opacity-0 lg:group-hover:opacity-80";
+  "transition-opacity duration-300 lg:opacity-0 lg:group-hover:opacity-80";
 
 export default function ShopCover({
   issue,
@@ -24,62 +26,65 @@ export default function ShopCover({
   className?: string;
 }) {
   const t = useTranslations("Issue");
-  const soldOut = issue.inStock === false;
   const { addToCart, setDrawerOpen } = useCart();
+  const soldOut = issue.inStock === false;
 
   return (
-    <div className={`group flex flex-col gap-3  ${className ?? ""}`}>
+    // Like an article's cover: the cover in a fixed 3:4 box (cropped to
+    // fill it), then the title, and the price below it
+    <div className={`group flex flex-col gap-[24px] ${className ?? ""}`}>
       <Link
         href={`/shop/${issue.slug.current}`}
         scroll={false}
         aria-label={issueTitle(issue.title)}
-        className={`block transition-opacity hover:opacity-90 ${soldOut ? "opacity-30" : ""}`}
+        className={`relative block aspect-[3/4] w-full overflow-hidden transition-opacity hover:opacity-90 ${soldOut ? "opacity-30" : ""}`}
       >
         {issue.cover?.asset && (
           <Image
             src={urlFor(issue.cover).width(1200).url()}
             alt={issue.cover.alt ?? issueTitle(issue.title)}
-            width={1200}
-            height={1650}
+            fill
             sizes="(min-width: 1024px) 25vw, 50vw"
-            className="w-full h-auto shadow"
+            className="object-cover shadow"
           />
         )}
       </Link>
 
-      {/* Number + title, the price below it on mobile (always shown);
-          on desktop the price on the right, revealed on hover */}
-      <div className="flex flex-col gap-1 lg:flex-row lg:items-baseline lg:justify-between lg:gap-3">
-        <h3 className="min-w-0 font-baskervilleNeoText uppercase tracking-wide leading-tight text-xs">
+      <div className="flex flex-col gap-0">
+        <h3 className="pStyle">
           #{issue.issueNumber} — {issueTitle(issue.title)}
         </h3>
-        {issue.price != null && (
-          <span className={`shrink-0 ${REVEAL}`}>{issue.price} kr</span>
-        )}
+        {/* The price on the left ("Slutsåld" when sold out) and, on the
+            same baseline at the right, "Lägg i korg" (revealed on hover on
+            desktop; adds the issue and opens the cart) */}
+        <div className="mt-[12px] flex items-baseline justify-between gap-6 pStyle">
+          {soldOut ? (
+            <span className="italic normal-case tracking-wide">
+              {t("soldOut")}
+            </span>
+          ) : (
+            <>
+              <span className="normal-case tracking-wide">
+                {issue.price != null ? `${issue.price} kr` : null}
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  addToCart({
+                    id: issue._id,
+                    title: issue.title,
+                    price: issue.price != null ? `${issue.price} kr` : "0",
+                  });
+                  setDrawerOpen(true);
+                }}
+                className={`shrink-0 cursor-pointer underline-offset-4 hover:underline focus-visible:opacity-100 ${REVEAL}`}
+              >
+                {t("addToCart")}
+              </button>
+            </>
+          )}
+        </div>
       </div>
-
-      {/* Below: "Lägg i korg", desktop only, also revealed on hover (adds
-          the issue and opens the cart), or "Slutsåld" when sold out */}
-      {soldOut ? (
-        <span className="self-start font-baskervilleNeoText text-xs italic normal-case tracking-wide leading-tight">
-          {t("soldOut")}
-        </span>
-      ) : (
-        <button
-          type="button"
-          onClick={() => {
-            addToCart({
-              id: issue._id,
-              title: issue.title,
-              price: issue.price != null ? `${issue.price} kr` : "0",
-            });
-            setDrawerOpen(true);
-          }}
-          className={`hidden lg:block self-start cursor-pointer underline underline-offset-4 focus-visible:opacity-100 ${REVEAL}`}
-        >
-          {t("addToCart")}
-        </button>
-      )}
     </div>
   );
 }

@@ -13,6 +13,8 @@
     "@portabletext/react": "^6.0.3",
     "@sanity/image-url": "^2.1.1",
     "@sanity/vision": "^5.22.0",
+    "@stripe/react-stripe-js": "^7.1.0",
+    "@stripe/stripe-js": "^10.3.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.38.0",
@@ -25,6 +27,7 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "sanity": "^5.22.0",
+    "stripe": "^23.1.0",
     "tailwind-merge": "^3.5.0"
   },
   "devDependencies": {

@@ -29,13 +29,14 @@ function contributorsOf(issue: Issue) {
     .filter(Boolean);
 }
 
-// Desktop column where each cover in a row starts (24-column grid)
-const COL_START = ["lg:col-start-1", "lg:col-start-10", "lg:col-start-19"];
-
 // The header's sort button: plain text, dark, no fixed height,
 // underlined on hover (no pointing hand)
+// Desktop column where each cover in a row starts (24-column grid), as in
+// the articles grid
+const COL_START = ["lg:col-start-1", "lg:col-start-10", "lg:col-start-19"];
+
 const SORT_BUTTON =
-  "w-auto h-auto lg:h-auto px-0 font-baskervilleNeoText text-sm normal-case tracking-wide text-foreground underline-offset-4 hover:underline after:content-none";
+  "w-auto h-auto lg:h-auto px-0 pStyle normal-case text-foreground underline-offset-4 hover:underline after:content-none";
 
 // The shop: every issue as a grid of tiles, searched, sorted and filtered
 // by contributor in the filter drawer (opened by "Filtrera & sök")
@@ -113,18 +114,20 @@ export default function ShopClient() {
       {/* Desktop: the filter panel, while open, fixed on the left (a third
           of the screen); the grid moves right past it (ml-1/3) (two columns then, so the tiles keep their
           size) */}
-      <div className="lg:flex lg:items-start mt-[66.6vh]">
-        <div
-          className={`flex-1 min-w-0 min-h-dvh ${filterOpen ? "lg:ml-[33.3333%]" : ""}`}
-        >
+      <div className="lg:flex lg:items-start mt-[96px] ">
+        <div className={`flex-1 min-w-0 min-h-dvh `}>
           {/* Header: "Alla nummer" on the left; on the right the active
               sort, a button switching between Senaste and A–Ö */}
-          <div className="flex items-baseline justify-between gap-6 px-3 lg:px-6 pt-6 pb-3 lg:pb-3 font-baskervilleNeoText text-sm normal-case tracking-wide">
+          <div
+            id="filter"
+            data-section="filter"
+            className="flex min-h-[72px] items-center justify-between gap-6 px-3 py-[24px] lg:ml-(--layout-ml) lg:transition-[margin,padding] lg:duration-500 lg:ease-in-out lg:h-[72px] lg:w-auto lg:pl-0 lg:pr-(--layout-mr) lg:py-0 pStyle normal-case"
+          >
             {/* "Alla nummer", then "Filtrera efter medverkande", which
                 shows and hides every contributor below the header */}
             {/* Wraps onto more lines on narrow screens, so the sort on the
                 right always stays in view */}
-            <div className="flex min-w-0 flex-wrap items-baseline gap-x-6 gap-y-2">
+            <div className="flex min-w-0 flex-wrap items-baseline gap-x-6 gap-y-0">
               <h2 className="whitespace-nowrap">{t("allIssues")}</h2>
               <Button
                 variant="link"
@@ -159,6 +162,22 @@ export default function ShopClient() {
                   {tFilter("clearFilters")}
                 </Button>
               )}
+              {/* The sort, after "Rensa filter" and before the search */}
+              <Button
+                variant="link"
+                size="xs"
+                className={SORT_BUTTON}
+                onClick={() => setSort(sort === "latest" ? "az" : "latest")}
+              >
+                {/* Desktop: "sortera: senaste" / "sortera: a–ö" (all lower
+                case); mobile just the sort */}
+                <span className="lg:lowercase">
+                  <span className="hidden lg:inline">
+                    {tFilter("sortLabel")}:{" "}
+                  </span>
+                  {sort === "latest" ? tFilter("latest") : tFilter("az")}
+                </span>
+              </Button>
               {/* Searches the issues (title, contributors…), as the
                   filter panel's search does */}
               <input
@@ -167,18 +186,8 @@ export default function ShopClient() {
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={tFilter("searchPlaceholder")}
                 aria-label={tFilter("search")}
-                className="w-24 lg:w-48 bg-transparent outline-none placeholder:text-neutral-400 font-baskervilleNeoText text-sm normal-case tracking-wide"
+                className="w-24 lg:w-48 bg-transparent outline-none placeholder:text-neutral-400 pStyle normal-case"
               />
-            </div>
-            <div className="flex shrink-0 items-baseline gap-3">
-              <Button
-                variant="link"
-                size="xs"
-                className={SORT_BUTTON}
-                onClick={() => setSort(sort === "latest" ? "az" : "latest")}
-              >
-                {sort === "latest" ? tFilter("latest") : tFilter("az")}
-              </Button>
             </div>
           </div>
 
@@ -186,14 +195,18 @@ export default function ShopClient() {
               click filters by them (several at once: issues with any of
               them); chosen ones dark, the rest faded */}
           {contributorsOpen && (
-            <div className="flex flex-wrap gap-x-3 gap-y-1 px-3 lg:px-6 pb-6 font-baskervilleNeoText text-sm normal-case tracking-wide justify-between">
+            // Part of the filter section (highlighted with the bar)
+            <div
+              data-section="filter"
+              className="flex flex-wrap gap-x-3 gap-y-0 px-3 lg:ml-(--layout-ml) lg:transition-[margin,padding] lg:duration-500 lg:ease-in-out lg:w-auto lg:pl-0 lg:pr-(--layout-mr) pb-[24px] pStyle normal-case justify-start"
+            >
               {/* First: every contributor (clears the choice); dark while
                   none is chosen */}
               <button
                 type="button"
                 aria-pressed={chosen.length === 0}
                 onClick={() => setChosen([])}
-                className={`cursor-pointer transition-opacity hover:opacity-100 ${chosen.length === 0 ? "" : "opacity-50"}`}
+                className={`cursor-pointer transition-opacity pStyle hover:opacity-100 ${chosen.length === 0 ? "" : "opacity-50"}`}
               >
                 {tFilter("allContributors")}
               </button>
@@ -205,7 +218,7 @@ export default function ShopClient() {
                     type="button"
                     aria-pressed={on}
                     onClick={() => toggleContributor(name)}
-                    className={`cursor-pointer transition-opacity hover:opacity-100 ${on ? "" : "opacity-50"}`}
+                    className={`cursor-pointer transition-opacity pStyle hover:opacity-100 ${on ? "" : "opacity-50"}`}
                   >
                     {name}
                   </button>
@@ -214,18 +227,23 @@ export default function ShopClient() {
             </div>
           )}
 
-          {/* The covers: two per row on mobile; on desktop a 24-column grid,
-              three per row, each 6 columns wide with 3 empty columns between
-              them (starting at columns 1, 10 and 19) */}
-          <div className="grid content-start grid-cols-2 gap-x-3 lg:gap-x-6 gap-y-12 px-3 lg:px-6 pb-24 lg:grid-cols-24 lg:gap-y-24">
+          {/* Like the articles grid: two per row on mobile; on desktop a
+              24-column grid, three per row, each 6 columns wide with 3
+              empty columns between them (starting at columns 1, 10 and 19) */}
+          <ul
+            id="shop"
+            data-section="shop"
+            className="grid w-full list-none grid-cols-2 gap-x-3 gap-y-12 px-3  pb-24 lg:grid-cols-24 lg:gap-x-6 lg:ml-(--layout-ml) lg:transition-[margin,padding] lg:duration-500 lg:ease-in-out lg:w-auto lg:gap-y-24 lg:pl-0 lg:pr-(--layout-mr)"
+          >
             {visibleIssues.map((issue, i) => (
-              <ShopCover
+              <li
                 key={issue._id}
-                issue={issue}
                 className={`lg:col-span-6 ${COL_START[i % 3]}`}
-              />
+              >
+                <ShopCover issue={issue} />
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       </div>
 

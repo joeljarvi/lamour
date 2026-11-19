@@ -10,7 +10,7 @@
     "contact": "Kontakt",
     "nextIssue": "Nästa nummer",
     "readAll": "läs alla",
-    "toCheckout": "till kassan",
+    "toCheckout": "Till Kassan",
     "openCart": "Öppna korg",
     "switchLanguage": "English",
     "shop": "Affären",
@@ -35,7 +35,19 @@
     "cart": "Varukorg ({count})",
     "filter": "Filtrera",
     "filterSearch": "Filtrera",
-    "cartWord": "Korg"
+    "cartWord": "Korg",
+    "toShop": "Till affären",
+    "toArticles": "Till artiklar",
+    "sectionIntro": "En tids skrift",
+    "sectionFilter": "Filtrering",
+    "sectionShop": "Affären",
+    "sectionSubscribe": "Prenumerera",
+    "sectionArticles": "Artiklar",
+    "sectionArchive": "Arkiv",
+    "sectionThanks": "Tack",
+    "sectionPlans": "Om",
+    "sectionAbout": "Om oss",
+    "sectionEditors": "Redaktionen"
   },
   "Cart": {
     "title": "korg {count}",
@@ -97,8 +109,8 @@
     "colophonDate": "Publicerad",
     "colophonSeries": "Serie",
     "alsoInSeries": "Också i denna serie",
-    "fromSeries": "ur — {series}",
-    "readNow": "läs nu",
+    "fromSeries": "ur serien — <i>{series}</i>",
+    "readNow": "Läs nu",
     "readLater": "lägg i kön",
     "inQueue": "i kö",
     "hideQueue": "dölj kö",
@@ -111,7 +123,10 @@
     "queue": "Kö",
     "latest": "Senaste artikeln",
     "seriesCount": "Serie · {count, plural, one {# artikel} other {# artiklar}}",
-    "showArticles": "visa artiklar"
+    "showArticles": "visa artiklar",
+    "prevInSeries": "Föregående",
+    "nextInSeries": "Nästa",
+    "backToArticles": "Tillbaka till artiklar"
   },
   "Author": {
     "backToArticles": "← Artiklar",
@@ -148,7 +163,8 @@
     "categories": "Kategorier",
     "allCategories": "Alla kategorier",
     "categoryName": "{category, select, interview {Intervju} poem {Dikt} other {Artikel}}",
-    "allSeriesAndCategories": "Alla serier och kategorier"
+    "allSeriesAndCategories": "Alla serier och kategorier",
+    "sortLabel": "Sortera"
   },
   "Home": {
     "scroll": "Skrolla ner"
@@ -158,5 +174,30 @@
     "text": "Vi använder cookies för att sidan ska fungera och för att förstå hur den används.",
     "accept": "acceptera",
     "decline": "avböj"
+  },
+  "Checkout": {
+    "title": "Kassa",
+    "chooseZone": "Vart ska det skickas?",
+    "zone_sweden": "Sverige",
+    "zone_europe": "Europa",
+    "zone_world": "Resten av världen",
+    "changeZone": "Ändra land",
+    "emptyCart": "Korgen är tom.",
+    "backToShop": "Till affären",
+    "loading": "Laddar kassan…",
+    "notSetUp": "Betalningen är inte igång än.",
+    "error": "Något gick fel. Försök igen.",
+    "thanksTitle": "Tack!",
+    "thanksOrder": "Din beställning är betald. Ett kvitto skickas till {email}.",
+    "thanksSubscription": "Din prenumeration har startat. Ett kvitto skickas till {email}.",
+    "notPaid": "Betalningen gick inte igenom.",
+    "tryAgain": "Försök igen",
+    "plansTitle": "Prenumerationer",
+    "choosePlan": "Välj",
+    "perMonth": "{count, plural, one {kr / månad} other {kr / # månader}}",
+    "perYear": "{count, plural, one {kr / år} other {kr / # år}}",
+    "noPlans": "Inga prenumerationer att välja än.",
+    "zone_pickup": "Hämta på vårt kontor",
+    "pickupAt": "Hämtas på: {address}"
   }
 }

@@ -8,8 +8,8 @@ import { tileColor } from "./ArticleTile";
 
 // A series in the articles grid, looking like an article's cover: the
 // series' cover image in the same 3:4 box (a colour when it has none),
-// then its title and "Serie · 3 artiklar". A click shows its articles in
-// the grid instead (the series chosen); "Visa artiklar" on hover
+// then its title and, on hover, "Serie · 3 artiklar". A click on the cover
+// shows its articles in the grid instead (the series chosen)
 export default function SeriesCover({
   series,
   count,
@@ -27,7 +27,7 @@ export default function SeriesCover({
 }) {
   const t = useTranslations("Article");
   return (
-    <div className={`group flex flex-col gap-3 ${className ?? ""}`}>
+    <div className={`group flex flex-col gap-[24px] ${className ?? ""}`}>
       <button
         type="button"
         onClick={onOpen}
@@ -45,22 +45,14 @@ export default function SeriesCover({
         )}
       </button>
 
-      <div className="flex flex-col gap-1">
-        <h3 className="font-baskervilleNeoText uppercase tracking-wide leading-tight text-xs">
-          {series.title}
-        </h3>
-        <p className="font-baskervilleNeoText normal-case tracking-wide text-sm text-neutral-700">
+      <div className="flex flex-col gap-0">
+        <h3 className="pStyle">{series.title}</h3>
+        {/* "Serie · 3 artiklar", revealed on hover (desktop; always
+            shown on touch screens) */}
+        <p className="pStyle mt-[12px] normal-case tracking-wide transition-opacity duration-300 lg:opacity-0 lg:group-hover:opacity-80">
           {t("seriesCount", { count })}
         </p>
       </div>
-
-      <button
-        type="button"
-        onClick={onOpen}
-        className="hidden lg:block self-start cursor-pointer font-baskervilleNeoText text-sm normal-case tracking-wide underline-offset-4 hover:underline transition-opacity duration-300 focus-visible:opacity-100 lg:opacity-0 lg:group-hover:opacity-80"
-      >
-        {t("showArticles")}
-      </button>
     </div>
   );
 }
