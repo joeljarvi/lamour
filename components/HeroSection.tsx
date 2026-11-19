@@ -63,7 +63,7 @@ export default async function HeroSection({
       // cells' right edges (pixels 359–360 and 1079–1080), and this box's
       // border inside its own edges, so it starts at 359px and is 721px
       // wide; its content in one column, centred in it (HeroNav)
-      className="relative w-full overflow-hidden bg-background   mt-[144] p-[12px] lg:p-[24px] "
+      className="relative w-full overflow-hidden bg-background  mt-[25vh]  lg:mt-[144px] px-6 lg:p-[24px] "
     >
       <HeroNav
         text={text}

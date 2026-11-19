@@ -59,7 +59,8 @@
     "checkout": "Checkout",
     "clear": "(Empty cart)",
     "decrease": "Remove one {title}",
-    "increase": "Add one {title}"
+    "increase": "Add one {title}",
+    "continueShopping": "Continue shopping"
   },
   "Issue": {
     "close": "Close",

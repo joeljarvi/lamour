@@ -25,16 +25,8 @@ export default function ArticleBottomBar({
 
   return (
     <footer className="fixed bottom-0 inset-x-0 z-20 grid grid-cols-3 items-center gap-6 h-16 lg:h-12 px-3 bg-transparent pointer-events-none">
-      {/* Bottom left: how far through the article (e.g. "42%"), on the
-          same line as the drunk filter's toggle bottom right (24px up,
-          pStyle's 24px line) */}
-      <span
-        className="fixed bottom-[24px] left-3 lg:left-[48px] pStyle tabular-nums text-foreground"
-        aria-label={`${percent}%`}
-      >
-        {percent}%
-      </span>
-      {/* Left column: empty (the percentage above is placed on its own) */}
+      {/* Left column: empty (the reading percentage is in the top bar:
+          ArticleNavbar) */}
       <span aria-hidden />
       {/* Middle column: at the end, next article / back to top */}
       {atEnd && next ? (

@@ -194,7 +194,7 @@ function NavLinks({
             variant="link"
             size="xs"
             // pStyle on mobile and desktop
-            className="w-auto h-[24px] lg:h-auto px-[24px] pStyle normal-case whitespace-nowrap after:ml-3"
+            className="w-auto h-[21px] lg:h-auto px-3 lg:px-[24px] pStyle normal-case whitespace-nowrap after:ml-3"
             asChild={href != null}
           >
             {href != null ? (
@@ -333,7 +333,7 @@ function SectionLinks({ pathname }: { pathname: string }) {
             onClick={(e) => {
               e.preventDefault();
               // Scroll so the section's first row is in the middle of the
-              // screen (the line numbers there are dark: LineNumbers)
+              // screen
               const rowTop = lineNumbersTop() + (row - 1) * ROW;
               window.scrollTo({
                 top: Math.max(0, rowTop + ROW / 2 - window.innerHeight / 2),
@@ -350,6 +350,97 @@ function SectionLinks({ pathname }: { pathname: string }) {
         </li>
       ))}
     </ul>
+  );
+}
+
+/* ─── BACKGROUND PICKER ─── */
+
+// The backgrounds to choose from: `value` is the colour (for paper its
+// average, shown while the image loads); `image`, if any, laid over it
+// (paper: public/paper_texture_2.jpg)
+const BACKGROUNDS: { name: string; value: string; image?: string }[] = [
+  { name: "Vit", value: "#ffffff" },
+  { name: "Misty-blue", value: "#b5c7eb" },
+  { name: "Papper", value: "#f2f2f2", image: "/paper_texture_2.jpg" },
+];
+const BACKGROUND_KEY = "siteBackground";
+
+// With an image background (html[data-bg-image], its url in --bg-image):
+// the page and everything with the site's background (bg-background: the
+// bars, the cart, boxes…) show it, fixed to the screen and covering it, so
+// it runs on seamlessly under them. Unlayered, so it wins over their
+// colour classes
+const BACKGROUND_RULE = `html[data-bg-image],
+html[data-bg-image] .bg-background {
+  background-image: var(--bg-image);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}`;
+
+// A circle per background: a click sets the whole site's background
+// (--background on <html>, which every bg-background reads), remembered in
+// this browser. The chosen one filled in, the others outlined
+function BackgroundPicker({ className = "" }: { className?: string }) {
+  const [chosen, setChosen] = useState<string>(BACKGROUNDS[0].value);
+
+  // The saved colour, once on load (after hydration on purpose: the
+  // server can't read the browser's storage)
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(BACKGROUND_KEY);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      if (saved && BACKGROUNDS.some((b) => b.value === saved)) setChosen(saved);
+    } catch {
+      // No storage: white
+    }
+  }, []);
+
+  // The rule for image backgrounds, once
+  useEffect(() => {
+    const style = document.createElement("style");
+    style.textContent = BACKGROUND_RULE;
+    document.head.appendChild(style);
+    return () => style.remove();
+  }, []);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty("--background", chosen);
+    const image = BACKGROUNDS.find((b) => b.value === chosen)?.image;
+    if (image) {
+      root.style.setProperty("--bg-image", `url("${image}")`);
+      root.setAttribute("data-bg-image", "");
+    } else {
+      root.style.removeProperty("--bg-image");
+      root.removeAttribute("data-bg-image");
+    }
+    try {
+      localStorage.setItem(BACKGROUND_KEY, chosen);
+    } catch {
+      // Not saved; it still works for this visit
+    }
+  }, [chosen]);
+
+  return (
+    <div className={`flex items-center gap-3 ${className}`}>
+      {BACKGROUNDS.map(({ name, value, image }) => (
+        <button
+          key={value}
+          type="button"
+          aria-label={name}
+          aria-pressed={chosen === value}
+          onClick={() => setChosen(value)}
+          // The colour, or the image filling the circle
+          style={{
+            backgroundColor: value,
+            backgroundImage: image ? `url("${image}")` : undefined,
+            backgroundSize: "cover",
+          }}
+          className={`size-[16px] cursor-pointer rounded-full border border-foreground transition-shadow hover:ring-1 hover:ring-foreground hover:ring-offset-2 ${chosen === value ? "ring-1 ring-foreground ring-offset-0" : ""}`}
+        />
+      ))}
+    </div>
   );
 }
 
@@ -431,7 +522,7 @@ export default function LLNav() {
         // Desktop: 168px tall, 7 rows of 24px, its bottom border (inside)
         // on the same pixels as LineNumbers' line under row 7
         className={`fixed top-0 lg:top-0 left-0 right-0 lg:pt-[24px] lg:pl-0 lg:pr-[24px]   z-90 flex flex-col transition-[color,background-color,opacity,translate] duration-500 lg:h-[168px] lg:pointer-events-none lg:[&_a]:pointer-events-auto lg:[&_button]:pointer-events-auto 
-        ${navText(navOpen)} ${navOpen ? "h-dvh bg-foreground lg:bg-transparent" : "bg-transparent h-16"}`}
+        ${navText(navOpen)} ${navOpen ? "h-dvh bg-foreground lg:bg-transparent" : "bg-transparent h-[63px]"}`}
       >
         {/* ── DESKTOP: nav links (col 1) · logo (centre) · cart ── */}
         <div className="hidden lg:block">
@@ -461,14 +552,18 @@ export default function LLNav() {
                   // by row
                   submenu={<SectionLinks pathname={pathname} />}
                   footer={
-                    <Button
-                      variant="link"
-                      size="xs"
-                      className="w-auto h-auto lg:h-auto px-[48px] pStyle normal-case after:content-none underline-offset-4 decoration-1 hover:underline"
-                      onClick={() => setMenuClosed(true)}
-                    >
-                      {t("closeMenu")} (x)
-                    </Button>
+                    <div className="flex flex-col items-start gap-[24px]">
+                      {/* The site's background colour, just above "Stäng" */}
+                      <BackgroundPicker className="px-[48px]" />
+                      <Button
+                        variant="link"
+                        size="xs"
+                        className="w-auto h-auto lg:h-auto px-[48px] pStyle normal-case after:content-none underline-offset-4 decoration-1 hover:underline"
+                        onClick={() => setMenuClosed(true)}
+                      >
+                        {t("closeMenu")} (x)
+                      </Button>
+                    </div>
                   }
                 />
               </nav>
@@ -478,7 +573,7 @@ export default function LLNav() {
                 size="xs"
                 aria-expanded={!menuClosed}
                 tabIndex={menuClosed ? 0 : -1}
-                className={`absolute top-0 left-0 w-auto h-auto lg:h-auto px-[24px] pStyle normal-case after:content-none underline-offset-4 decoration-1 hover:underline transition-opacity duration-500 ${menuClosed ? "opacity-100" : "pointer-events-none! opacity-0"}`}
+                className={`absolute top-0 left-0 w-auto h-auto lg:h-auto px-3 lg:px-[24px] pStyle normal-case after:content-none underline-offset-4 decoration-1 hover:underline transition-opacity duration-500 ${menuClosed ? "opacity-100" : "pointer-events-none! opacity-0"}`}
                 onClick={() => setMenuClosed(false)}
               >
                 {t("menu")}
@@ -539,55 +634,18 @@ export default function LLNav() {
           </div>
         </div>
 
-        {/* ── HEADER ── */}
+        {/* ── HEADER (mobile): the logo top left; "Meny" and "Cart" side
+            by side top right. On mobile's 21px lines: one line down
+            (pt-[21px]), each item one line tall, the header three lines
+            (63px) ── */}
         <div
-          className={`relative flex lg:hidden justify-start items-start w-full shrink-0 h-16 px-0 lg:px-3.5 pt-0 transition-colors duration-300 ${navOpen ? "bg-foreground" : "bg-transparent"}`}
+          className={`relative flex lg:hidden justify-between items-start w-full shrink-0 h-[63px] px-3 pt-[21px] transition-colors duration-300 ${navOpen ? "bg-foreground" : "bg-background"}`}
         >
-          {/* Menu, top left, in pStyle; no pointing hand */}
-          <div className="flex flex-col items-start pt-(--line-top)">
-            <Button
-              variant="link"
-              size="xs"
-              className="w-auto h-[24px] px-3 pStyle normal-case whitespace-nowrap after:content-none"
-              onClick={() => setNavOpen((v) => !v)}
-              aria-expanded={navOpen}
-            >
-              <Reveal on={intro} order={0}>
-                {navOpen ? `${t("closeMenu")} (x)` : t("menu")}
-              </Reveal>
-            </Button>
-          </div>
-
-          {/* Cart, top right, on Meny's line, in pStyle: "Cart" with the
-            item count raised (superscript), like the desktop cart */}
+          {/* Logo, top left. No pointing hand (the link variant's ::after) */}
           <Button
             variant="link"
             size="xs"
-            className="absolute right-0 top-(--line-top) w-auto h-[24px] px-3 pStyle normal-case after:content-none"
-            onClick={() => setDrawerOpen(true)}
-            aria-label={t("openCart")}
-          >
-            <motion.span
-              key={totalItems}
-              className="inline-block"
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
-            >
-              Cart{" "}
-              <span className="inline-flex align-super text-[10px] leading-none tracking-normal">
-                {totalItems}
-              </span>
-            </motion.span>
-          </Button>
-
-          {/* Logo, centred on the header (absolute, so the menu and cart
-            beside it don't move it). No pointing hand (the
-            link variant's ::after) */}
-          <Button
-            variant="link"
-            size="xs"
-            className={`absolute left-1/2 top-(--line-top) -translate-x-1/2 flex items-center justify-center px-3 border-none h-(--line) w-auto after:content-none`}
+            className="flex items-center justify-start px-3 border-none h-[21px] w-auto after:content-none"
             asChild
           >
             <Link href="/" aria-label="L´Amour — La Mort">
@@ -596,6 +654,42 @@ export default function LLNav() {
               </Reveal>
             </Link>
           </Button>
+
+          {/* Top right: "Meny" (or "Stäng (x)"), then "Cart" with the item
+              count raised (superscript), in pStyle; no pointing hands */}
+          <div className="flex items-baseline">
+            <Button
+              variant="link"
+              size="xs"
+              className="w-auto h-[21px] px-3 pStyle normal-case whitespace-nowrap after:content-none"
+              onClick={() => setNavOpen((v) => !v)}
+              aria-expanded={navOpen}
+            >
+              <Reveal on={intro} order={0}>
+                {navOpen ? `${t("closeMenu")} (x)` : t("menu")}
+              </Reveal>
+            </Button>
+            <Button
+              variant="link"
+              size="xs"
+              className="w-auto h-[21px] px-3 pStyle normal-case after:content-none"
+              onClick={() => setDrawerOpen(true)}
+              aria-label={t("openCart")}
+            >
+              <motion.span
+                key={totalItems}
+                className="inline-block"
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+              >
+                Cart{" "}
+                <span className="inline-flex align-super text-[10px] leading-none tracking-normal">
+                  {totalItems}
+                </span>
+              </motion.span>
+            </Button>
+          </div>
         </div>
 
         {/* ── NAV OVERLAY (mobile): the menu filling the screen (dark),

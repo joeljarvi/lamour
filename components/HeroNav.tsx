@@ -29,7 +29,7 @@ export default function HeroNav({
       {/* The hero's content in one column, centred in the hero's height (h-full + justify-center) */}
       <div
         data-section="intro"
-        className={`relative z-10 flex h-full flex-col items-start justify-start  lg:mx-auto lg:w-full lg:max-w-xl   lg:gap-[48px] lg:pl-[0px] pt-[24px]  ${light ? "text-background" : "text-foreground"}`}
+        className={`relative z-10 flex h-full flex-col items-start justify-start pr-12 lg:pr-0  lg:mx-auto lg:w-full lg:max-w-xl   lg:gap-[48px] lg:pl-[0px] pt-[24px]  ${light ? "text-background" : "text-foreground"}`}
       >
         {/* id="intro": the menu's "En tids skrift" (its row) */}
         <div id="intro" className="flex w-full flex-col gap-6">

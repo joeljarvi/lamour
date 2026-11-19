@@ -204,7 +204,7 @@
     @apply leading-loose  text-base lg:text-2xl  font-baskervilleNeoText lg:font-baskervilleNeoDisplay;
   }
   .pStyle {
-    @apply font-baskervilleNeoText text-[18px] leading-[24px] tracking-normal;
+    @apply font-baskervilleNeoText text-[16px] leading-[21px] lg:text-[18px] lg:leading-[24px] tracking-normal;
   }
 
   .h3Style {
@@ -306,19 +306,6 @@ textarea,
   }
 }
 
-/* The article's body text (ArticleReader: data-reader-focus): each
-   paragraph light grey except the one in the middle of the screen
-   (data-active, set while scrolling), which is dark. Outside any layer,
-   so it wins over the paragraphs' own colour classes */
-[data-reader-focus] .pStyle {
-  transition: color 0.3s ease;
-}
-[data-reader-focus] .pStyle:not([data-active]) {
-  color: var(--color-neutral-400);
-}
-[data-reader-focus] .pStyle[data-active] {
-  color: var(--color-neutral-800);
-}
 
 /* Every page's layout on desktop (filter bars, grids, the bottom nav,
    Redaktionen, the plans, the checkout): --layout-ml in from the left,

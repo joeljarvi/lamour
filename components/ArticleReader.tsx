@@ -10,40 +10,108 @@ import { urlFor } from "@/lib/sanity/image";
 import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 
-// While scrolling, the body's paragraph (.pStyle) spanning the middle of
-// the screen gets data-active (dark; the rest light grey: globals.css).
-// Between paragraphs (the middle on a gap or an image): the last one
-// stays dark
+// The body text's colours while focus is on (ArticleNavbar's toggle:
+// html[data-focus]): dark (neutral-800) from the reading line (FOCUS_ROWS,
+// 10 lines up from the bottom) down to the bottom of the screen, falling
+// off above
+// it: the line just above lighter (neutral-600), the one above that
+// lighter still (neutral-500), everything higher up light grey
+// (neutral-400). The colour is a gradient clipped to the text, its steps
+// placed from --line-c (the top of the first line at or below the reading
+// line, in the paragraph's own box, set by useReaderFocus) and --line-h
+// (the paragraph's line height); a paragraph without them (well above the
+// reading line) is grey throughout. Links' underlines grey (otherwise
+// transparent, like the text). Unlayered, so it wins over the paragraphs'
+// own colour classes; added from here rather than globals.css so it's
+// always served along with the reader
+const FOCUS_RULE = `html[data-focus] [data-reader-focus] .pStyle {
+  --c: var(--line-c, 99999px);
+  --h: var(--line-h, 0px);
+  color: transparent;
+  background-image: linear-gradient(
+    to bottom,
+    var(--color-neutral-400) calc(var(--c) - 2 * var(--h)),
+    var(--color-neutral-500) calc(var(--c) - 2 * var(--h)),
+    var(--color-neutral-500) calc(var(--c) - var(--h)),
+    var(--color-neutral-600) calc(var(--c) - var(--h)),
+    var(--color-neutral-600) var(--c),
+    var(--color-neutral-800) var(--c)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+html[data-focus] [data-reader-focus] .pStyle a {
+  text-decoration-color: var(--color-neutral-400);
+}`;
+
+// How many lines up from the bottom of the screen the dark area reaches
+// (the reading line): the text dark from there to the bottom
+const FOCUS_ROWS = 10;
+
+// While scrolling, marks where the reading line (FOCUS_ROWS) falls in the body
+// text (.pStyle): on each paragraph on screen from two lines above it
+// down, --line-c (the top of its first line at or below the reading line,
+// counted in its own lines; above its top when the whole paragraph is
+// below, so it's all dark) and --line-h (its line height), which
+// FOCUS_RULE turns into the dark area and its falloff. Paragraphs higher
+// up, or off the screen, lose them (grey throughout)
 function useReaderFocus(body: React.RefObject<HTMLElement | null>) {
   useEffect(() => {
-    let current: Element | null = null;
+    const style = document.createElement("style");
+    style.textContent = FOCUS_RULE;
+    document.head.appendChild(style);
+    const marked = new Set<HTMLElement>();
+    const clear = (p: HTMLElement) => {
+      p.style.removeProperty("--line-c");
+      p.style.removeProperty("--line-h");
+      marked.delete(p);
+    };
+    let frame = 0;
     const update = () => {
+      frame = 0;
       const root = body.current;
       if (!root) return;
-      const middle = window.innerHeight / 2;
-      const reached = Array.from(root.querySelectorAll(".pStyle")).find(
-        (el) => {
-          const box = el.getBoundingClientRect();
-          return box.top <= middle && box.bottom >= middle;
-        },
-      );
-      if (!reached || reached === current) return;
-      current?.removeAttribute("data-active");
-      reached.setAttribute("data-active", "");
-      current = reached;
+      for (const p of root.querySelectorAll<HTMLElement>(".pStyle")) {
+        const box = p.getBoundingClientRect();
+        // The reading line: FOCUS_ROWS of the longest line height (24px)
+        // up from the bottom, for the quick check; exact per paragraph
+        // below
+        const line = window.innerHeight - FOCUS_ROWS * 24;
+        // Off the screen, or well above the reading line (more than any
+        // falloff): grey, no lookup needed
+        if (box.top > window.innerHeight || box.bottom < line - 100) {
+          if (marked.has(p)) clear(p);
+          continue;
+        }
+        const lh = parseFloat(getComputedStyle(p).lineHeight) || 24;
+        // This paragraph's reading line: FOCUS_ROWS of its lines up from
+        // the bottom of the screen. Its first line at or below it (ceil: a
+        // line crossing it counts as below)
+        const own = window.innerHeight - FOCUS_ROWS * lh;
+        const c = Math.ceil((own - box.top) / lh) * lh;
+        p.style.setProperty("--line-c", `${c}px`);
+        p.style.setProperty("--line-h", `${lh}px`);
+        marked.add(p);
+      }
     };
-    const frame = requestAnimationFrame(update);
+    // At most once a frame
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    schedule();
     // Any scrolling (the page's, or a box's when the article opens over
     // another page): scroll events don't bubble, so caught on the way down
-    document.addEventListener("scroll", update, {
+    document.addEventListener("scroll", schedule, {
       passive: true,
       capture: true,
     });
-    window.addEventListener("resize", update);
+    window.addEventListener("resize", schedule);
     return () => {
       cancelAnimationFrame(frame);
-      document.removeEventListener("scroll", update, { capture: true });
-      window.removeEventListener("resize", update);
+      document.removeEventListener("scroll", schedule, { capture: true });
+      window.removeEventListener("resize", schedule);
+      for (const p of [...marked]) clear(p);
+      style.remove();
     };
   }, [body]);
 }
@@ -83,7 +151,7 @@ export default function ArticleReader({
   const scrollRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
-  // The paragraph in the middle of the screen dark, the rest light grey
+  // The line in the middle of the screen dark, the rest light grey
   useReaderFocus(bodyRef);
   const { scrollYProgress } = useScroll({
     target: heroRef,
@@ -135,7 +203,7 @@ export default function ArticleReader({
         transition={{ duration: 0.4 }}
       >
         {/* Column numbers along the top (desktop) */}
-        <ColumnNumbers className="z-50" />
+
         <ScrollContainerContext.Provider value={scrollRef}>
           <article className="flex flex-col pb-32">
             {/* Hero */}
@@ -203,8 +271,8 @@ export default function ArticleReader({
                 (names, preamble…) keep their own alignment */}
             <div
               ref={bodyRef}
-              // Paragraphs light grey except the one in the middle of the
-              // screen (globals.css; useReaderFocus)
+              // Text light grey except the line in the middle of the
+              // screen, while focus is on (globals.css; useReaderFocus)
               data-reader-focus
               // Full width (minus padding): the article layout sets the
               // text's width (half on desktop) and places the images

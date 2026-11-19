@@ -59,7 +59,8 @@
     "checkout": "Till kassan",
     "clear": "(Töm korg)",
     "decrease": "Ta bort en {title}",
-    "increase": "Lägg till en {title}"
+    "increase": "Lägg till en {title}",
+    "continueShopping": "Fortsätt handla"
   },
   "Issue": {
     "close": "Stäng",

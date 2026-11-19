@@ -158,7 +158,7 @@ export default function IssuePage({
               {/* Over the issue's Hero Image (or Media Library item) when it
                 has one, filling the section (not darkened), the text
                 white */}
-              <section className="relative hidden  h-[75dvh] w-full items-center justify-center overflow-hidden px-[48px]">
+              <section className="relative hidden  h-[75dvh] w-full items-center justify-center overflow-hidden px-6">
                 {hasHero && (
                   <>
                     <BackgroundMedia
@@ -175,22 +175,22 @@ export default function IssuePage({
                 </h1>
               </section>
 
-              <section className="flex flex-col gap-[24px] px-[48px] pb-[48px] lg:grid lg:grid-cols-12 lg:gap-[24px] lg:items-start pt-6">
+              <section className="flex flex-col gap-[21px] lg:gap-[24px] px-6 pb-[48px] lg:grid lg:grid-cols-12 lg:gap-[24px] lg:items-start pt-6">
                 {/* Desktop: two rows. Title and price in the first (columns
                   1–4); the description, add to cart and credits below them,
                   with editors and contributors (columns 6–8) on the same
                   row, so they start level with "Om numret". The cover
                   (columns 9–12) spans both */}
-                <dl className="order-2 -mb-6 lg:mb-0 lg:order-none lg:col-span-4 lg:row-start-1 flex flex-col gap-6">
+                <dl className="order-2  lg:mb-0 lg:order-none lg:col-span-4 lg:row-start-1 flex flex-col gap-[21px] lg:gap-6">
                   <Field
-                    valueClassName="pStyle uppercase tracking-[3px]"
+                    valueClassName="pStyle uppercase t"
                     label={t("title")}
                     values={[issueTitle(issue.title)]}
                   />
                   {/* Price, with "Lägg i korg" beside it ("Slutsåld",
                     disabled, when sold out); the button's pointing hand
                     on hover */}
-                  <div className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-[12px] lg:gap-1">
                     <dt className={LABEL}>{t("price")}</dt>
                     <dd className="pStyle flex items-baseline gap-6">
                       {issue.price != null && <span>{issue.price} kr</span>}

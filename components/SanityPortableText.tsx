@@ -14,8 +14,7 @@ function imageSize(value: any): { width: number; height: number } | null {
 // under it. With `innerClassName`, the image and caption sit in their own
 // box inside the figure (e.g. one that sticks while the figure scrolls).
 // The image fills its box's width, at most a screen tall; scaled down to
-// fit, it sits at the box's left edge (object-left), or centred when
-// `wide`. The caption starts at that same edge (no side padding)
+// fit, it sits centred in its box. The caption below it, full width
 function BodyImage({
   value,
   className = "",
@@ -42,8 +41,8 @@ function BodyImage({
         sizes={sizes}
         // cn: the caller's height limit replaces max-h-dvh
         className={cn(
-          "min-h-0 w-full h-auto max-h-dvh object-contain",
-          wide ? "object-center" : "object-left",
+          // Centred in its box when scaled down (every category)
+          "min-h-0 w-full h-auto max-h-dvh object-contain object-center",
           imageClassName,
         )}
       />
@@ -136,11 +135,21 @@ function buildComponents(
     },
     types: {
       image: ({ value }) =>
-        articleLayout ? (
+        articleLayout && category === "interview" ? (
+          // Interviews: every image in the text, centred in the column
+          // (its caption too), at most 60% of the screen tall
+          <BodyImage
+            value={value}
+            className="w-full flex flex-col items-center"
+            imageClassName="max-h-[60dvh]"
+            wide
+            sizes="(min-width: 1024px) 50vw, 100vw"
+          />
+        ) : articleLayout ? (
           // The text column's full width
           <BodyImage
             value={value}
-            className="w-full border flex flex-col items-start"
+            className="w-full border flex flex-col items-center"
             sizes="(min-width: 1024px) 50vw, 100vw"
           />
         ) : (
@@ -151,7 +160,7 @@ function buildComponents(
           <BodyImage
             value={value}
             className="w-full h-[200dvh]"
-            innerClassName="sticky top-0 h-dvh flex flex-col items-start justify-center"
+            innerClassName="sticky top-0 h-dvh flex flex-col items-center justify-center"
             imageClassName="max-h-full"
             sizes="(min-width: 1024px) 50vw, 100vw"
           />
@@ -327,6 +336,19 @@ export default function SanityPortableText({
   }
   const components = buildComponents(category, articleLayout);
 
+  // Interviews: everything in one column, one after another (flex-col):
+  // the text half the width on desktop, centred, every image inline in it,
+  // centred (whatever its placement in Sanity: no sticky or wide images)
+  if (articleLayout && category === "interview" && Array.isArray(normalized)) {
+    return (
+      <section className="w-full lg:w-1/2 mx-auto">
+        <div className="flex flex-col items-start justify-start gap-6 min-w-0 w-full max-w-[var(--measure,75ch)] mx-auto">
+          <PortableText value={normalized} components={components} />
+        </div>
+      </section>
+    );
+  }
+
   if (articleLayout && Array.isArray(normalized)) {
     // Sticky images alternate sides: right, left, right…
     let stickyCount = 0;
@@ -381,7 +403,7 @@ export default function SanityPortableText({
                   row's height couldn't stick */}
               <BodyImage
                 value={section.image}
-                className={`sticky top-16 z-10 self-start w-full bg-background lg:top-0 lg:z-auto lg:h-dvh lg:bg-transparent flex flex-col items-start justify-center lg:row-start-1 ${left ? "lg:col-start-1" : "lg:col-start-2"}`}
+                className={`sticky top-16 z-10 self-start w-full bg-background lg:top-0 lg:z-auto lg:h-dvh lg:bg-transparent flex flex-col items-center justify-center lg:row-start-1 ${left ? "lg:col-start-1" : "lg:col-start-2"}`}
                 imageClassName="max-h-[50dvh] lg:max-h-full"
                 sizes="(min-width: 1024px) 50vw, 100vw"
               />

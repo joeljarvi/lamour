@@ -26,7 +26,7 @@ export default function ArticleCover({
   const t = useTranslations("Article");
   const title = articleTitle(article.title);
   return (
-    <div className={`group flex flex-col gap-[24px] ${className ?? ""}`}>
+    <div className={`group flex flex-col gap-3 lg:gap-[24px] ${className ?? ""}`}>
       <Link
         href={`/articles/${article.slug.current}`}
         aria-label={title}

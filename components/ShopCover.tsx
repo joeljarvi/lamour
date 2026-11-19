@@ -32,7 +32,7 @@ export default function ShopCover({
   return (
     // Like an article's cover: the cover in a fixed 3:4 box (cropped to
     // fill it), then the title, and the price below it
-    <div className={`group flex flex-col gap-[24px] ${className ?? ""}`}>
+    <div className={`group flex flex-col gap-3 lg:gap-[24px] ${className ?? ""}`}>
       <Link
         href={`/shop/${issue.slug.current}`}
         scroll={false}

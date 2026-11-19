@@ -23,7 +23,7 @@ export default async function EditorsSection() {
     <section
       id="editors"
       data-section="editors"
-      className="flex flex-col gap-6 px-[24px] py-[24px] pStyle lg:pl-0 lg:ml-(--layout-ml) lg:pr-(--layout-mr) lg:transition-[margin,padding] lg:duration-500 lg:ease-in-out"
+      className="flex flex-col gap-6 px-3 lg:px-[24px] py-[24px] pStyle lg:pl-0 lg:ml-(--layout-ml) lg:pr-(--layout-mr) lg:transition-[margin,padding] lg:duration-500 lg:ease-in-out"
     >
       <h2>{t("sectionEditors")}</h2>
       {names.length > 0 && (

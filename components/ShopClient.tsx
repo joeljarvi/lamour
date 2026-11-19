@@ -114,14 +114,14 @@ export default function ShopClient() {
       {/* Desktop: the filter panel, while open, fixed on the left (a third
           of the screen); the grid moves right past it (ml-1/3) (two columns then, so the tiles keep their
           size) */}
-      <div className="lg:flex lg:items-start mt-[96px] ">
+      <div className="lg:flex lg:items-start mt-[25vh] lg:mt-[96px] ">
         <div className={`flex-1 min-w-0 min-h-dvh `}>
           {/* Header: "Alla nummer" on the left; on the right the active
               sort, a button switching between Senaste and A–Ö */}
           <div
             id="filter"
             data-section="filter"
-            className="flex min-h-[72px] items-center justify-between gap-6 px-3 py-[24px] lg:ml-(--layout-ml) lg:transition-[margin,padding] lg:duration-500 lg:ease-in-out lg:h-[72px] lg:w-auto lg:pl-0 lg:pr-(--layout-mr) lg:py-0 pStyle normal-case"
+            className="flex min-h-[63px] lg:min-h-[72px] items-center justify-between gap-6 px-6 py-[21px] lg:py-[24px] lg:ml-(--layout-ml) lg:transition-[margin,padding] lg:duration-500 lg:ease-in-out h-[63px] lg:h-[72px] lg:w-auto lg:pl-0 lg:pr-(--layout-mr) lg:py-0 pStyle normal-case"
           >
             {/* "Alla nummer", then "Filtrera efter medverkande", which
                 shows and hides every contributor below the header */}
@@ -198,7 +198,8 @@ export default function ShopClient() {
             // Part of the filter section (highlighted with the bar)
             <div
               data-section="filter"
-              className="flex flex-wrap gap-x-3 gap-y-0 px-3 lg:ml-(--layout-ml) lg:transition-[margin,padding] lg:duration-500 lg:ease-in-out lg:w-auto lg:pl-0 lg:pr-(--layout-mr) pb-[24px] pStyle normal-case justify-start"
+              className="flex flex-wrap gap-x-3 gap-y-0 px-6 lg:ml-(--layout-ml) lg:transition-[margin,padding] lg:duration-500 lg:ease-in-out lg:w-auto lg:pl-0 lg:pr-(--layout-mr) lg:pb-[24px]
+              pb-[21px]  pStyle normal-case justify-start"
             >
               {/* First: every contributor (clears the choice); dark while
                   none is chosen */}
@@ -233,7 +234,7 @@ export default function ShopClient() {
           <ul
             id="shop"
             data-section="shop"
-            className="grid w-full list-none grid-cols-2 gap-x-3 gap-y-12 px-3  pb-24 lg:grid-cols-24 lg:gap-x-6 lg:ml-(--layout-ml) lg:transition-[margin,padding] lg:duration-500 lg:ease-in-out lg:w-auto lg:gap-y-24 lg:pl-0 lg:pr-(--layout-mr)"
+            className="grid w-full list-none grid-cols-2 gap-x-6 gap-y-[42px] lg:gap-y-12 px-6   pb-[21px] lg:pb-24 lg:grid-cols-24 lg:gap-x-6 lg:ml-(--layout-ml) lg:transition-[margin,padding] lg:duration-500 lg:ease-in-out lg:w-auto lg:gap-y-24 lg:pl-0 lg:pr-(--layout-mr)"
           >
             {visibleIssues.map((issue, i) => (
               <li

@@ -27,7 +27,7 @@ export default function SeriesCover({
 }) {
   const t = useTranslations("Article");
   return (
-    <div className={`group flex flex-col gap-[24px] ${className ?? ""}`}>
+    <div className={`group flex flex-col gap-3 lg:gap-[24px] ${className ?? ""}`}>
       <button
         type="button"
         onClick={onOpen}

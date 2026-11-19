@@ -21,7 +21,7 @@ export default async function SubscribeSection() {
     <section
       id="subscribe"
       data-section="subscribe"
-      className=" w-full flex flex-col lg:min-h-dvh relative z-10  h-full items-start justify-start lg:border-x lg:border-x-neutral-200 lg:ml-[359px]  justify-center gap-6 px-[24px] pt-[24px] pb-[24px]"
+      className=" w-full flex flex-col lg:min-h-dvh relative z-10  h-full items-start justify-start lg:border-x lg:border-x-neutral-200 lg:ml-[359px]  justify-center gap-6 px-3 lg:px-[24px] pt-[24px] pb-[24px]"
     >
       {/* The media, filling the column (a screen tall on desktop) */}
       <div className="relative h-[60dvh] lg:h-auto overflow-hidden">

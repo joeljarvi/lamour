@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+
 import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -20,14 +22,9 @@ export default function CartDrawer() {
     addToCart,
     decreaseQuantity,
     removeFromCart,
-    totalItems,
     drawerOpen,
     setDrawerOpen,
   } = useCart();
-
-  // More than one title in the cart: a compact list, one column without
-  // the covers
-  const compact = items.length > 1;
 
   const subtotal = items.reduce((sum, item) => {
     const numeric = parseFloat(
@@ -35,6 +32,16 @@ export default function CartDrawer() {
     );
     return sum + (isNaN(numeric) ? 0 : numeric * item.quantity);
   }, 0);
+
+  // Closed with Escape (there's no close button: the backdrop or Escape)
+  useEffect(() => {
+    if (!drawerOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setDrawerOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [drawerOpen, setDrawerOpen]);
 
   return (
     <AnimatePresence>
@@ -53,109 +60,69 @@ export default function CartDrawer() {
           {/* Drawer panel: all its text and buttons in John Sans (the
               buttons' sizes set their own font, so [&_button] overrides it) */}
           <motion.div
-            className="fixed top-0 right-0 z-100 h-full w-[calc(100vw-2rem)] lg:w-1/3 bg-background flex px-6 flex-col shadow-md font-baskervilleNeoText "
+            className="fixed top-0 right-0 z-100 h-full w-[calc(100vw-2rem)] lg:w-[25vw] bg-background flex px-0 flex-col shadow-md font-baskervilleNeoText "
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
-            {/* Header */}
-            <div className="flex items-center justify-between pt-3 pb-3 px-0  h-[48px] lg:h-auto   w-full">
-              <Button
-                variant="link"
-                size="xs"
-                className="w-min pStyle normal-case text-neutral-800 after:content-none"
-              >
-                {t("title", { count: totalItems })}
-              </Button>
-              <Button
-                variant="link"
-                size="xs"
-                className="w-min pStyle normal-case text-neutral-800 after:content-none"
-                onClick={() => setDrawerOpen(false)}
-                aria-label={t("closeLabel")}
-              >
-                {t("close")}
-              </Button>
-            </div>
-
             {/* Items: scroll without a scrollbar, with a fade over the
                 bottom edge (from the background up to transparent, like
                 ReadMore) */}
             <div className="relative flex-1 min-h-0 flex flex-col">
-              <div className="flex-1 overflow-y-auto scrollbar-none p-0  gap-0  flex flex-col">
+              <div className="flex-1 overflow-y-auto scrollbar-none p-6  gap-0  flex flex-col">
                 {items.length === 0 ? (
                   <p className="font-baskervilleNeoText text-neutral-800 leading-[24px] p-[24px]">
                     {t("empty")}
                   </p>
                 ) : (
                   items.map((item) => {
-                    const issue = issues.find((i) => i._id === item.id);
+                    const cover = issues.find((i) => i._id === item.id)?.cover;
                     return (
-                      // Two columns: the cover on the left; on the right the
-                      // title, the amount (− / +) and, bottom right, the price.
-                      // With more than one title: one column, no cover
+                      // One item: a small cover (96px tall; issues only) on
+                      // the left; beside it, as tall as it (or taller when
+                      // the title wraps a lot), "1 x <title>" and the price
+                      // at the top and, at the bottom right, level with the
+                      // cover's bottom, remove (X) and − / + (− at one
+                      // removes it; a subscription only X)
                       <div
                         key={item.id}
-                        // One box for the list, as the Produktinfo table on the issue page:
-                        // each item draws its sides and bottom line (the first
-                        // also the top), the first with rounded top corners,
-                        // the last with rounded bottom ones (overflow-hidden
-                        // clips the cover to them)
-                        className={`relative grid ${compact ? "grid-cols-1" : "grid-cols-2"} w-full overflow-hidden border-x border-b border-neutral-600 first:border-t`}
+                        className="flex w-full items-stretch gap-3 py-3 border-b border-b-foreground"
                       >
-                        {!compact && (
-                          <div>
-                            {issue?.cover?.asset && (
-                              <Image
-                                src={urlFor(issue.cover).url()}
-                                alt={issue.cover.alt ?? ""}
-                                width={0}
-                                height={0}
-                                // Half its column, a quarter of the drawer (full
-                                // width on mobile, a third of the screen on desktop)
-                                sizes="(min-width: 1024px) 9vw, 25vw"
-                                className="p-12 w-full  h-auto "
-                              />
-                            )}
-                          </div>
+                        {cover?.asset && (
+                          <Image
+                            src={urlFor(cover).height(192).url()}
+                            alt=""
+                            width={72}
+                            height={96}
+                            className="min-h-[72] w-auto shrink-0 self-start"
+                          />
                         )}
-
-                        <div
-                          className={`flex flex-col gap-3 p-0 min-w-0 h-full w-full ${compact ? "" : "border-l border-l-neutral-600"}`}
-                        >
-                          {/* Title (John Sans) and price. One column (more
-                              than one title): on one row, the title on the
-                              left, wrapping, the price on the right. Two
-                              columns (with the cover): stacked, the title at
-                              the top and the price at the bottom */}
-                          <div
-                            className={`flex justify-between gap-6 h-full p-6 ${compact ? "items-baseline" : "flex-col"}`}
-                          >
-                            <span className="min-w-0 font-baskervilleNeoText text-[14px] uppercase tracking-[6px]whitespace-normal leading-[24px]">
-                              {item.title}
+                        <div className="flex min-h-[96px] min-w-0 flex-1 flex-col justify-between">
+                          <div className="flex min-w-0 flex-col">
+                            <span className="min-w-0 pStyle whitespace-normal">
+                              <span className="tabular-nums">
+                                {item.quantity}
+                              </span>{" "}
+                              x {item.title}
                             </span>
-                            <span className="shrink-0 font-baskervilleNeoText text-[14px] uppercase tracking-[6px] whitespace-nowrap">
+                            <span className="pStyle whitespace-nowrap">
                               {item.price}
                               {/* A subscription: how often (e.g. "/ år") */}
                               {item.subscription &&
                                 ` ${item.subscription.period}`}
                             </span>
                           </div>
-                          {/* Remove (X), then the amount with − and + (− at one removes it), at the bottom */}
-                          <div className="mt-auto flex h-[48px] shrink-0 items-stretch gap-0 w-full justify-between border-t border-t-neutral-600">
-                            {/* Remove: the same square as − / +, left of −,
-                                a line between them */}
+                          <div className="flex h-12 shrink-0 items-stretch justify-end gap-0">
                             <Button
                               variant="secondary"
                               size="xs"
-                              className="h-full lg:h-full w-[48px] shrink-0 p-0 font-baskervilleNeoText tracking-normal leading-none justify-center items-center text-neutral-700 bg-background hover:bg-secondary border-r border-r-neutral-600"
+                              className="h-full lg:h-full w-12 shrink-0 p-0 font-baskervilleNeoText tracking-normal leading-none justify-center items-center text-neutral-700 bg-background hover:bg-secondary"
                               onClick={() => removeFromCart(item.id)}
                               aria-label={t("remove", { title: item.title })}
                             >
                               X
                             </Button>
-                            {/* A subscription: one of it, no − / + */}
                             {!item.subscription && (
                               <>
                                 <Button
@@ -164,7 +131,7 @@ export default function CartDrawer() {
                                   // Square; no padding or letter-spacing (the xs
                                   // size's tracking adds space after the sign,
                                   // pushing it off centre)
-                                  className="h-full lg:h-full w-[48px] shrink-0 p-0 tracking-normal leading-none justify-center items-center bg-background hover:bg-secondary "
+                                  className="h-full lg:h-full w-12 shrink-0 p-0 tracking-normal leading-none justify-center items-center bg-background hover:bg-secondary"
                                   onClick={() => decreaseQuantity(item.id)}
                                   aria-label={t("decrease", {
                                     title: item.title,
@@ -172,14 +139,10 @@ export default function CartDrawer() {
                                 >
                                   −
                                 </Button>
-                                <span className="font-johnSans text-xs tabular-nums text-center h-full flex items-center justify-center border-x border-x-neutral-600 w-full">
-                                  {item.quantity}
-                                </span>
                                 <Button
                                   variant="secondary"
                                   size="xs"
-                                  // Same square as −
-                                  className="h-full lg:h-full w-[48px] shrink-0 p-0 tracking-normal leading-none justify-center items-center bg-background hover:bg-secondary "
+                                  className="h-full lg:h-full w-12 shrink-0 p-0 tracking-normal leading-none justify-center items-center bg-background hover:bg-secondary"
                                   onClick={() =>
                                     addToCart({
                                       id: item.id,
@@ -210,22 +173,30 @@ export default function CartDrawer() {
 
             {/* Footer */}
             {items.length > 0 && (
-              <div className="pb-6 pt-12 flex flex-col gap-6 border-t border-t-neutral-600 ">
+              <div className="pb-6 pt-6 flex flex-col gap-6 px-6 ">
                 <div className="flex justify-center gap-6 items-baseline ">
-                  <span className="font-johnSans text-xs uppercase tracking-[48%]">
-                    {t("subtotal")}
-                  </span>
-                  <span className="font-johnSans text-xs uppercase tracking-[48%]">
+                  <span className="pStyle">{t("subtotal")}</span>
+                  <span className="pStyle">
                     {subtotal % 1 === 0 ? subtotal : subtotal.toFixed(2)} kr
                   </span>
                 </div>
 
+                {/* "Fortsätt handla": closes the cart, back to the page */}
+                <Button
+                  variant="default"
+                  size="default"
+                  // 72px, as "Till kassan", outlined instead of filled
+                  className="h-[72px] lg:h-[72px] border border-foreground bg-background text-foreground hover:bg-foreground hover:text-background pStyle"
+                  onClick={() => setDrawerOpen(false)}
+                >
+                  {t("continueShopping")}
+                </Button>
                 {/* To the checkout page (closing the cart) */}
                 <Button
                   variant="default"
                   size="default"
                   // 72px (3 rows of 24px)
-                  className="h-[72px] lg:h-[72px] bg-foreground text-background font-johnSans"
+                  className="h-[72px] lg:h-[72px] bg-foreground text-background pStyle"
                   asChild
                 >
                   <Link href="/checkout" onClick={() => setDrawerOpen(false)}>

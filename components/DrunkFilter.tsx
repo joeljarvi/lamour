@@ -1,30 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useLocale } from "next-intl";
 
-// The setting, remembered in this browser (on/off and the amount)
+// The setting, remembered in this browser (on/off)
 const STORAGE_KEY = "drunkFilter";
 
 // The drunk fonts (public/fonts/drunk_fonts: Baskerville with its letters
-// offset), from least to most offset; the slider picks one, shown by its
-// name ("full / fullare / fullast"; in English "drunk / drunker /
-// drunkest")
+// offset), from least to most offset; one picked at random each time the
+// filter turns on
 const SIZES = [
-  { label: "M", sv: "full", en: "drunk", file: "FM-LLBASK-OFFSET-M.woff2" },
-  {
-    label: "L",
-    sv: "fullare",
-    en: "drunker",
-    file: "FM-LLBASK-OFFSET-L.woff2",
-  },
-  {
-    label: "XL",
-    sv: "fullast",
-    en: "drunkest",
-    file: "FM-LLBASK-OFFSET-XL.woff2",
-  },
+  { label: "M", file: "FM-LLBASK-OFFSET-M.woff2" },
+  { label: "L", file: "FM-LLBASK-OFFSET-L.woff2" },
+  { label: "XL", file: "FM-LLBASK-OFFSET-XL.woff2" },
 ] as const;
+
+// A random one (index into SIZES)
+const randomSize = () => Math.floor(Math.random() * SIZES.length);
 
 // Each as its own font family ("Drunk M"…), loaded only when used
 // (font-display: swap: the normal font until it arrives). While on, the
@@ -54,13 +45,12 @@ html[data-drunk] [data-drunk-display] {
     "baskervilleNeoDisplay", "baskervilleNeoDisplay Fallback";
 }`;
 
-// "Drunk filter on/off", fixed bottom right. On, all the site's
-// Baskerville Neo Text is set in one of the drunk fonts, the slider
-// choosing how drunk: full, fullare or fullast (drunk, drunker, drunkest)
+// "DRUNK" and a checkbox, fixed bottom right. On, all the site's
+// Baskerville Neo Text is set in one of the drunk fonts, picked at random
+// each time it turns on (ticked, or a page load with it on)
 export default function DrunkFilter() {
-  const lang = useLocale() === "sv" ? "sv" : "en";
   const [on, setOn] = useState(false);
-  // Which font (index into SIZES)
+  // Which font (index into SIZES): picked when it turns on
   const [size, setSize] = useState(0);
 
   // The saved setting, once on load (after hydration on purpose: the
@@ -69,11 +59,10 @@ export default function DrunkFilter() {
   useEffect(() => {
     try {
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "null");
-      if (saved) {
+      if (saved?.on) {
         // eslint-disable-next-line react-hooks/set-state-in-effect
-        setOn(!!saved.on);
-        if (typeof saved.size === "number" && SIZES[saved.size])
-          setSize(saved.size);
+        setSize(randomSize());
+        setOn(true);
       }
     } catch {
       // No storage (private window…): start off
@@ -83,11 +72,11 @@ export default function DrunkFilter() {
   // Saves the setting
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ on, size }));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ on }));
     } catch {
       // Not saved; it still works for this visit
     }
-  }, [on, size]);
+  }, [on]);
 
   // The fonts and the rule, once
   useEffect(() => {
@@ -110,33 +99,28 @@ export default function DrunkFilter() {
   }, [on, size]);
 
   return (
-    <div className="pStyle fixed right-[24px] bottom-[24px] z-110 flex items-center gap-6 bg-background px-[12px]">
-      {/* While on: how drunk (full, fullare, fullast / drunk, drunker,
-          drunkest) */}
-      {on && (
-        <label className="flex items-center gap-3">
-          <span className="sr-only">Amount</span>
-          <input
-            type="range"
-            min={0}
-            max={SIZES.length - 1}
-            step={1}
-            value={size}
-            onChange={(e) => setSize(Number(e.target.value))}
-            className="w-24 cursor-pointer accent-foreground"
-          />
-          {/* As wide as the longest name, so the slider doesn't move */}
-          <span className="w-[8ch]">{SIZES[size][lang]}</span>
-        </label>
-      )}
-      <button
-        type="button"
-        aria-pressed={on}
-        onClick={() => setOn((v) => !v)}
-        className="cursor-pointer whitespace-nowrap underline-offset-4 decoration-1 hover:underline"
-      >
-        Drunk filter {on ? "on" : "off"}
-      </button>
+    <div className="pStyle fixed right-[24px] bottom-[24px] z-80">
+      {/* "DRUNK" and a checkbox after it: ticked, the drunk font on
+          (a new random one each time) */}
+      <label className="flex h-12 cursor-pointer items-center justify-center gap-x-2 whitespace-nowrap  bg-transparent px-6 text-foreground">
+        DRUNK
+        {/* A custom checkbox: a square (no rounding) with a thin border,
+            filled when on. The real checkbox stays (invisible) for
+            keyboards and screen readers; the square shows its focus */}
+        <input
+          type="checkbox"
+          checked={on}
+          onChange={(e) => {
+            if (e.target.checked) setSize(randomSize());
+            setOn(e.target.checked);
+          }}
+          className="peer sr-only"
+        />
+        <span
+          aria-hidden
+          className={`block size-[12px] rounded-none border  transition-colors peer-focus-visible:outline peer-focus-visible:outline-1 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-foreground ${on ? "bg-foreground border-foreground" : "bg-background border-foreground"}`}
+        />
+      </label>
     </div>
   );
 }
