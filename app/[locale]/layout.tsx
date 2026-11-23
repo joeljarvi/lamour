@@ -23,6 +23,7 @@ import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import BackgroundStripes from "@/components/BackgroundStripes";
 import DrunkFilter from "@/components/DrunkFilter";
+import Loader from "@/components/Loader";
 
 export const revalidate = 3600;
 
@@ -248,6 +249,9 @@ export default async function RootLayout({
       >
         {/* Striped background, fixed behind the page */}
 
+        {/* On every full page load: the name cycling through the fonts
+            for five seconds, over everything */}
+        <Loader />
         <NextIntlClientProvider>
           <CartProvider>
             <IssuesProvider issues={issues}>

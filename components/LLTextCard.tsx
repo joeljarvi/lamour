@@ -26,13 +26,13 @@ export default function LLTextCard() {
         <motion.div
           role="dialog"
           aria-label="Om oss"
-          className="hidden fixed inset-0 z-60 m-auto flex h-screen  w-full flex-col items-center justify-center overflow-y-auto  p-4 bg-background/80"
+          className=" fixed inset-0 z-60 m-auto flex h-screen  w-full flex-col items-center justify-center overflow-y-auto  p-4 bg-background/80"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.4 }}
         >
-          <div className="relative flex flex-col max-w-lg  mx-auto bg-yellow-300 p-3 lg:p-6 ">
+          <div className="relative flex flex-col max-w-1/2 aspect-video  mx-auto bg-yellow-300 p-3 lg:p-6 ">
             {/* "Stäng (x)", top right: closes the card */}
             <button
               type="button"
@@ -45,26 +45,6 @@ export default function LLTextCard() {
               <h1 className="pStyle ">L'Amour — La Mort</h1>
               <h2 className="pStyle italic tracking-wide ">en tids skrift</h2>
             </div>
-            <p className="pStyle max-w-full text-justify">
-              Sedan 2017 har vi samlat ung litteratur under ett skevt
-              konsthistoriskt paraply och publicerat över hundra författare och
-              konstnärer i början, mitten, och slutet av sina karriärer. Målet?
-              Att ge skimret av ett samlad förtrupp. Att historisera allt nu. En
-              tids skrift av text och bild.
-            </p>
-            {/* "Prenumerera", to the subscribe page (like the subscribe
-                section's button: italic with swashes, dark) */}
-            <Button
-              variant="link"
-              size="xs"
-              // The pointing hand (☜) always shown, not only on hover
-              className=" text-neutral-800 w-min text-[18px] lg:text-lg px-0 h-auto mt-6 normal-case tracking-wide after:opacity-100"
-              asChild
-            >
-              <Link href="/subscribe" onClick={() => setOpen(false)}>
-                {t("subscribe")}
-              </Link>
-            </Button>
           </div>
         </motion.div>
       )}

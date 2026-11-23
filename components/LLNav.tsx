@@ -552,18 +552,9 @@ export default function LLNav() {
                   // by row
                   submenu={<SectionLinks pathname={pathname} />}
                   footer={
-                    <div className="flex flex-col items-start gap-[24px]">
-                      {/* The site's background colour, just above "Stäng" */}
-                      <BackgroundPicker className="px-[48px]" />
-                      <Button
-                        variant="link"
-                        size="xs"
-                        className="w-auto h-auto lg:h-auto px-[48px] pStyle normal-case after:content-none underline-offset-4 decoration-1 hover:underline"
-                        onClick={() => setMenuClosed(true)}
-                      >
-                        {t("closeMenu")} (x)
-                      </Button>
-                    </div>
+                    // The site's background colour (no "Stäng": the menu
+                    // stays open on desktop)
+                    <BackgroundPicker className="px-[48px]" />
                   }
                 />
               </nav>
