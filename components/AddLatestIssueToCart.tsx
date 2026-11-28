@@ -30,7 +30,7 @@ export default function AddLatestIssueToCart({
         addToCart({
           id: latest._id,
           title: latest.title,
-          price: latest.price != null ? `${latest.price} kr` : "0",
+          price: latest.price != null ? `${latest.price} SEK` : "0",
         });
         setDrawerOpen(true);
       }}

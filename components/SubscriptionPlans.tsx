@@ -63,7 +63,7 @@ export default async function SubscriptionPlans() {
                     period={t(
                       plan.interval === "month" ? "perMonth" : "perYear",
                       { count: plan.intervalCount ?? 1 },
-                    ).replace(/^kr\s*/, "")}
+                    ).replace(/^SEK\s*/, "")}
                     label={t("choosePlan")}
                     className="pStyle cursor-pointer underline underline-offset-4 decoration-1 hover:opacity-60"
                   />

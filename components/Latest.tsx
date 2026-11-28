@@ -93,7 +93,7 @@ function LatestIssueBox({ className }: { className: string }) {
               {title}
             </Link>
             {/* The issue's price (when set in Sanity) */}
-            {latest.price != null && <span>{latest.price} kr</span>}
+            {latest.price != null && <span>{latest.price} SEK</span>}
             <button
               type="button"
               disabled={soldOut}
@@ -101,7 +101,7 @@ function LatestIssueBox({ className }: { className: string }) {
                 addToCart({
                   id: latest._id,
                   title: latest.title,
-                  price: latest.price != null ? `${latest.price} kr` : "0",
+                  price: latest.price != null ? `${latest.price} SEK` : "0",
                 });
                 setDrawerOpen(true);
               }}

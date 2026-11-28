@@ -166,7 +166,7 @@ export default function NavDropdown({
     addToCart({
       id: latest._id,
       title: latest.title,
-      price: latest.price != null ? `${latest.price} kr` : "0",
+      price: latest.price != null ? `${latest.price} SEK` : "0",
     });
     setDrawerOpen(true);
     onNavigate();

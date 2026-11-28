@@ -1,6 +1,5 @@
 import type { Locale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
-import HeroSection from "@/components/HeroSection";
 import EditorsSection from "@/components/EditorsSection";
 
 export const revalidate = 3600;
@@ -17,7 +16,6 @@ export default async function AboutPage({
 
   return (
     <div className="relative flex flex-col">
-      <HeroSection page="about" />
       {/* The editorial team (the latest issue's editors) */}
       <EditorsSection />
     </div>

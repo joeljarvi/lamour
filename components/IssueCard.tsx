@@ -233,7 +233,7 @@ export default function IssueCard({
   // The price, on the "Läs mer" button's line below the description
   const price = issue?.price != null && (
     <span className="font-baskervilleNeoText text-xs uppercase tracking-[48%] text-xs uppercase tracking-[24%]">
-      {issue.price} kr
+      {issue.price} SEK
     </span>
   );
 
@@ -242,7 +242,7 @@ export default function IssueCard({
     addToCart({
       id: issue._id,
       title: issue.title,
-      price: issue.price != null ? `${issue.price} kr` : "0",
+      price: issue.price != null ? `${issue.price} SEK` : "0",
     });
     onClose();
   }

@@ -27,7 +27,7 @@ function IssueRow({
     addToCart({
       id: issue._id,
       title: issue.title,
-      price: issue.price != null ? `${issue.price} kr` : "0",
+      price: issue.price != null ? `${issue.price} SEK` : "0",
     });
     setDrawerOpen(true);
   }

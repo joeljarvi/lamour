@@ -16,12 +16,18 @@ const EDGE_FADE =
 // `children`: the same text with styling (e.g. part in italics), shown
 // instead of `text`, which stays the plain version (re-measured when it
 // changes)
+// `align`: where the text sits while still (default centred); `className`:
+// added to the box (its size, font…)
 export default function Ticker({
   text,
   children,
+  align = "center",
+  className = "",
 }: {
   text: string;
   children?: React.ReactNode;
+  align?: "center" | "left";
+  className?: string;
 }) {
   const content = children ?? text;
   const boxRef = useRef<HTMLSpanElement>(null);
@@ -61,7 +67,7 @@ export default function Ticker({
     // slides in and out softly (a mask, so it works on any background)
     <span
       ref={boxRef}
-      className={`relative block w-full overflow-hidden whitespace-nowrap ${moving ? "" : "text-center text-ellipsis"}`}
+      className={`relative block w-full overflow-hidden whitespace-nowrap ${moving ? "" : `${align === "left" ? "text-left" : "text-center"} text-ellipsis`} ${className}`}
       style={
         moving
           ? { maskImage: EDGE_FADE, WebkitMaskImage: EDGE_FADE }

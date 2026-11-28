@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Button } from "./ui/button";
 
 // The setting, remembered in this browser (on/off)
 const STORAGE_KEY = "drunkFilter";
@@ -99,28 +100,23 @@ export default function DrunkFilter() {
   }, [on, size]);
 
   return (
-    <div className="pStyle fixed right-[24px] bottom-[24px] z-80">
-      {/* "DRUNK" and a checkbox after it: ticked, the drunk font on
-          (a new random one each time) */}
-      <label className="flex h-12 cursor-pointer items-center justify-center gap-x-2 whitespace-nowrap  bg-transparent px-6 text-foreground">
-        DRUNK
-        {/* A custom checkbox: a square (no rounding) with a thin border,
-            filled when on. The real checkbox stays (invisible) for
-            keyboards and screen readers; the square shows its focus */}
-        <input
-          type="checkbox"
-          checked={on}
-          onChange={(e) => {
-            if (e.target.checked) setSize(randomSize());
-            setOn(e.target.checked);
-          }}
-          className="peer sr-only"
-        />
-        <span
-          aria-hidden
-          className={`block size-[12px] rounded-none border  transition-colors peer-focus-visible:outline peer-focus-visible:outline-1 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-foreground ${on ? "bg-foreground border-foreground" : "bg-background border-foreground"}`}
-        />
-      </label>
+    <div
+      data-reveal-part="nav"
+      className="pStyle fixed right-[24px] bottom-[24px] z-80"
+    >
+      {/* "Drunk": a toggle (shadcn's default button, rounded); pressed,
+          the drunk font on (a new random one each time), the button dark */}
+      <Button
+        variant={on ? "primary" : "secondary"}
+        size="pill-lg"
+        aria-pressed={on}
+        onClick={() => {
+          if (!on) setSize(randomSize());
+          setOn(!on);
+        }}
+      >
+        Drunk
+      </Button>
     </div>
   );
 }

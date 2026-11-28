@@ -17,6 +17,42 @@
   font-display: block;
 }
 
+/* The type scale (after are.na's): nine fixed steps in rem on the 16px
+   root, the same at every screen width (no fluid scaling). Each gives a
+   class, text-1 … text-9 (with breakpoints: lg:text-4…), setting the size
+   and a line height to go with it (are.na's for steps 1, 4 and 6; the
+   rest in between, tighter as the type grows). A line height set after it
+   (leading-…) still wins.
+     text-1  0.78125rem  12.5px
+     text-2  0.9rem      14.4px
+     text-3  1rem        16px
+     text-4  1.2rem      19.2px  (are.na's body text)
+     text-5  1.5rem      24px
+     text-6  1.75rem     28px
+     text-7  2rem        32px
+     text-8  2.5rem      40px
+     text-9  3rem        48px */
+@theme {
+  --text-1: 0.78125rem;
+  --text-1--line-height: 1.35;
+  --text-2: 0.9rem;
+  --text-2--line-height: 1.4;
+  --text-3: 1rem;
+  --text-3--line-height: 1.45;
+  --text-4: 1.2rem;
+  --text-4--line-height: 1.45;
+  --text-5: 1.5rem;
+  --text-5--line-height: 1.3;
+  --text-6: 1.75rem;
+  --text-6--line-height: 1.25;
+  --text-7: 2rem;
+  --text-7--line-height: 1.2;
+  --text-8: 2.5rem;
+  --text-8--line-height: 1.15;
+  --text-9: 3rem;
+  --text-9--line-height: 1.1;
+}
+
 @theme inline {
   --color-dark-plum: var(--dark-plum);
   --color-dark-brown: var(--dark-brown);
@@ -122,8 +158,18 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
+  --primary: #b5c7eb;
+  /* The glow under links and cover boxes (text-glow, shadow-glow):
+     three shades, darkest first, fading into the page; and darker ones
+     on hover. Misty blue by default; the colour themes mix theirs from
+     their primary and secondary */
+  --glow-1: #6f8fd0;
+  --glow-2: #8fa8db;
+  --glow-3: #b5c7eb;
+  --glow-hover-1: #2f4f94;
+  --glow-hover-2: #3d5fa8;
+  --glow-hover-3: #5677bd;
+  --primary-foreground: #262626;
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
@@ -147,6 +193,78 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+}
+
+/* The glow: under text (links) and boxes (the cover boxes), in the
+   theme's shades (--glow-*), stronger on hover (…-hover) */
+@utility text-glow {
+  text-shadow:
+    0 1px 1px var(--glow-1),
+    0 2px 4px var(--glow-2),
+    0 4px 10px var(--glow-3),
+    0 8px 20px color-mix(in oklab, var(--glow-3) 50%, transparent);
+}
+@utility text-glow-hover {
+  text-shadow:
+    0 1px 1px var(--glow-hover-1),
+    0 2px 4px var(--glow-hover-2),
+    0 4px 10px var(--glow-hover-3),
+    0 8px 20px color-mix(in oklab, var(--glow-hover-3) 50%, transparent);
+}
+@utility shadow-glow {
+  box-shadow:
+    0 1px 1px var(--glow-1),
+    0 2px 4px var(--glow-2),
+    0 4px 10px var(--glow-3),
+    0 8px 20px color-mix(in oklab, var(--glow-3) 50%, transparent);
+}
+@utility shadow-glow-hover {
+  box-shadow:
+    0 1px 1px var(--glow-hover-1),
+    0 2px 4px var(--glow-hover-2),
+    0 4px 10px var(--glow-hover-3),
+    0 8px 20px color-mix(in oklab, var(--glow-hover-3) 50%, transparent);
+}
+
+/* Colour themes, per page (components/ColorTheme.tsx sets the attribute
+   on <html>, so the navbar, cart and modals follow; the page's own
+   wrapper carries the class too, so it's right from the first paint).
+   primary: the buttons' fill (their text the light secondary);
+   secondary: the light shade (its text the primary); foreground: the
+   darkest shade, the text */
+/* Redwine: the shop (home page) */
+.theme-redwine,
+:root[data-color-theme="redwine"] {
+  --primary: #6f0000;
+  --primary-foreground: #ffcccc;
+  --secondary: #ffcccc;
+  --secondary-foreground: #6f0000;
+  --foreground: #330000;
+  --card-foreground: #330000;
+  --popover-foreground: #330000;
+  --glow-1: color-mix(in oklab, var(--primary) 45%, var(--secondary));
+  --glow-2: color-mix(in oklab, var(--primary) 25%, var(--secondary));
+  --glow-3: var(--secondary);
+  --glow-hover-1: var(--primary);
+  --glow-hover-2: color-mix(in oklab, var(--primary) 80%, var(--secondary));
+  --glow-hover-3: color-mix(in oklab, var(--primary) 60%, var(--secondary));
+}
+/* Blue: the articles page */
+.theme-blue,
+:root[data-color-theme="blue"] {
+  --primary: #000764;
+  --primary-foreground: #ccd0ff;
+  --secondary: #ccd0ff;
+  --secondary-foreground: #000764;
+  --foreground: #000433;
+  --card-foreground: #000433;
+  --popover-foreground: #000433;
+  --glow-1: color-mix(in oklab, var(--primary) 45%, var(--secondary));
+  --glow-2: color-mix(in oklab, var(--primary) 25%, var(--secondary));
+  --glow-3: var(--secondary);
+  --glow-hover-1: var(--primary);
+  --glow-hover-2: color-mix(in oklab, var(--primary) 80%, var(--secondary));
+  --glow-hover-3: color-mix(in oklab, var(--primary) 60%, var(--secondary));
 }
 
 .dark {
@@ -204,7 +322,7 @@
     @apply leading-loose  text-base lg:text-2xl  font-baskervilleNeoText lg:font-baskervilleNeoDisplay;
   }
   .pStyle {
-    @apply font-baskervilleNeoText text-[16px] leading-[21px] lg:text-[18px] lg:leading-[24px] tracking-normal;
+    @apply font-baskervilleNeoText text-[14px] leading-[21px] lg:text-[18px] lg:leading-tight tracking-normal;
   }
 
   .h3Style {
@@ -306,13 +424,12 @@ textarea,
   }
 }
 
-
 /* Every page's layout on desktop (filter bars, grids, the bottom nav,
    Redaktionen, the plans, the checkout): --layout-ml in from the left,
    --layout-mr from the right; 20vw each, 12.5vw with the menu closed
    (LLNav's "Stäng"). Both also set by LLNav (inline on <html>), so a
    stale CSS build can't keep an old value */
 :root {
-  --layout-ml: 20vw;
-  --layout-mr: 20vw;
+  --layout-ml: 20rem;
+  --layout-mr: 20rem;
 }

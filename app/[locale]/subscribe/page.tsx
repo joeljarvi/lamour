@@ -1,4 +1,3 @@
-import HeroSection from "@/components/HeroSection";
 import SubscriptionPlans from "@/components/SubscriptionPlans";
 
 export const revalidate = 3600;
@@ -8,7 +7,6 @@ export const revalidate = 3600;
 export default function Subscribe() {
   return (
     <div className="relative flex flex-col">
-      <HeroSection page="subscribe" />
       {/* The subscription plans, each leading to the checkout */}
       <SubscriptionPlans />
     </div>

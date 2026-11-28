@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { useTranslations } from "next-intl";
 import { Button } from "./ui/button";
 
-export type ShopSort = "latest" | "az";
+export type ShopSort = "latest" | "az" | "price" | "cheap";
 
 // A row's label: John Sans, small capitals, spaced out
 const LABEL = "font-baskervilleNeoText text-sm normal-case tracking-wide";

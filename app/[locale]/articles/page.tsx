@@ -1,7 +1,8 @@
+import ColorTheme from "@/components/ColorTheme";
 import type { Locale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import ArticlesPageClient from "@/components/ArticlesPageClient";
-import HeroSection from "@/components/HeroSection";
+import Hero from "@/components/Hero";
 
 export const revalidate = 3600;
 
@@ -14,9 +15,9 @@ export default async function ArticlesPage({
   setRequestLocale(locale as Locale);
 
   return (
-    <section className="relative flex flex-col w-full  ">
-      {/* The hero (the articles' text from Hero Texts), then the grid */}
-      <HeroSection page="articles" />
+    <section className="theme-blue relative flex flex-col w-full  ">
+      <ColorTheme name="blue" />
+      <Hero />
       <ArticlesPageClient />
     </section>
   );

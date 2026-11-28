@@ -26,7 +26,7 @@ export default function AddPlanToCart({
         addToCart({
           id: plan._id,
           title: plan.title,
-          price: `${plan.price} kr`,
+          price: `${plan.price} SEK`,
           subscription: { period, zone: plan.zone },
         });
         setDrawerOpen(true);

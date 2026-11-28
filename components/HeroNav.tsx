@@ -29,7 +29,7 @@ export default function HeroNav({
       {/* The hero's content in one column, centred in the hero's height (h-full + justify-center) */}
       <div
         data-section="intro"
-        className={`relative z-10 flex h-full flex-col items-start justify-start pr-12 lg:pr-0  lg:mx-auto lg:w-full lg:max-w-xl   lg:gap-[48px] lg:pl-[0px] pt-[24px]  ${light ? "text-background" : "text-foreground"}`}
+        className={`relative z-10 flex h-dvh lg:h-full flex-col items-start justify-start pr-6 lg:pr-0  lg:mx-auto lg:w-full lg:max-w-xl   lg:gap-[48px] lg:pl-[0px] pt-[24px]  ${light ? "text-background" : "text-foreground"}`}
       >
         {/* id="intro": the menu's "En tids skrift" (its row) */}
         <div id="intro" className="flex w-full flex-col gap-6">
@@ -51,7 +51,7 @@ export default function HeroNav({
               sizes="(min-width: 1024px) 721px, 100vw"
               // 48px (2 rows) to the text below: the column's 24px gap
               // plus 24px here
-              className="mb-[48px] h-auto max-h-[192px] w-auto max-w-full self-center"
+              className="mb-[48px] h-auto lg:max-h-[192px] w-auto max-w-full self-center"
             />
           )}
 
@@ -61,7 +61,7 @@ export default function HeroNav({
               (leading-0) */}
           <HeroRichText
             value={text}
-            className="pStyle w-full max-w-xl text-left hyphens-auto [&>p:first-child]:first-letter:font-baskervilleNeoDisplay [&>p:first-child]:first-letter:text-[3em] [&>p:first-child]:first-letter:leading-0"
+            className="font-baskervilleNeoText text-[21px] leading-[24px] tracking-normal lg:text-[18px] lg:leading-[24px] w-full max-w-xl text-left hyphens-auto [&>p:first-child]:first-letter:font-baskervilleNeoText [&>p:first-child]:first-letter:text-4xl [&>p:first-child]:first-letter:leading-0"
           />
         </div>
 

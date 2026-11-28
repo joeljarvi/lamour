@@ -32,15 +32,15 @@ export default function Footer() {
 
   return (
     // Dark (bg-foreground), its text all light (text-background)
-    <footer className="flex h-[75vh] lg:h-auto flex-col items-start justify-between gap-y-[21px] lg:gap-6 w-full px-6 pt-6  bg-neutral-200">
-      <ul className="flex flex-col justify-start items-start gap-x-3 lg:gap-x-6 gap-y-[21px] list-none">
+    <footer className="flex lg:h-[80vh]  flex-col items-start justify-between gap-y-[21px] lg:gap-6 w-full px-6 pt-6  bg-primary">
+      <ul className="flex flex-col justify-start items-start gap-x-3 lg:gap-x-6 gap-y-0 list-none">
         {items.map((item) => (
           <li key={item.key}>
             {item.href ? (
               <Button
                 variant="link"
                 size="xs"
-                className="pStyle text-left h-[21px] lg:h-[24px] justify-start text-neutral-800 normal-case px-0"
+                className="text-4 tracking-normal text-left justify-start  normal-case h-[21px] lg:h-[24px]  px-0 text-secondary "
                 asChild
               >
                 <Link
@@ -58,7 +58,7 @@ export default function Footer() {
               <Button
                 variant="link"
                 size="xs"
-                className="pStyle text-left justify-start text-neutral-800 normal-case h-[21px] lg:h-[24px]  px-0"
+                className="text-4 tracking-normal text-left justify-start text-secondary normal-case h-[21px] lg:h-[24px]  px-0"
               >
                 {item.label}
               </Button>
@@ -66,7 +66,7 @@ export default function Footer() {
           </li>
         ))}
       </ul>
-      <span className="pStyle tracking-[21px] lg:tracking-[24px] uppercase text-foreground text-center w-full pb-[21px] lg:pb-[24px] px-0">
+      <span className="pStyle text-[14px] italic tracking-[21px] lg:tracking-[24px] text-foreground text-center w-full pb-[21px] lg:pb-[24px] px-0">
         © {new Date().getFullYear()} L&apos;Amour — La Mort
       </span>
     </footer>

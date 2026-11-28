@@ -1,20 +1,22 @@
 "use client";
 
-import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import type { Series } from "@/lib/contexts/ArticlesContext";
-import { urlFor } from "@/lib/sanity/image";
+import { cn } from "@/lib/utils";
 import { tileColor } from "./ArticleTile";
+import { CoverCaption, CoverImage } from "./ArticleCover";
+import { BOX_LOOK, COVER_BOX, type CoverView } from "./ShopCover";
 
-// A series in the articles grid, looking like an article's cover: the
-// series' cover image in the same 3:4 box (a colour when it has none),
-// then its title and, on hover, "Serie · 3 artiklar". A click on the cover
-// shows its articles in the grid instead (the series chosen)
+// A series in the articles grid, looking like an article's cover
+// (ArticleCover): its cover image in the view's box (a colour when it has
+// none), then its title and "Serie · 3 artiklar". The cover links to the
+// series' page (/articles/series/[slug])
 export default function SeriesCover({
   series,
   count,
   index,
-  onOpen,
+  view = 1,
   className,
 }: {
   series: Series;
@@ -22,37 +24,31 @@ export default function SeriesCover({
   count: number;
   // Picks the colour when it has no cover image
   index: number;
-  onOpen: () => void;
+  view?: CoverView;
   className?: string;
 }) {
   const t = useTranslations("Article");
   return (
-    <div className={`group flex flex-col gap-3 lg:gap-[24px] ${className ?? ""}`}>
-      <button
-        type="button"
-        onClick={onOpen}
+    <div className={cn("group flex flex-col gap-3 lg:gap-0 w-auto", className)}>
+      <Link
+        href={`/articles/series/${series.slug.current}`}
         aria-label={series.title}
-        className={`relative block aspect-[3/4] w-full cursor-pointer overflow-hidden transition-opacity hover:opacity-90 ${series.coverImage?.asset ? "" : tileColor(index)}`}
-      >
-        {series.coverImage?.asset && (
-          <Image
-            src={urlFor(series.coverImage).width(1200).url()}
-            alt={series.coverImage.alt ?? series.title}
-            fill
-            sizes="(min-width: 1024px) 25vw, 50vw"
-            className="object-cover shadow"
-          />
+        className={cn(
+          COVER_BOX,
+          "w-full cursor-pointer overflow-visible hover:opacity-90",
+          BOX_LOOK[view],
         )}
-      </button>
-
-      <div className="flex flex-col gap-0">
-        <h3 className="pStyle">{series.title}</h3>
-        {/* "Serie · 3 artiklar", revealed on hover (desktop; always
-            shown on touch screens) */}
-        <p className="pStyle mt-[12px] normal-case tracking-wide transition-opacity duration-300 lg:opacity-0 lg:group-hover:opacity-80">
-          {t("seriesCount", { count })}
-        </p>
-      </div>
+      >
+        <CoverImage
+          image={series.coverImage}
+          alt={series.coverImage?.alt ?? series.title}
+          color={tileColor(index)}
+          view={view}
+        />
+      </Link>
+      <CoverCaption view={view} title={series.title}>
+        {t("seriesCount", { count })}
+      </CoverCaption>
     </div>
   );
 }

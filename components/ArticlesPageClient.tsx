@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { Fragment, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   useArticles,
@@ -9,11 +9,13 @@ import {
 } from "@/lib/contexts/ArticlesContext";
 import { articleTitle } from "@/lib/articleTitle";
 import ArticleCover from "./ArticleCover";
+import type { CoverView } from "./ShopCover";
 import SeriesCover from "./SeriesCover";
 import { Button } from "./ui/button";
-
-// Desktop column where each article in a row starts (24-column grid)
-const COL_START = ["lg:col-start-1", "lg:col-start-10", "lg:col-start-19"];
+import { Input, SEARCH_LOOK } from "./ui/input";
+import { cn } from "@/lib/utils";
+import { titleCase } from "@/lib/titleCase";
+import { CrossIcon, NAV_SIZE } from "./filterBarStyles";
 
 // The selected value in each filter group (none = no filtering by it)
 type Filters = {
@@ -55,11 +57,6 @@ const unique = (values: (string | undefined)[]) =>
     a.localeCompare(b, "sv"),
   );
 
-// The header's buttons: plain text, dark, no fixed height, underlined on
-// hover (no pointing hand)
-const HEADER_BUTTON =
-  "w-auto h-auto lg:h-auto px-0 pStyle normal-case text-foreground underline-offset-4 hover:underline after:content-none";
-
 // A grid item's key
 const itemKey = (
   it:
@@ -67,14 +64,23 @@ const itemKey = (
     | { kind: "series"; series: Series },
 ) => (it.kind === "article" ? it.article._id : `series-${it.series._id}`);
 
-// Every article in a grid like the shop's, each its cover, title and
-// author; a series as one cover, a click showing its articles in the grid
-// instead. The header: "Serier" (every
-// series, by title), "Kategorier" (Artikel, Intervju, Dikt), "Filtrera
-// efter författare" (each list opening below the header, one at a time),
-// a search field, and the sort (Senaste / A–Ö) on the right
-export default function ArticlesPageClient() {
-  const { articles, series } = useArticles();
+// The articles page, laid out as the shop (ShopClient): one row on the
+// navbar's 12 columns, "Artiklar" with the count and the sort (cols 1–2),
+// the filters ("Författare", "Serier", "Kategorier", "Rensa filter", the
+// search) from col 3, "1 2 3" (how the covers show) in col 12; the open
+// list below; then the covers, six a row (view 1) or four (2, 3). A series
+// is one cover; a click shows its articles instead
+// `seriesSlug`: on a series' page, only that series' articles (each its
+// own cover, no "Serier" filter)
+export default function ArticlesPageClient({
+  seriesSlug,
+}: {
+  seriesSlug?: string;
+} = {}) {
+  const { articles: allArticles, series } = useArticles();
+  const articles = seriesSlug
+    ? allArticles.filter((a) => a.series?.slug.current === seriesSlug)
+    : allArticles;
   const t = useTranslations("Nav");
   const tFilter = useTranslations("Filter");
 
@@ -82,14 +88,22 @@ export default function ArticlesPageClient() {
   // the sort, and which option list is open
   const [filters, setFilters] = useState<Filters>({});
   const [query, setQuery] = useState("");
+  // The heading's sort: newest first (the default) or A–Ö, a click
+  // switching
   const [sort, setSort] = useState<"latest" | "az">("latest");
-  const [openList, setOpenList] = useState<
-    "series" | "category" | "author" | null
-  >(null);
+  // How the covers show ("1 2 3"), as the shop's
+  const [gridView, setGridView] = useState<CoverView>(2);
+  // "Filtrera" open (its lists shown), and which list: authors, series
+  // or categories (as the shop's Medverkande / Titel)
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [listKind, setListKind] = useState<"author" | "series" | "category">(
+    "author",
+  );
 
   const filtered = articles.filter(
     (a) => matchesFilters(a, filters) && matchesSearch(a, query),
   );
+  // Newest first as they come, or A–Ö
   const visibleArticles =
     sort === "az"
       ? [...filtered].sort((a, b) =>
@@ -108,7 +122,7 @@ export default function ArticlesPageClient() {
   const items: Item[] = [];
   for (const article of visibleArticles) {
     const slug = article.series?.slug.current;
-    if (!slug || filters.series) {
+    if (!slug || filters.series || seriesSlug) {
       items.push({ kind: "article", article });
       continue;
     }
@@ -174,7 +188,20 @@ export default function ArticlesPageClient() {
       })),
     },
   };
-  const open = openList ? { key: openList, ...lists[openList] } : null;
+  // The open list, narrowed by the search (the chosen one always kept)
+  const q = query.trim().toLocaleLowerCase("sv");
+  const open = filterOpen
+    ? {
+        key: listKind,
+        ...lists[listKind],
+        options: lists[listKind].options.filter(
+          (o) =>
+            !q ||
+            filters[listKind] === o.value ||
+            o.label.toLocaleLowerCase("sv").includes(q),
+        ),
+      }
+    : null;
   // Choosing the chosen one again clears it; "Alla …" (undefined) clears
   const choose = (key: ListKey, value?: string) =>
     setFilters((f) => ({
@@ -182,163 +209,216 @@ export default function ArticlesPageClient() {
       [key]: value === undefined || f[key] === value ? undefined : value,
     }));
 
-  const toggleList = (list: ListKey) =>
-    setOpenList((v) => (v === list ? null : list));
+  // Anything chosen, searched or sorted ("Alla artiklar" not in use)
+  const anyFilter = Object.values(filters).some(Boolean) || query.trim() !== "";
+  const clearAll = () => {
+    setFilters({});
+    setQuery("");
+  };
 
-  // Where the grid's header is on the page (scrolled to when a series
-  // opens)
-  const rootRef = useRef<HTMLDivElement>(null);
-  // How far below the top of the screen the header lands (px)
-  const SERIES_OFFSET = 96;
-  const gridTop = () =>
-    (rootRef.current?.getBoundingClientRect().top ?? 0) + window.scrollY;
+  // A cover: an article, or a series (a click shows its articles)
+  const cover = (item: Item) =>
+    item.kind === "article" ? (
+      // Its place in the full list picks its colour, so it keeps it when
+      // filtered or sorted
+      <ArticleCover
+        article={item.article}
+        index={allArticles.indexOf(item.article)}
+        view={gridView}
+      />
+    ) : (
+      <SeriesCover
+        series={item.series}
+        count={item.articles.length}
+        index={series.indexOf(item.series)}
+        view={gridView}
+      />
+    );
+
+  // The shop's button look: normal case, upright, italic on hover and
+  // while pressed / open
+  const BTN = cn(
+    NAV_SIZE,
+    "px-0 lg:px-0 normal-case lg:normal-case tracking-normal lg:tracking-normal not-italic hover:italic aria-pressed:italic aria-expanded:italic",
+  );
+  // The grid's columns: two on mobile; six (view 1) or four (2, 3)
+  const COLS = cn(
+    "grid-cols-2",
+    gridView === 1 ? "lg:grid-cols-6" : "lg:grid-cols-4",
+  );
+  const sortName = {
+    latest: tFilter("recentlyAdded"),
+    az: tFilter("az"),
+  };
 
   return (
-    <div ref={rootRef} className="min-h-dvh  mt-[96px] ">
-      {/* Header: Serier, Kategorier, Filtrera efter författare and the
-          search on the left; the sort on the right */}
-      {/* 72px (3 rows of 24px), the buttons centred in it; on mobile, if
-          they wrap, it grows by whole rows (24px lines, 24px padding) */}
-      <div
-        id="filter"
-        data-section="filter"
-        className="flex min-h-[72px] items-center justify-between gap-6 px-3 py-[24px] lg:ml-(--layout-ml) lg:transition-[margin,padding] lg:duration-500 lg:ease-in-out lg:h-[72px] lg:w-auto lg:pl-0 lg:pr-(--layout-mr) lg:py-0 pStyle normal-case"
-      >
-        <div className="flex min-w-0 flex-wrap items-baseline gap-x-6 gap-y-0">
-          <Button
-            variant="link"
-            size="xs"
-            className={HEADER_BUTTON}
-            onClick={() => toggleList("series")}
-            aria-expanded={openList === "series"}
-          >
-            {openList === "series" ? t("closeMenu") : t("series")}
-          </Button>
-          <Button
-            variant="link"
-            size="xs"
-            className={HEADER_BUTTON}
-            onClick={() => toggleList("category")}
-            aria-expanded={openList === "category"}
-          >
-            {openList === "category" ? t("closeMenu") : tFilter("categories")}
-          </Button>
-          <Button
-            variant="link"
-            size="xs"
-            className={HEADER_BUTTON}
-            onClick={() => toggleList("author")}
-            aria-expanded={openList === "author"}
-          >
-            {openList === "author" ? (
-              t("closeMenu")
-            ) : (
-              <>
-                {/* Just "Filtrera" on mobile */}
-                <span className="lg:hidden">{t("filterSearch")}</span>
-                <span className="hidden lg:inline">{tFilter("byAuthor")}</span>
-              </>
-            )}
-          </Button>
-          {/* The sort, before the search */}
-          <Button
-            variant="link"
-            size="xs"
-            className={`shrink-0 ${HEADER_BUTTON}`}
-            onClick={() => setSort(sort === "latest" ? "az" : "latest")}
-          >
-            {/* Desktop: "sortera: senaste" / "sortera: a–ö" (all lower
-                case); mobile just the sort */}
-            <span className="lg:lowercase">
-              <span className="hidden lg:inline">{tFilter("sortLabel")}: </span>
-              {sort === "latest" ? tFilter("latest") : tFilter("az")}
-            </span>
-          </Button>
-          {/* Searches the titles, authors and series */}
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={tFilter("searchPlaceholder")}
-            aria-label={tFilter("search")}
-            className="w-24 lg:w-48 bg-transparent outline-none placeholder:text-neutral-400 pStyle normal-case"
-          />
-        </div>
-      </div>
-
-      {/* The open list (series, categories or authors), wrapping: first
-          "Alla …" (clears the choice), then each option by name; the chosen
-          one neutral-800, the rest neutral-500 (800 on hover) */}
-      {open && (
-        <div
-          data-section="filter"
-          className="flex flex-wrap items-center gap-x-6 gap-y-3 px-3 lg:ml-(--layout-ml) lg:transition-[margin,padding] lg:duration-500 lg:ease-in-out lg:w-auto lg:pl-0 lg:pr-(--layout-mr) pb-3 lg:pb-6 pStyle normal-case justify-start"
-        >
-          {[undefined, ...open.options].map((option) => {
-            const on = filters[open.key] === option?.value;
-            return (
+    <div className="min-h-dvh px-3">
+      <section className={cn("pb-24", !seriesSlug && "mt-48")}>
+        <div className="pt-3 flex flex-col gap-3">
+          {/* One row, on the navbar's 12 columns (20px in, 12px apart) */}
+          <div className="flex flex-row flex-wrap items-baseline gap-x-12 gap-y-3 -mx-3 px-5 lg:grid lg:grid-cols-12 lg:gap-x-3">
+            {/* "Artiklar" with the number shown raised, then the sort
+                (italic; a click switches it) */}
+            <h2 className="font-baskervilleNeoText text-1 flex gap-x-3 lg:col-span-2">
+              <span>
+                {t("articles")}
+                <sup className="ml-0.5">{items.length}</sup>
+              </span>
               <button
-                key={option?.value ?? "all"}
                 type="button"
-                aria-pressed={on}
-                onClick={() => choose(open.key, option?.value)}
-                className={`cursor-pointer transition-colors hover:text-neutral-800 ${on ? "text-neutral-800" : "text-neutral-500"}`}
+                onClick={() => setSort(sort === "latest" ? "az" : "latest")}
+                aria-label={`${tFilter("sortBy")}: ${sortName[sort]}`}
+                className="cursor-pointer text-left italic transition-opacity hover:opacity-60"
               >
-                {option?.label ?? open.all}
+                {sortName[sort]}
               </button>
-            );
-          })}
-        </div>
-      )}
+            </h2>
 
-      {/* With a series chosen: its about text above its articles */}
-      {chosenSeries?.aboutText && (
-        <p className="pStyle max-w-full px-3 lg:ml-(--layout-ml) lg:transition-[margin,padding] lg:duration-500 lg:ease-in-out lg:pr-(--layout-mr) lg:px-0 pb-3 lg:pb-6">
-          {chosenSeries.aboutText}
-        </p>
-      )}
-
-      {/* Like the shop: two per row on mobile; on desktop a 24-column
-          grid, three per row, each 6 columns wide with 3 empty columns
-          between them (starting at columns 1, 10 and 19). A series is one
-          cover; a click shows its articles here instead */}
-      <div>
-        <ul
-          id="archive"
-          data-section="archive"
-          className="grid w-full grid-cols-2 gap-x-3 lg:gap-x-6 gap-y-12 px-3 pb-24 lg:grid-cols-24 lg:ml-(--layout-ml) lg:transition-[margin,padding] lg:duration-500 lg:ease-in-out lg:w-auto lg:gap-y-24 lg:pl-0 lg:pr-(--layout-mr)"
-        >
-          {items.map((item, i) => (
-            <li
-              key={itemKey(item)}
-              className={`lg:col-span-6 ${COL_START[i % 3]}`}
+            {/* From col 3 (under the navbar's pages): the filters, "Rensa
+                filter" while anything is chosen or searched, the search;
+                24px apart. The open list below them */}
+            <div
+              id="filter"
+              data-section="filter"
+              className="z-40 flex min-w-0 flex-1 flex-col items-stretch h-auto pStyle normal-case lg:col-start-3 lg:col-span-7"
             >
-              {item.kind === "article" ? (
-                // Its place in the full list picks its colour, so it keeps
-                // it when filtered or sorted
-                <ArticleCover
-                  article={item.article}
-                  index={articles.indexOf(item.article)}
+              <div className="relative flex min-w-0 flex-row flex-wrap items-baseline gap-x-6 gap-y-3 h-auto w-full">
+                {(
+                  [
+                    ["author", tFilter("authors")],
+                    ["series", t("series")],
+                    ["category", tFilter("categories")],
+                  ] as const
+                )
+                  // A series' page: "Författare" only
+                  .filter(([kind]) => !seriesSlug || kind === "author")
+                  .map(([kind, label]) => {
+                    const shown = filterOpen && listKind === kind;
+                    return (
+                      <Fragment key={kind}>
+                        <Button
+                          variant="Link"
+                          size="xs"
+                          className={BTN}
+                          aria-expanded={shown}
+                          onClick={() => {
+                            if (shown) setFilterOpen(false);
+                            else {
+                              setListKind(kind);
+                              setFilterOpen(true);
+                            }
+                          }}
+                        >
+                          {label}
+                        </Button>
+                        {/* Its list, open right beside it (wrapping onto
+                          more lines if long): "Alla …" (clears the choice),
+                          then each option (title case); the chosen one
+                          italic, the rest faded */}
+                        {shown && open && (
+                          <div className="flex min-w-0 flex-wrap items-baseline gap-x-3">
+                            {[undefined, ...open.options].map((option) => {
+                              const on = filters[open.key] === option?.value;
+                              return (
+                                <Button
+                                  key={option?.value ?? "all"}
+                                  variant="Link"
+                                  size="xs"
+                                  aria-pressed={on}
+                                  onClick={() =>
+                                    choose(open.key, option?.value)
+                                  }
+                                  className={cn(
+                                    NAV_SIZE,
+                                    "px-0 lg:px-0 normal-case lg:normal-case tracking-normal lg:tracking-normal transition-opacity hover:opacity-100",
+                                    on ? "italic" : "opacity-50",
+                                  )}
+                                >
+                                  {option ? titleCase(option.label) : open.all}
+                                </Button>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </Fragment>
+                    );
+                  })}
+                {anyFilter && (
+                  <Button
+                    variant="Link"
+                    size="xs"
+                    className={BTN}
+                    onClick={clearAll}
+                  >
+                    {tFilter("clearFilters")}
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {/* The search, in cols 10–11 (titles, authors, series; narrows
+                the open list); a cross on the right that empties it */}
+            {
+              <div className="group relative w-40 shrink min-w-0 -ml-2 lg:w-auto lg:col-start-10 lg:col-span-2">
+                <Input
+                  type="search"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder={tFilter("searchPlaceholder")}
+                  aria-label={tFilter("search")}
+                  className={`peer ${SEARCH_LOOK} px-4 pr-9 ${NAV_SIZE} lg:pr-5 lg:pt-[0.3em]`}
                 />
-              ) : (
-                <SeriesCover
-                  series={item.series}
-                  count={item.articles.length}
-                  index={series.indexOf(item.series)}
-                  onOpen={() => {
-                    choose("series", item.series.title);
-                    // The grid's header SERIES_OFFSET (96px) below the top of the screen
-                    window.scrollTo({
-                      top: Math.max(0, gridTop() - SERIES_OFFSET),
-                      behavior: "smooth",
-                    });
-                  }}
-                />
-              )}
-            </li>
-          ))}
-        </ul>
-      </div>
+                <button
+                  type="button"
+                  onClick={() => setQuery("")}
+                  aria-label={tFilter("clearSearch")}
+                  // Only while the search is in use: focused, or something typed
+                  className="absolute right-3 lg:right-0 top-1/2 -translate-y-1/2 hidden peer-focus:flex peer-[:not(:placeholder-shown)]:flex size-4 cursor-pointer items-center justify-center text-primary hover:opacity-60"
+                >
+                  <CrossIcon />
+                </button>
+              </div>
+            }
+
+            {/* "1 2 3": how the covers show (col 12, on the right); the
+                chosen one italic */}
+            <div className="ml-auto flex items-baseline justify-end gap-x-3 lg:ml-0 lg:col-start-12">
+              {([1, 2, 3] as const).map((view) => (
+                <Button
+                  key={view}
+                  variant="Link"
+                  size="xs"
+                  aria-pressed={gridView === view}
+                  aria-label={`${tFilter("view")} ${view}`}
+                  onClick={() => setGridView(view)}
+                  className={BTN}
+                >
+                  {view}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          {/* With a series chosen, its about text */}
+          {!seriesSlug && chosenSeries?.aboutText && (
+            <p className="pStyle max-w-prose py-5 lg:px-2">
+              {chosenSeries.aboutText}
+            </p>
+          )}
+
+          {/* The covers: six a row (view 1) or four (2, 3), 20px apart and
+              20px in, as the shop's */}
+          <ul
+            id="archive"
+            data-section="archive"
+            className={cn("grid gap-x-5 gap-y-10 -mx-3 px-5 list-none", COLS)}
+          >
+            {items.map((item) => (
+              <li key={itemKey(item)}>{cover(item)}</li>
+            ))}
+          </ul>
+        </div>
+      </section>
     </div>
   );
 }

@@ -163,7 +163,7 @@ export default function IntroCard() {
                 addToCart({
                   id: latest._id,
                   title: latest.title,
-                  price: latest.price != null ? `${latest.price} kr` : "0",
+                  price: latest.price != null ? `${latest.price} SEK` : "0",
                 })
               }
             >

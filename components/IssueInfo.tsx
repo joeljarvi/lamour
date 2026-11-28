@@ -18,9 +18,8 @@ const PRODUCT_PLACEHOLDER = {
 };
 
 export const LABEL =
-  "tracking-[3px] font-baskervilleNeoText uppercase leading-[24px] text-[12px] text-neutral-600   ";
-export const VALUE =
-  "tracking-[3px] font-baskervilleNeoText uppercase leading-[24px] text-[12px] text-neutral-600";
+  "font-baskervilleNeoText text-1 uppercase text-neutral-600 tracking-widest   ";
+export const VALUE = "text-4 text-neutral-800 font-baskervilleNeoText";
 
 // A label (small capitals) with its value(s) below. `inline`: on mobile a
 // two-column row instead, the label in the first column and the value(s)
@@ -216,7 +215,7 @@ export default function IssueInfo({
           <div className="mt-auto flex flex-col gap-3 pt-6">
             {issue.price != null && (
               <span className="font-baskervilleNeoText text-xs uppercase tracking-[24%]">
-                {issue.price} kr
+                {issue.price} SEK
               </span>
             )}
             <Button

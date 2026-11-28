@@ -23,7 +23,8 @@ import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import BackgroundStripes from "@/components/BackgroundStripes";
 import DrunkFilter from "@/components/DrunkFilter";
-import Loader from "@/components/Loader";
+import PageReveal from "@/components/PageReveal";
+import CookieAccept from "@/components/CookieAccept";
 
 export const revalidate = 3600;
 
@@ -249,17 +250,23 @@ export default async function RootLayout({
       >
         {/* Striped background, fixed behind the page */}
 
-        {/* On every full page load: the name cycling through the fonts
-            for five seconds, over everything */}
-        <Loader />
+        {/* The loader (the name cycling through the fonts on a full page
+            load) is off for now: <Loader /> */}
         <NextIntlClientProvider>
+          {/* Each page revealed in order: wordmark, content, navigation
+              (inside the provider: it reads the page's path) */}
+          <PageReveal />
           <CartProvider>
             <IssuesProvider issues={issues}>
               <ArticlesProvider articles={articles} series={series}>
                 <QueueProvider>
                   <LLNav />
-                  {children}
-                  <Footer />
+                  {/* The page's content: revealed after the wordmark,
+                      before the navigation (PageReveal) */}
+                  <div data-reveal-part="content">
+                    {children}
+                    <Footer />
+                  </div>
                   {modal}
                 </QueueProvider>
               </ArticlesProvider>
@@ -269,6 +276,7 @@ export default async function RootLayout({
           </CartProvider>
           {/* "Drunk filter" toggle, bottom right, on every page */}
           <DrunkFilter />
+          <CookieAccept />
         </NextIntlClientProvider>
       </body>
     </html>
